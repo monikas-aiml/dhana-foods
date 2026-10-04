@@ -3,14 +3,16 @@ const Database = require("better-sqlite3");
 
 const app = express();
 
-// Use hosting provider's PORT, or 3000 locally
 const PORT = process.env.PORT || 3000;
 
-// Database
+// =====================================================
+// DATABASE
+// =====================================================
+
 const db = new Database("dhanafoods.db");
 
 // =====================================================
-// CREATE EXISTING ORDERS TABLE
+// CREATE ORDERS TABLE
 // =====================================================
 
 db.prepare(`
@@ -28,10 +30,8 @@ db.prepare(`
     )
 `).run();
 
-
 // =====================================================
-// DATABASE MIGRATION
-// Add items_json column if it doesn't already exist
+// ADD items_json COLUMN IF NEEDED
 // =====================================================
 
 const columns = db
@@ -48,12 +48,11 @@ if (!hasItemsJson) {
         ADD COLUMN items_json TEXT
     `).run();
 
-    console.log("Added items_json column to orders table.");
+    console.log("Added items_json column.");
 }
 
-
 // =====================================================
-// EXPRESS MIDDLEWARE
+// MIDDLEWARE
 // =====================================================
 
 app.use(express.json());
@@ -66,9 +65,8 @@ app.use(
 
 app.use(express.static(__dirname));
 
-
 // =====================================================
-// TEST API
+// TEST
 // =====================================================
 
 app.get("/api/test", (req, res) => {
@@ -79,7 +77,6 @@ app.get("/api/test", (req, res) => {
     });
 
 });
-
 
 // =====================================================
 // CREATE ORDER
@@ -94,15 +91,10 @@ app.post("/api/orders", (req, res) => {
             phone,
             address,
             items,
-            total,
             deliveryDate
         } = req.body;
 
-
-        // ---------------------------------------------
-        // VALIDATE CUSTOMER DETAILS
-        // ---------------------------------------------
-
+        // Validate customer details
         if (
             !customerName ||
             !phone ||
@@ -111,42 +103,26 @@ app.post("/api/orders", (req, res) => {
         ) {
 
             return res.status(400).json({
-
                 success: false,
-
-                message:
-                    "Please fill all customer details."
-
+                message: "Please fill all customer details."
             });
 
         }
 
-
-        // ---------------------------------------------
-        // VALIDATE ITEMS
-        // ---------------------------------------------
-
+        // Validate items
         if (
             !Array.isArray(items) ||
             items.length === 0
         ) {
 
             return res.status(400).json({
-
                 success: false,
-
-                message:
-                    "Please select at least one product."
-
+                message: "Please select at least one product."
             });
 
         }
 
-
-        // ---------------------------------------------
-        // CLEAN AND VALIDATE ITEMS
-        // ---------------------------------------------
-
+        // Clean items
         const cleanedItems = items.map(item => {
 
             const product =
@@ -160,10 +136,6 @@ app.post("/api/orders", (req, res) => {
 
             const price =
                 Number(item.price);
-
-            const itemTotal =
-                Number(item.total);
-
 
             if (
                 !product ||
@@ -180,61 +152,34 @@ app.post("/api/orders", (req, res) => {
 
             }
 
+            const itemTotal =
+                price * quantity;
 
             return {
-
-                product: product,
-
-                size: size,
-
-                quantity: quantity,
-
-                price: price,
-
-                total:
-                    Number.isFinite(itemTotal)
-                        ? itemTotal
-                        : price * quantity
-
+                product,
+                size,
+                quantity,
+                price,
+                total: itemTotal
             };
 
         });
 
-
-        // ---------------------------------------------
-        // CALCULATE TOTAL ON SERVER
-        // ---------------------------------------------
-
-        const calculatedTotal =
+        // Calculate total on server
+        const total =
             cleanedItems.reduce(
                 (sum, item) =>
                     sum + item.total,
                 0
             );
 
-
-        // Don't trust total sent by browser.
-        // Server calculates it again.
-
-        const finalTotal =
-            calculatedTotal;
-
-
-        // ---------------------------------------------
-        // CREATE PRODUCT SUMMARY
-        // ---------------------------------------------
-
+        // Product summary for old database fields
         const productSummary =
             cleanedItems
                 .map(item =>
                     `${item.product} (${item.size})`
                 )
                 .join(", ");
-
-
-        // ---------------------------------------------
-        // CREATE QUANTITY SUMMARY
-        // ---------------------------------------------
 
         const quantitySummary =
             cleanedItems
@@ -243,23 +188,13 @@ app.post("/api/orders", (req, res) => {
                 )
                 .join(", ");
 
-
-        // ---------------------------------------------
-        // SAVE COMPLETE ITEMS AS JSON
-        // ---------------------------------------------
-
+        // Store full items as JSON
         const itemsJson =
             JSON.stringify(cleanedItems);
 
-
-        // ---------------------------------------------
-        // INSERT ORDER
-        // ---------------------------------------------
-
+        // Insert order
         const result = db.prepare(`
-
             INSERT INTO orders (
-
                 customer_name,
                 phone,
                 address,
@@ -268,51 +203,25 @@ app.post("/api/orders", (req, res) => {
                 price,
                 delivery_date,
                 items_json
-
             )
-
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-
         `).run(
-
             customerName,
-
             phone,
-
             address,
-
             productSummary,
-
             quantitySummary,
-
-            finalTotal,
-
+            total,
             deliveryDate,
-
             itemsJson
-
         );
 
-
-        // ---------------------------------------------
-        // RETURN SUCCESS
-        // ---------------------------------------------
-
         res.json({
-
             success: true,
-
-            orderId:
-                result.lastInsertRowid,
-
-            total:
-                finalTotal,
-
-            message:
-                "Order placed successfully."
-
+            orderId: result.lastInsertRowid,
+            total: total,
+            message: "Order placed successfully."
         });
-
 
     } catch (error) {
 
@@ -321,20 +230,14 @@ app.post("/api/orders", (req, res) => {
             error
         );
 
-
         res.status(500).json({
-
             success: false,
-
-            message:
-                "Unable to place order."
-
+            message: "Unable to place order."
         });
 
     }
 
 });
-
 
 // =====================================================
 // GET ALL ORDERS
@@ -345,15 +248,11 @@ app.get("/api/orders", (req, res) => {
     try {
 
         const orders = db.prepare(`
-
             SELECT *
             FROM orders
             ORDER BY created_at DESC
-
         `).all();
 
-
-        // Convert items_json back into items
         const formattedOrders =
             orders.map(order => {
 
@@ -379,20 +278,30 @@ app.get("/api/orders", (req, res) => {
 
                 }
 
+                // Support old orders
+                if (
+                    items.length === 0 &&
+                    order.product
+                ) {
+
+                    items = [{
+                        product: order.product,
+                        size: order.quantity,
+                        quantity: 1,
+                        price: order.price,
+                        total: order.price
+                    }];
+
+                }
 
                 return {
-
                     ...order,
-
                     items: items
-
                 };
 
             });
 
-
         res.json(formattedOrders);
-
 
     } catch (error) {
 
@@ -401,20 +310,14 @@ app.get("/api/orders", (req, res) => {
             error
         );
 
-
         res.status(500).json({
-
             success: false,
-
-            message:
-                "Unable to load orders."
-
+            message: "Unable to load orders."
         });
 
     }
 
 });
-
 
 // =====================================================
 // UPDATE ORDER STATUS
@@ -429,83 +332,82 @@ app.put("/api/orders/:id", (req, res) => {
     const orderId =
         req.params.id;
 
-
-    // Available statuses
     const allowedStatuses = [
-
         "Pending",
-
         "Confirmed",
-
         "Preparing",
-
         "Ready",
-
         "Delivered",
-
         "Cancelled"
-
     ];
-
 
     if (
         !allowedStatuses.includes(status)
     ) {
 
         return res.status(400).json({
-
             success: false,
-
-            message:
-                "Invalid status."
-
+            message: "Invalid status."
         });
 
     }
 
-
     const result = db.prepare(`
-
         UPDATE orders
-
         SET status = ?
-
         WHERE id = ?
-
     `).run(
-
         status,
-
         orderId
-
     );
-
 
     if (result.changes === 0) {
 
         return res.status(404).json({
-
             success: false,
-
-            message:
-                "Order not found."
-
+            message: "Order not found."
         });
 
     }
 
-
     res.json({
-
         success: true,
-
-        message:
-            "Order status updated."
-
+        message: "Order status updated."
     });
 
 });
 
+// =====================================================
+// DELETE ORDER
+// =====================================================
+
+app.delete("/api/orders/:id", (req, res) => {
+
+    const orderId =
+        req.params.id;
+
+    const result = db.prepare(`
+        DELETE FROM orders
+        WHERE id = ?
+    `).run(
+        orderId
+    );
+
+    if (result.changes === 0) {
+
+        return res.status(404).json({
+            success: false,
+            message: "Order not found."
+        });
+
+    }
+
+    res.json({
+        success: true,
+        message: "Order deleted successfully."
+    });
+
+});
 
 // =====================================================
 // START SERVER
