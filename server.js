@@ -2,7 +2,9 @@ const express = require("express");
 const Database = require("better-sqlite3");
 
 const app = express();
-const PORT = 3000;
+
+// Use hosting provider's PORT, or 3000 when running locally
+const PORT = process.env.PORT || 3000;
 
 const db = new Database("dhanafoods.db");
 
@@ -43,7 +45,15 @@ app.post("/api/orders", (req, res) => {
         deliveryDate
     } = req.body;
 
-    if (!customerName || !phone || !address || !product || !quantity || !price || !deliveryDate) {
+    if (
+        !customerName ||
+        !phone ||
+        !address ||
+        !product ||
+        !quantity ||
+        !price ||
+        !deliveryDate
+    ) {
         return res.status(400).json({
             success: false,
             message: "Please fill all required fields."
@@ -124,6 +134,7 @@ app.put("/api/orders/:id", (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Dhana Foods running at http://localhost:${PORT}`);
+// Start server
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Dhana Foods running on port ${PORT}`);
 });
