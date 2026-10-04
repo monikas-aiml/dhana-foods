@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhana Foods</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Dhana Foods</div>
+
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#products">Products</a>
+            <a href="#order">Order Now</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+
+            <p class="small-title">🌾 Fresh • Healthy • Homemade</p>
+
+            <h1>
+                Traditional Taste,<br>
+                <span>Made Fresh for You</span>
+            </h1>
+
+            <p class="description">
+                Freshly prepared traditional batters made with
+                quality ingredients and homemade care.
+            </p>
+
+            <a href="#order" class="order-btn">Order Now →</a>
+
+        </div>
+    </section>
+
+    <section id="products">
+
+        <h2>Our Products</h2>
+
+        <p class="section-text">
+            Freshly prepared traditional batters for a healthy and delicious meal.
+        </p>
+
+        <div class="products-container">
+
+            <div class="product-card">
+                <h3>Adai Batter</h3>
+                <p>½ kg – ₹40</p>
+                <p>1 kg – ₹80</p>
+            </div>
+
+            <div class="product-card">
+                <h3>Mappilai Samba</h3>
+                <p>½ kg – ₹40</p>
+                <p>1 kg – ₹80</p>
+            </div>
+
+            <div class="product-card">
+                <h3>Appam Batter</h3>
+                <p>½ kg – ₹30</p>
+                <p>1 kg – ₹60</p>
+            </div>
+
+            <div class="product-card">
+                <h3>Poongar</h3>
+                <p>½ kg – ₹40</p>
+                <p>1 kg – ₹80</p>
+            </div>
+
+            <div class="product-card">
+                <h3>Millet Batter</h3>
+                <p>½ kg – ₹40</p>
+                <p>1 kg – ₹80</p>
+            </div>
+
+            <div class="product-card">
+                <h3>Karupu Gavuni</h3>
+                <p>½ kg – ₹40</p>
+                <p>1 kg – ₹80</p>
+            </div>
+
+            <div class="product-card">
+                <h3>Keerai Batter</h3>
+                <p>½ kg – ₹40</p>
+                <p>1 kg – ₹80</p>
+            </div>
+
+            <div class="product-card">
+                <h3>Kaatu Yaanam</h3>
+                <p>½ kg – ₹40</p>
+                <p>1 kg – ₹80</p>
+            </div>
+
+            <div class="product-card">
+                <h3>Karunguruvai</h3>
+                <p>½ kg – ₹40</p>
+                <p>1 kg – ₹80</p>
+            </div>
+
+            <div class="product-card">
+                <h3>Pacha Payiru</h3>
+                <p>½ kg – ₹40</p>
+                <p>1 kg – ₹80</p>
+            </div>
+
+            <div class="product-card">
+                <h3>Ragi Batter</h3>
+                <p>½ kg – ₹40</p>
+                <p>1 kg – ₹80</p>
+            </div>
+
+        </div>
+
+    </section>
+
+    <section id="order" class="order-section">
+
+        <h2>Place Your Order</h2>
+
+        <p>
+            Fill in your details and place your order easily.
+        </p>
+
+        <form id="orderForm">
+
+            <input
+                type="text"
+                id="customerName"
+                placeholder="Your Name"
+                required
+            >
+
+            <input
+                type="tel"
+                id="phone"
+                placeholder="Phone Number"
+                required
+            >
+
+            <textarea
+                id="address"
+                placeholder="Delivery Address"
+                required
+            ></textarea>
+
+            <select id="product" required>
+                <option value="">Select Product</option>
+                <option value="Adai Batter">Adai Batter</option>
+                <option value="Mappilai Samba">Mappilai Samba</option>
+                <option value="Appam Batter">Appam Batter</option>
+                <option value="Poongar">Poongar</option>
+                <option value="Millet Batter">Millet Batter</option>
+                <option value="Karupu Gavuni">Karupu Gavuni</option>
+                <option value="Keerai Batter">Keerai Batter</option>
+                <option value="Kaatu Yaanam">Kaatu Yaanam</option>
+                <option value="Karunguruvai">Karunguruvai</option>
+                <option value="Pacha Payiru">Pacha Payiru</option>
+                <option value="Ragi Batter">Ragi Batter</option>
+            </select>
+
+            <select id="quantity" required>
+                <option value="">Select Quantity</option>
+                <option value="500g">½ kg</option>
+                <option value="1kg">1 kg</option>
+            </select>
+<p id="priceDisplay"></p>
+            <input
+                type="date"
+                id="deliveryDate"
+                required
+            >
+
+            <button
+                type="submit"
+                class="order-btn"
+            >
+                Place Order on WhatsApp
+            </button>
+
+        </form>
+<p id="successMessage"></p>
+    </section>
+
+    <footer id="contact">
+
+        <h3>Dhana Foods</h3>
+
+        <p>Fresh • Traditional • Homemade</p>
+
+        <p>© 2026 Dhana Foods. All rights reserved.</p>
+
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
