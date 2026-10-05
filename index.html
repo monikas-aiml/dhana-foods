@@ -1,568 +1,602 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Dhana Foods</title>
 
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #fff8f0;
+            color: #222;
+        }
+
+        header {
+            background: #ffffff;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        header h1 {
+            margin: 0;
+            color: #222;
+            font-size: 34px;
+        }
+
+        header p {
+            margin: 8px 0;
+            color: #666;
+        }
+
+        nav {
+            margin-top: 15px;
+        }
+
+        nav a {
+            margin: 0 12px;
+            text-decoration: none;
+            color: #222;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 18px;
+            background: #fff;
+        }
+
+        .product-card h3 {
+            margin-top: 0;
+        }
+
+        .qty-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .product-qty {
+            width: 85px;
+            padding: 9px;
+            border: 1px solid #bbb;
+            border-radius: 7px;
+        }
+
+        label {
+            display: block;
+            margin-top: 14px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #bbb;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        /* PAYMENT */
+
+        .payment-section {
+            margin-top: 20px;
+            padding: 18px;
+            background: #fffaf0;
+            border-radius: 12px;
+            border: 1px solid #ead9b5;
+        }
+
+        .payment-section h3 {
+            margin-top: 0;
+        }
+
+        .payment-option {
+            display: block;
+            padding: 14px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 9px;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .payment-option input {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        #qrPaymentBox {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            text-align: center;
+            background: #fff;
+            border: 1px solid #d8b95c;
+            border-radius: 10px;
+        }
+
+        .qr-placeholder {
+            width: 220px;
+            height: 220px;
+            margin: 15px auto;
+            border: 2px dashed #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fafafa;
+        }
+
+        /* CART */
+
+        .cart-box {
+            margin-top: 20px;
+            padding: 18px;
+            background: #f7f7f7;
+            border-radius: 10px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cart-total {
+            text-align: right;
+            margin-top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 9px;
+            background: #111;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #333;
+        }
+
+        button:disabled {
+            background: #999;
+        }
+
+        #successMessage {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #e9f8e9;
+            border: 1px solid #58a558;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        footer {
+            background: #111;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        @media(max-width:600px) {
+
+            header h1 {
+                font-size: 28px;
+            }
+
+            nav a {
+                display: inline-block;
+                margin: 7px;
+            }
+
+            .container {
+                width: 95%;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- HEADER -->
-    <header>
-        <div class="logo">Dhana Foods</div>
+<header>
 
-        <nav>
-            <a href="#home">Home</a>
-            <a href="#products">Products</a>
-            <a href="#order">Order Now</a>
-            <a href="#contact">Contact</a>
-        </nav>
-    </header>
+    <h1>Dhana Foods</h1>
+
+    <p>
+        Fresh • Traditional • Homemade
+    </p>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#products">Products</a>
+        <a href="#order">Order Now</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+</header>
 
 
-    <!-- HOME -->
-    <section id="home" class="hero">
-
-        <div class="hero-content">
-
-            <p class="small-title">
-                🌾 Fresh • Healthy • Homemade
-            </p>
-
-            <h1>
-                Traditional Taste,<br>
-                <span>Made Fresh for You</span>
-            </h1>
-
-            <p class="description">
-                Freshly prepared traditional batters made with
-                quality ingredients and homemade care.
-            </p>
-
-            <a href="#order" class="order-btn">
-                Order Now →
-            </a>
-
-        </div>
-
-    </section>
-
+<div class="container">
 
     <!-- PRODUCTS -->
-    <section id="products">
+
+    <div
+        class="section"
+        id="products"
+    >
 
         <h2>Our Products</h2>
 
-        <p class="section-text">
-            Freshly prepared traditional batters for a healthy and delicious meal.
-        </p>
-
-
-        <div class="products-container">
+        <div class="products">
 
 
             <!-- IDLI -->
+
             <div class="product-card">
 
                 <h3>Idli Batter</h3>
 
-                <p>½ kg – ₹20</p>
+                <p>500g – ₹20</p>
+                <p>1kg – ₹40</p>
 
-                <p>1 kg – ₹40</p>
+                <div class="qty-row">
+
+                    <span>500g</span>
+
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Idli Batter"
+                        data-size="500g"
+                        data-price="20"
+                    >
+
+                </div>
+
+
+                <div class="qty-row">
+
+                    <span>1kg</span>
+
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Idli Batter"
+                        data-size="1kg"
+                        data-price="40"
+                    >
+
+                </div>
 
             </div>
 
 
             <!-- DOSA -->
+
             <div class="product-card">
 
                 <h3>Dosa Batter</h3>
 
-                <p>½ kg – ₹20</p>
+                <p>500g – ₹20</p>
+                <p>1kg – ₹40</p>
 
-                <p>1 kg – ₹40</p>
+                <div class="qty-row">
+
+                    <span>500g</span>
+
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Dosa Batter"
+                        data-size="500g"
+                        data-price="20"
+                    >
+
+                </div>
+
+
+                <div class="qty-row">
+
+                    <span>1kg</span>
+
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Dosa Batter"
+                        data-size="1kg"
+                        data-price="40"
+                    >
+
+                </div>
 
             </div>
 
 
             <!-- ADAI -->
+
             <div class="product-card">
 
                 <h3>Adai Batter</h3>
 
-                <p>½ kg – ₹40</p>
+                <div class="qty-row">
 
-                <p>1 kg – ₹80</p>
+                    <span>500g</span>
+
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Adai Batter"
+                        data-size="500g"
+                        data-price="30"
+                    >
+
+                </div>
+
+
+                <div class="qty-row">
+
+                    <span>1kg</span>
+
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Adai Batter"
+                        data-size="1kg"
+                        data-price="60"
+                    >
+
+                </div>
 
             </div>
 
 
-            <!-- MAPPILAI SAMBA -->
+            <!-- MAPPAILAI SAMBA -->
+
             <div class="product-card">
 
                 <h3>Mappilai Samba</h3>
 
-                <p>½ kg – ₹40</p>
+                <div class="qty-row">
 
-                <p>1 kg – ₹80</p>
+                    <span>500g</span>
+
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Mappilai Samba"
+                        data-size="500g"
+                        data-price="60"
+                    >
+
+                </div>
+
+
+                <div class="qty-row">
+
+                    <span>1kg</span>
+
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Mappilai Samba"
+                        data-size="1kg"
+                        data-price="120"
+                    >
+
+                </div>
 
             </div>
 
 
             <!-- APPAM -->
+
             <div class="product-card">
 
                 <h3>Appam Batter</h3>
 
-                <p>½ kg – ₹30</p>
+                <div class="qty-row">
 
-                <p>1 kg – ₹60</p>
+                    <span>500g</span>
 
-            </div>
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Appam Batter"
+                        data-size="500g"
+                        data-price="30"
+                    >
+
+                </div>
 
 
-            <!-- POONGAR -->
-            <div class="product-card">
+                <div class="qty-row">
 
-                <h3>Poongar</h3>
+                    <span>1kg</span>
 
-                <p>½ kg – ₹40</p>
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Appam Batter"
+                        data-size="1kg"
+                        data-price="60"
+                    >
 
-                <p>1 kg – ₹80</p>
+                </div>
 
             </div>
 
 
             <!-- MILLET -->
+
             <div class="product-card">
 
                 <h3>Millet Batter</h3>
 
-                <p>½ kg – ₹40</p>
+                <div class="qty-row">
 
-                <p>1 kg – ₹80</p>
+                    <span>500g</span>
 
-            </div>
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Millet Batter"
+                        data-size="500g"
+                        data-price="40"
+                    >
 
-
-            <!-- KARUPU GAVUNI -->
-            <div class="product-card">
-
-                <h3>Karupu Gavuni</h3>
-
-                <p>½ kg – ₹40</p>
-
-                <p>1 kg – ₹80</p>
-
-            </div>
+                </div>
 
 
-            <!-- KEERAI -->
-            <div class="product-card">
+                <div class="qty-row">
 
-                <h3>Keerai Batter</h3>
+                    <span>1kg</span>
 
-                <p>½ kg – ₹40</p>
+                    <input
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="product-qty"
+                        data-product="Millet Batter"
+                        data-size="1kg"
+                        data-price="80"
+                    >
 
-                <p>1 kg – ₹80</p>
-
-            </div>
-
-
-            <!-- KAATU YAANAM -->
-            <div class="product-card">
-
-                <h3>Kaatu Yaanam</h3>
-
-                <p>½ kg – ₹40</p>
-
-                <p>1 kg – ₹80</p>
-
-            </div>
-
-
-            <!-- KARUNGURUVAI -->
-            <div class="product-card">
-
-                <h3>Karunguruvai</h3>
-
-                <p>½ kg – ₹40</p>
-
-                <p>1 kg – ₹80</p>
-
-            </div>
-
-
-            <!-- PACHA PAYIRU -->
-            <div class="product-card">
-
-                <h3>Pacha Payiru</h3>
-
-                <p>½ kg – ₹40</p>
-
-                <p>1 kg – ₹80</p>
-
-            </div>
-
-
-            <!-- RAGI -->
-            <div class="product-card">
-
-                <h3>Ragi Batter</h3>
-
-                <p>½ kg – ₹40</p>
-
-                <p>1 kg – ₹80</p>
+                </div>
 
             </div>
 
         </div>
 
-    </section>
+    </div>
 
 
-    <!-- ORDER SECTION -->
-    <section id="order" class="order-section">
+    <!-- ORDER -->
 
-        <h2>Place Your Order</h2>
+    <div
+        class="section"
+        id="order"
+    >
 
-        <p>
-            Select the products and quantities you want to order.
-        </p>
+        <h2>Order Now</h2>
 
 
         <form id="orderForm">
 
+            <label for="customerName">
+                Customer Name
+            </label>
 
-            <!-- CUSTOMER NAME -->
             <input
                 type="text"
                 id="customerName"
-                placeholder="Your Name"
+                placeholder="Enter your name"
                 required
             >
 
 
-            <!-- PHONE -->
+            <label for="phone">
+                Phone Number
+            </label>
+
             <input
                 type="tel"
                 id="phone"
-                placeholder="Phone Number"
+                placeholder="Enter phone number"
                 required
             >
 
 
-            <!-- ADDRESS -->
+            <label for="address">
+                Delivery Address
+            </label>
+
             <textarea
                 id="address"
-                placeholder="Delivery Address"
+                placeholder="Enter delivery address"
                 required
             ></textarea>
 
 
-            <!-- PRODUCTS -->
-            <h3>Select Products</h3>
-
-
-            <!-- IDLI 500G -->
-            <div class="order-item">
-
-                <label>
-                    Idli Batter - ½ kg
-                </label>
-
-                <span>
-                    ₹20
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Idli Batter"
-                    data-size="500g"
-                    data-price="20"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- IDLI 1KG -->
-            <div class="order-item">
-
-                <label>
-                    Idli Batter - 1 kg
-                </label>
-
-                <span>
-                    ₹40
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Idli Batter"
-                    data-size="1kg"
-                    data-price="40"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- DOSA 500G -->
-            <div class="order-item">
-
-                <label>
-                    Dosa Batter - ½ kg
-                </label>
-
-                <span>
-                    ₹20
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Dosa Batter"
-                    data-size="500g"
-                    data-price="20"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- DOSA 1KG -->
-            <div class="order-item">
-
-                <label>
-                    Dosa Batter - 1 kg
-                </label>
-
-                <span>
-                    ₹40
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Dosa Batter"
-                    data-size="1kg"
-                    data-price="40"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- OTHER PRODUCTS -->
-            <h3>Other Batter Products</h3>
-
-
-            <!-- ADAI 500G -->
-            <div class="order-item">
-
-                <label>
-                    Adai Batter - ½ kg
-                </label>
-
-                <span>
-                    ₹40
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Adai Batter"
-                    data-size="500g"
-                    data-price="40"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- ADAI 1KG -->
-            <div class="order-item">
-
-                <label>
-                    Adai Batter - 1 kg
-                </label>
-
-                <span>
-                    ₹80
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Adai Batter"
-                    data-size="1kg"
-                    data-price="80"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- MAPPILAI SAMBA 500G -->
-            <div class="order-item">
-
-                <label>
-                    Mappilai Samba - ½ kg
-                </label>
-
-                <span>
-                    ₹40
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Mappilai Samba"
-                    data-size="500g"
-                    data-price="40"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- MAPPILAI SAMBA 1KG -->
-            <div class="order-item">
-
-                <label>
-                    Mappilai Samba - 1 kg
-                </label>
-
-                <span>
-                    ₹80
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Mappilai Samba"
-                    data-size="1kg"
-                    data-price="80"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- APPAM 500G -->
-            <div class="order-item">
-
-                <label>
-                    Appam Batter - ½ kg
-                </label>
-
-                <span>
-                    ₹30
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Appam Batter"
-                    data-size="500g"
-                    data-price="30"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- APPAM 1KG -->
-            <div class="order-item">
-
-                <label>
-                    Appam Batter - 1 kg
-                </label>
-
-                <span>
-                    ₹60
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Appam Batter"
-                    data-size="1kg"
-                    data-price="60"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- MILLET 500G -->
-            <div class="order-item">
-
-                <label>
-                    Millet Batter - ½ kg
-                </label>
-
-                <span>
-                    ₹40
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Millet Batter"
-                    data-size="500g"
-                    data-price="40"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- MILLET 1KG -->
-            <div class="order-item">
-
-                <label>
-                    Millet Batter - 1 kg
-                </label>
-
-                <span>
-                    ₹80
-                </span>
-
-                <input
-                    type="number"
-                    class="product-qty"
-                    data-product="Millet Batter"
-                    data-size="1kg"
-                    data-price="80"
-                    min="0"
-                    value="0"
-                >
-
-            </div>
-
-
-            <!-- DELIVERY DATE -->
-            <h3>Delivery Date</h3>
+            <label for="deliveryDate">
+                Delivery Date
+            </label>
 
             <input
                 type="date"
@@ -571,8 +605,79 @@
             >
 
 
+            <!-- ============================ -->
+            <!-- PAYMENT METHOD -->
+            <!-- ============================ -->
+
+            <div class="payment-section">
+
+                <h3>Mode of Payment</h3>
+
+
+                <label class="payment-option">
+
+                    <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="UPI"
+                    >
+
+                    📱 UPI / QR Code
+
+                </label>
+
+
+                <label class="payment-option">
+
+                    <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="COD"
+                    >
+
+                    💵 Cash on Delivery
+
+                </label>
+
+
+                <!-- QR -->
+
+                <div
+                    id="qrPaymentBox"
+                >
+
+                    <h3>
+                        📱 Scan & Pay
+                    </h3>
+
+                    <p>
+                        Scan the QR Code using your
+                        UPI app.
+                    </p>
+
+
+                    <div class="qr-placeholder">
+
+                        <strong>
+                            QR CODE
+                        </strong>
+
+                    </div>
+
+
+                    <p>
+                        After payment, click
+                        <b>Place Order</b>.
+                    </p>
+
+                </div>
+
+            </div>
+
+
             <!-- CART -->
-            <div id="cartSummary">
+
+            <div class="cart-box">
 
                 <h3>Your Order</h3>
 
@@ -580,50 +685,93 @@
                     No products selected.
                 </div>
 
-                <h3>
-                    Total: ₹<span id="cartTotal">0</span>
-                </h3>
+                <div
+                    id="cartTotal"
+                    class="cart-total"
+                >
+                    Total: ₹0
+                </div>
 
             </div>
 
 
-            <!-- SUBMIT -->
             <button
                 type="submit"
-                class="order-btn"
+                id="submitButton"
             >
                 Place Order
             </button>
 
-
         </form>
 
 
-        <!-- SUCCESS MESSAGE -->
-        <div id="successMessage"></div>
+        <!-- SUCCESS -->
 
-    </section>
+        <div id="successMessage">
+
+            <h2>
+                ✅ Order Placed Successfully!
+            </h2>
+
+            <p>
+                Order Number:
+                <strong id="successOrderId"></strong>
+            </p>
+
+            <p>
+                Total:
+                <strong id="successTotal"></strong>
+            </p>
+
+            <p>
+                Delivery Date:
+                <strong id="successDeliveryDate"></strong>
+            </p>
+
+            <p>
+                Payment:
+                <strong id="successPayment"></strong>
+            </p>
+
+        </div>
+
+    </div>
 
 
-    <!-- FOOTER -->
-    <footer id="contact">
+    <!-- CONTACT -->
 
-        <h3>Dhana Foods</h3>
+    <div
+        class="section"
+        id="contact"
+    >
 
-        <p>
-            Fresh • Traditional • Homemade
+        <h2>Contact</h2>
+
+        <p style="text-align:center;">
+            📞 9025530118
         </p>
 
-        <p>
-            © 2026 Dhana Foods. All rights reserved.
-        </p>
+    </div>
 
-    </footer>
+</div>
 
 
-    <!-- JAVASCRIPT -->
-    <script src="script.js"></script>
+<footer>
+
+    <h2>Dhana Foods</h2>
+
+    <p>
+        Fresh • Traditional • Homemade
+    </p>
+
+    <p>
+        © 2026 Dhana Foods. All Rights Reserved.
+    </p>
+
+</footer>
+
+
+<script src="script.js"></script>
 
 </body>
-
 </html>
