@@ -1,110 +1,33 @@
-const form = document.getElementById("orderForm");
-const successMessage = document.getElementById("successMessage");
-const cartItems = document.getElementById("cartItems");
-const cartTotal = document.getElementById("cartTotal");
+const quantityInputs =
+    document.querySelectorAll(".product-qty");
+
+const cartItems =
+    document.getElementById("cartItems");
+
+const cartTotal =
+    document.getElementById("cartTotal");
+
+const orderForm =
+    document.getElementById("orderForm");
+
+const submitButton =
+    document.getElementById("submitButton");
+
+const successMessage =
+    document.getElementById("successMessage");
+
+const paymentOptions =
+    document.querySelectorAll(
+        'input[name="paymentMethod"]'
+    );
+
+const qrPaymentBox =
+    document.getElementById("qrPaymentBox");
 
 
-// ================================
-// PRODUCT QUANTITY INPUTS
-// ================================
-
-const quantityInputs = document.querySelectorAll(".product-qty");
-
-
-// ================================
-// UPDATE CART
-// ================================
-
-function updateCart() {
-
-    let total = 0;
-    let items = [];
-
-    quantityInputs.forEach(input => {
-
-        const quantity = parseInt(input.value) || 0;
-
-        if (quantity > 0) {
-
-            const product = input.dataset.product;
-            const size = input.dataset.size;
-            const price = Number(input.dataset.price);
-
-            const itemTotal = price * quantity;
-
-            total += itemTotal;
-
-            items.push({
-                product: product,
-                size: size,
-                quantity: quantity,
-                price: price,
-                total: itemTotal
-            });
-        }
-    });
-
-
-    // Clear cart display
-    cartItems.innerHTML = "";
-
-
-    // No products
-    if (items.length === 0) {
-
-        cartItems.innerHTML =
-            "<p>No products selected.</p>";
-
-        cartTotal.textContent = "0";
-
-        return;
-    }
-
-
-    // Display selected products
-    items.forEach(item => {
-
-        const itemElement = document.createElement("div");
-
-        itemElement.className = "cart-item";
-
-        itemElement.innerHTML = `
-            <p>
-                <strong>${item.product}</strong>
-                - ${item.size}
-            </p>
-
-            <p>
-                ₹${item.price} × ${item.quantity}
-                = <strong>₹${item.total}</strong>
-            </p>
-        `;
-
-        cartItems.appendChild(itemElement);
-    });
-
-
-    // Display total
-    cartTotal.textContent = total;
-}
-
-
-// ================================
-// LISTEN FOR QUANTITY CHANGES
-// ================================
-
-quantityInputs.forEach(input => {
-
-    input.addEventListener("input", updateCart);
-
-    input.addEventListener("change", updateCart);
-
-});
-
-
-// ================================
-// GET SELECTED ITEMS
-// ================================
+// =====================================
+// GET SELECTED PRODUCTS
+// =====================================
 
 function getSelectedItems() {
 
@@ -112,17 +35,26 @@ function getSelectedItems() {
 
     quantityInputs.forEach(input => {
 
-        const quantity = parseInt(input.value) || 0;
+        const quantity =
+            Number(input.value);
 
         if (quantity > 0) {
 
+            const product =
+                input.dataset.product;
+
+            const size =
+                input.dataset.size;
+
+            const price =
+                Number(input.dataset.price);
+
             items.push({
-                product: input.dataset.product,
-                size: input.dataset.size,
+                product: product,
+                size: size,
                 quantity: quantity,
-                price: Number(input.dataset.price),
-                total:
-                    Number(input.dataset.price) * quantity
+                price: price,
+                total: price * quantity
             });
         }
     });
@@ -131,219 +63,359 @@ function getSelectedItems() {
 }
 
 
-// ================================
-// PLACE ORDER
-// ================================
+// =====================================
+// UPDATE CART
+// =====================================
 
-form.addEventListener("submit", async function(event) {
+function updateCart() {
 
-    event.preventDefault();
+    const items =
+        getSelectedItems();
 
-
-    // Customer details
-    const name =
-        document.getElementById("customerName")
-            .value
-            .trim();
-
-    const phone =
-        document.getElementById("phone")
-            .value
-            .trim();
-
-    const address =
-        document.getElementById("address")
-            .value
-            .trim();
-
-    const deliveryDate =
-        document.getElementById("deliveryDate")
-            .value;
-
-
-    // Get cart items
-    const items = getSelectedItems();
-
-
-    // Validate customer details
-    if (!name || !phone || !address || !deliveryDate) {
-
-        alert("Please fill all customer details.");
-
-        return;
-    }
-
-
-    // Validate products
     if (items.length === 0) {
 
-        alert("Please select at least one product.");
+        cartItems.innerHTML =
+            "No products selected.";
+
+        cartTotal.textContent =
+            "Total: ₹0";
 
         return;
     }
 
+    let total = 0;
 
-    // Calculate total
-    const total = items.reduce(
-        (sum, item) => sum + item.total,
-        0
-    );
+    cartItems.innerHTML = "";
 
 
-    // ================================
-    // ORDER DATA
-    // ================================
+    items.forEach(item => {
 
-    const orderData = {
-
-        customerName: name,
-
-        phone: phone,
-
-        address: address,
-
-        items: items,
-
-        total: total,
-
-        deliveryDate: deliveryDate
-
-    };
+        total += item.total;
 
 
-    // Disable button while submitting
-    const submitButton =
-        form.querySelector("button[type='submit']");
+        const div =
+            document.createElement("div");
 
-    submitButton.disabled = true;
-
-    submitButton.textContent =
-        "Placing Order...";
+        div.className =
+            "cart-item";
 
 
-    try {
+        div.innerHTML = `
+            <span>
+                ${item.product}
+                (${item.size})
+                × ${item.quantity}
+            </span>
 
-        // ================================
-        // SEND TO SERVER
-        // ================================
-
-        const response = await fetch("/api/orders", {
-
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify(orderData)
-
-        });
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Server returned an error."
-            );
-        }
-
-
-        const result =
-            await response.json();
-
-
-        if (!result.success) {
-
-            throw new Error(
-                result.message ||
-                "Unable to place order."
-            );
-        }
-
-
-        // ================================
-        // SUCCESS
-        // ================================
-
-        successMessage.innerHTML = `
-
-            <div class="order-success">
-
-                <h2>✅ Order Placed Successfully!</h2>
-
-                <p>
-                    Thank you, ${name}!
-                </p>
-
-                <p>
-                    <strong>Order Number:</strong>
-                    #${result.orderId}
-                </p>
-
-                <p>
-                    <strong>Total:</strong>
-                    ₹${total}
-                </p>
-
-                <p>
-                    <strong>Delivery Date:</strong>
-                    ${deliveryDate}
-                </p>
-
-                <p>
-                    Your order has been received.
-                </p>
-
-            </div>
-
+            <strong>
+                ₹${item.total}
+            </strong>
         `;
 
 
-        successMessage.style.display = "block";
+        cartItems.appendChild(div);
+
+    });
 
 
-        // Reset form
-        form.reset();
+    cartTotal.textContent =
+        `Total: ₹${total}`;
+}
 
 
-        // Reset cart
-        updateCart();
+// =====================================
+// QUANTITY CHANGE
+// =====================================
 
+quantityInputs.forEach(input => {
 
-        // Scroll to success message
-        successMessage.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Order error:",
-            error
-        );
-
-
-        alert(
-            "Unable to place order. Please try again."
-        );
-
-
-    } finally {
-
-        submitButton.disabled = false;
-
-        submitButton.textContent =
-            "Place Order";
-
-    }
+    input.addEventListener(
+        "input",
+        updateCart
+    );
 
 });
 
 
-// ================================
+// =====================================
+// PAYMENT METHOD
+// =====================================
+
+paymentOptions.forEach(option => {
+
+    option.addEventListener(
+        "change",
+        function () {
+
+            if (this.value === "UPI") {
+
+                qrPaymentBox.style.display =
+                    "block";
+
+            } else {
+
+                qrPaymentBox.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+});
+
+
+// =====================================
+// PLACE ORDER
+// =====================================
+
+orderForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        // Get products
+        const items =
+            getSelectedItems();
+
+
+        if (items.length === 0) {
+
+            alert(
+                "Please select at least one product."
+            );
+
+            return;
+        }
+
+
+        // Customer details
+        const customerName =
+            document
+                .getElementById("customerName")
+                .value
+                .trim();
+
+
+        const phone =
+            document
+                .getElementById("phone")
+                .value
+                .trim();
+
+
+        const address =
+            document
+                .getElementById("address")
+                .value
+                .trim();
+
+
+        const deliveryDate =
+            document
+                .getElementById("deliveryDate")
+                .value;
+
+
+        // Payment
+        const selectedPayment =
+            document.querySelector(
+                'input[name="paymentMethod"]:checked'
+            );
+
+
+        if (!selectedPayment) {
+
+            alert(
+                "Please select a payment method."
+            );
+
+            return;
+        }
+
+
+        const paymentMethod =
+            selectedPayment.value;
+
+
+        // Disable button
+        submitButton.disabled =
+            true;
+
+        submitButton.textContent =
+            "Placing Order...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/orders",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            customerName:
+                                customerName,
+
+                            phone:
+                                phone,
+
+                            address:
+                                address,
+
+                            items:
+                                items,
+
+                            deliveryDate:
+                                deliveryDate,
+
+                            paymentMethod:
+                                paymentMethod
+                        })
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !result.success
+            ) {
+
+                throw new Error(
+                    result.message ||
+                    "Unable to place order."
+                );
+            }
+
+
+            // =================================
+            // SUCCESS MESSAGE
+            // =================================
+
+            const successOrderId =
+                document.getElementById(
+                    "successOrderId"
+                );
+
+            const successTotal =
+                document.getElementById(
+                    "successTotal"
+                );
+
+            const successDeliveryDate =
+                document.getElementById(
+                    "successDeliveryDate"
+                );
+
+            const successPayment =
+                document.getElementById(
+                    "successPayment"
+                );
+
+
+            if (successOrderId) {
+
+                successOrderId.textContent =
+                    `#${result.orderId}`;
+            }
+
+
+            if (successTotal) {
+
+                successTotal.textContent =
+                    `₹${result.total}`;
+            }
+
+
+            if (successDeliveryDate) {
+
+                successDeliveryDate.textContent =
+                    deliveryDate;
+            }
+
+
+            if (successPayment) {
+
+                successPayment.textContent =
+                    paymentMethod === "UPI"
+                        ? "UPI / QR Code"
+                        : "Cash on Delivery";
+            }
+
+
+            if (successMessage) {
+
+                successMessage.style.display =
+                    "block";
+            }
+
+
+            // Reset form
+            orderForm.reset();
+
+
+            quantityInputs.forEach(input => {
+
+                input.value = 0;
+
+            });
+
+
+            qrPaymentBox.style.display =
+                "none";
+
+
+            updateCart();
+
+
+            // Scroll to success message
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Order error:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Unable to place order."
+            );
+
+
+        } finally {
+
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                "Place Order";
+        }
+
+    }
+);
+
+
+// =====================================
 // INITIAL CART
-// ================================
+// =====================================
 
 updateCart();
