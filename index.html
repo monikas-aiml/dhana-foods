@@ -1,254 +1,332 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Dhana Foods</title>
+<title>Dhana Foods</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
+* {
+    box-sizing: border-box;
+}
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #fff8f0;
-            color: #222;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #fff8f0;
+    color: #29211d;
+}
 
-        header {
-            background: #ffffff;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
+/* HEADER */
 
-        header h1 {
-            margin: 0;
-            color: #222;
-            font-size: 34px;
-        }
+header {
+    background: linear-gradient(135deg, #fff, #fff8ed);
+    padding: 28px 20px;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    border-bottom: 3px solid #e8b45b;
+}
 
-        header p {
-            margin: 8px 0;
-            color: #666;
-        }
+header h1 {
+    margin: 0;
+    color: #8b3e18;
+    font-size: 38px;
+    letter-spacing: 1px;
+}
 
-        nav {
-            margin-top: 15px;
-        }
+header p {
+    margin: 8px 0;
+    color: #777;
+    font-size: 17px;
+}
 
-        nav a {
-            margin: 0 12px;
-            text-decoration: none;
-            color: #222;
-            font-weight: bold;
-        }
+nav {
+    margin-top: 18px;
+}
 
-        .container {
-            width: 92%;
-            max-width: 1000px;
-            margin: 30px auto;
-        }
+nav a {
+    display: inline-block;
+    margin: 5px 12px;
+    text-decoration: none;
+    color: #44281c;
+    font-weight: bold;
+    padding: 7px 10px;
+    border-radius: 7px;
+}
 
-        .section {
-            background: white;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
+nav a:hover {
+    background: #f5dfbd;
+    color: #8b3e18;
+}
 
-        .section h2 {
-            text-align: center;
-            margin-top: 0;
-        }
+/* MAIN */
 
-        .products {
-            display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(240px, 1fr));
-            gap: 18px;
-        }
+.container {
+    width: 92%;
+    max-width: 1050px;
+    margin: 35px auto;
+}
 
-        .product-card {
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 18px;
-            background: #fff;
-        }
+.section {
+    background: white;
+    padding: 30px;
+    margin-bottom: 28px;
+    border-radius: 18px;
+    box-shadow: 0 5px 20px rgba(90,50,20,0.09);
+}
 
-        .product-card h3 {
-            margin-top: 0;
-        }
+.section h2 {
+    text-align: center;
+    margin-top: 0;
+    color: #7d3515;
+    font-size: 30px;
+}
 
-        .qty-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-top: 12px;
-        }
+/* PRODUCTS */
 
-        .product-qty {
-            width: 85px;
-            padding: 9px;
-            border: 1px solid #bbb;
-            border-radius: 7px;
-        }
+.products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+    gap: 20px;
+}
 
-        label {
-            display: block;
-            margin-top: 14px;
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
+.product-card {
+    border: 1px solid #ead7c2;
+    border-radius: 15px;
+    padding: 20px;
+    background: linear-gradient(145deg, #ffffff, #fffaf4);
+    transition: 0.25s;
+}
 
-        input,
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #bbb;
-            border-radius: 7px;
-            font-size: 15px;
-        }
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(100,50,20,0.12);
+    border-color: #d9a24d;
+}
 
-        textarea {
-            min-height: 90px;
-            resize: vertical;
-        }
+.product-card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #813716;
+    font-size: 21px;
+}
 
-        /* PAYMENT */
+/* PRICE */
 
-        .payment-section {
-            margin-top: 20px;
-            padding: 18px;
-            background: #fffaf0;
-            border-radius: 12px;
-            border: 1px solid #ead9b5;
-        }
+.price-list {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+}
 
-        .payment-section h3 {
-            margin-top: 0;
-        }
+.price {
+    flex: 1;
+    text-align: center;
+    background: #fff1d8;
+    border: 1px solid #efd19b;
+    border-radius: 9px;
+    padding: 9px 5px;
+}
 
-        .payment-option {
-            display: block;
-            padding: 14px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 9px;
-            background: white;
-            cursor: pointer;
-            font-weight: bold;
-        }
+.price small {
+    display: block;
+    color: #755d4e;
+    font-size: 13px;
+}
 
-        .payment-option input {
-            width: auto;
-            margin-right: 8px;
-        }
+.price strong {
+    display: block;
+    color: #a23e16;
+    font-size: 19px;
+    margin-top: 2px;
+}
 
-        #qrPaymentBox {
-            display: none;
-            margin-top: 15px;
-            padding: 20px;
-            text-align: center;
-            background: #fff;
-            border: 1px solid #d8b95c;
-            border-radius: 10px;
-        }
+/* QUANTITY */
 
-        .qr-placeholder {
-            width: 220px;
-            height: 220px;
-            margin: 15px auto;
-            border: 2px dashed #999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #fafafa;
-        }
+.qty-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 8px 0;
+}
 
-        /* CART */
+.qty-row span {
+    font-weight: bold;
+    color: #4d4038;
+}
 
-        .cart-box {
-            margin-top: 20px;
-            padding: 18px;
-            background: #f7f7f7;
-            border-radius: 10px;
-        }
+.product-qty {
+    width: 80px;
+    padding: 9px;
+    border: 1px solid #cdbdad;
+    border-radius: 7px;
+    font-size: 16px;
+    background: white;
+}
 
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 9px 0;
-            border-bottom: 1px solid #ddd;
-        }
+/* FORM */
 
-        .cart-total {
-            text-align: right;
-            margin-top: 15px;
-            font-size: 20px;
-            font-weight: bold;
-        }
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #4b3022;
+}
 
-        button {
-            width: 100%;
-            padding: 15px;
-            margin-top: 20px;
-            border: none;
-            border-radius: 9px;
-            background: #111;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+input,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbbbae;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+}
 
-        button:hover {
-            background: #333;
-        }
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: #c8892d;
+    box-shadow: 0 0 0 2px rgba(200,137,45,0.12);
+}
 
-        button:disabled {
-            background: #999;
-        }
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
 
-        #successMessage {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background: #e9f8e9;
-            border: 1px solid #58a558;
-            border-radius: 10px;
-            text-align: center;
-        }
+/* CART */
 
-        footer {
-            background: #111;
-            color: white;
-            text-align: center;
-            padding: 30px;
-            margin-top: 40px;
-        }
+.cart-box {
+    margin-top: 25px;
+    padding: 20px;
+    background: #fff8ec;
+    border: 1px solid #ead8c3;
+    border-radius: 12px;
+}
 
-        @media(max-width:600px) {
+.cart-box h3 {
+    margin-top: 0;
+    color: #813716;
+}
 
-            header h1 {
-                font-size: 28px;
-            }
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
 
-            nav a {
-                display: inline-block;
-                margin: 7px;
-            }
+.cart-total {
+    text-align: right;
+    margin-top: 15px;
+    color: #8b3e18;
+    font-size: 22px;
+    font-weight: bold;
+}
 
-            .container {
-                width: 95%;
-            }
-        }
-    </style>
+/* BUTTON */
+
+button {
+    width: 100%;
+    padding: 16px;
+    margin-top: 22px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #8b3e18, #b45b25);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #702d10, #963f17);
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    background: #999;
+    transform: none;
+}
+
+/* SUCCESS */
+
+#successMessage {
+    display: none;
+    margin-top: 20px;
+    padding: 22px;
+    background: #e9f8e9;
+    border: 1px solid #58a558;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* CONTACT */
+
+#contact {
+    text-align: center;
+}
+
+#contact h2 {
+    margin-bottom: 10px;
+}
+
+.phone {
+    font-size: 21px;
+    font-weight: bold;
+    color: #8b3e18;
+}
+
+/* FOOTER */
+
+footer {
+    background: #382017;
+    color: white;
+    text-align: center;
+    padding: 30px;
+    margin-top: 40px;
+}
+
+footer h2 {
+    margin-top: 0;
+    color: #f3c36b;
+}
+
+/* MOBILE */
+
+@media(max-width:600px) {
+
+    header h1 {
+        font-size: 30px;
+    }
+
+    nav a {
+        margin: 5px;
+    }
+
+    .container {
+        width: 95%;
+    }
+
+    .section {
+        padding: 20px;
+    }
+
+    .products {
+        grid-template-columns: 1fr;
+    }
+
+    .price-list {
+        gap: 7px;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -257,9 +335,7 @@
 
     <h1>Dhana Foods</h1>
 
-    <p>
-        Fresh • Traditional • Homemade
-    </p>
+    <p>Fresh • Traditional • Homemade</p>
 
     <nav>
         <a href="#">Home</a>
@@ -270,488 +346,404 @@
 
 </header>
 
-
 <div class="container">
 
-    <!-- PRODUCTS -->
+<!-- PRODUCTS -->
 
-    <div
-        class="section"
-        id="products"
-    >
+<div class="section" id="products">
 
-        <h2>Our Products</h2>
+    <h2>Our Products</h2>
 
-        <div class="products">
+    <div class="products">
 
+        <!-- IDLI -->
 
-            <!-- IDLI -->
+        <div class="product-card">
 
-            <div class="product-card">
+            <h3>Idli Batter</h3>
 
-                <h3>Idli Batter</h3>
-
-                <p>500g – ₹20</p>
-                <p>1kg – ₹40</p>
-
-                <div class="qty-row">
-
-                    <span>500g</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Idli Batter"
-                        data-size="500g"
-                        data-price="20"
-                    >
-
+            <div class="price-list">
+                <div class="price">
+                    <small>500g</small>
+                    <strong>₹20</strong>
                 </div>
 
-
-                <div class="qty-row">
-
-                    <span>1kg</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Idli Batter"
-                        data-size="1kg"
-                        data-price="40"
-                    >
-
+                <div class="price">
+                    <small>1kg</small>
+                    <strong>₹40</strong>
                 </div>
-
             </div>
 
+            <div class="qty-row">
+                <span>500g</span>
 
-            <!-- DOSA -->
-
-            <div class="product-card">
-
-                <h3>Dosa Batter</h3>
-
-                <p>500g – ₹20</p>
-                <p>1kg – ₹40</p>
-
-                <div class="qty-row">
-
-                    <span>500g</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Dosa Batter"
-                        data-size="500g"
-                        data-price="20"
-                    >
-
-                </div>
-
-
-                <div class="qty-row">
-
-                    <span>1kg</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Dosa Batter"
-                        data-size="1kg"
-                        data-price="40"
-                    >
-
-                </div>
-
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Idli Batter"
+                    data-size="500g"
+                    data-price="20">
             </div>
 
+            <div class="qty-row">
+                <span>1kg</span>
 
-            <!-- ADAI -->
-
-            <div class="product-card">
-
-                <h3>Adai Batter</h3>
-
-                <div class="qty-row">
-
-                    <span>500g</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Adai Batter"
-                        data-size="500g"
-                        data-price="30"
-                    >
-
-                </div>
-
-
-                <div class="qty-row">
-
-                    <span>1kg</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Adai Batter"
-                        data-size="1kg"
-                        data-price="60"
-                    >
-
-                </div>
-
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Idli Batter"
+                    data-size="1kg"
+                    data-price="40">
             </div>
 
+        </div>
 
-            <!-- MAPPAILAI SAMBA -->
 
-            <div class="product-card">
+        <!-- DOSA -->
 
-                <h3>Mappilai Samba</h3>
+        <div class="product-card">
 
-                <div class="qty-row">
+            <h3>Dosa Batter</h3>
 
-                    <span>500g</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Mappilai Samba"
-                        data-size="500g"
-                        data-price="60"
-                    >
-
+            <div class="price-list">
+                <div class="price">
+                    <small>500g</small>
+                    <strong>₹20</strong>
                 </div>
 
-
-                <div class="qty-row">
-
-                    <span>1kg</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Mappilai Samba"
-                        data-size="1kg"
-                        data-price="120"
-                    >
-
+                <div class="price">
+                    <small>1kg</small>
+                    <strong>₹40</strong>
                 </div>
-
             </div>
 
+            <div class="qty-row">
+                <span>500g</span>
 
-            <!-- APPAM -->
-
-            <div class="product-card">
-
-                <h3>Appam Batter</h3>
-
-                <div class="qty-row">
-
-                    <span>500g</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Appam Batter"
-                        data-size="500g"
-                        data-price="30"
-                    >
-
-                </div>
-
-
-                <div class="qty-row">
-
-                    <span>1kg</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Appam Batter"
-                        data-size="1kg"
-                        data-price="60"
-                    >
-
-                </div>
-
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Dosa Batter"
+                    data-size="500g"
+                    data-price="20">
             </div>
 
+            <div class="qty-row">
+                <span>1kg</span>
 
-            <!-- MILLET -->
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Dosa Batter"
+                    data-size="1kg"
+                    data-price="40">
+            </div>
 
-            <div class="product-card">
+        </div>
 
-                <h3>Millet Batter</h3>
 
-                <div class="qty-row">
+        <!-- ADAI -->
 
-                    <span>500g</span>
+        <div class="product-card">
 
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Millet Batter"
-                        data-size="500g"
-                        data-price="40"
-                    >
+            <h3>Adai Batter</h3>
 
+            <div class="price-list">
+                <div class="price">
+                    <small>500g</small>
+                    <strong>₹30</strong>
                 </div>
 
+                <div class="price">
+                    <small>1kg</small>
+                    <strong>₹60</strong>
+                </div>
+            </div>
 
-                <div class="qty-row">
+            <div class="qty-row">
+                <span>500g</span>
 
-                    <span>1kg</span>
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Adai Batter"
+                    data-size="500g"
+                    data-price="30">
+            </div>
 
-                    <input
-                        type="number"
-                        min="0"
-                        value="0"
-                        class="product-qty"
-                        data-product="Millet Batter"
-                        data-size="1kg"
-                        data-price="80"
-                    >
+            <div class="qty-row">
+                <span>1kg</span>
 
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Adai Batter"
+                    data-size="1kg"
+                    data-price="60">
+            </div>
+
+        </div>
+
+
+        <!-- MAPPAILAI SAMBA -->
+
+        <div class="product-card">
+
+            <h3>Mappilai Samba</h3>
+
+            <div class="price-list">
+                <div class="price">
+                    <small>500g</small>
+                    <strong>₹60</strong>
                 </div>
 
+                <div class="price">
+                    <small>1kg</small>
+                    <strong>₹120</strong>
+                </div>
+            </div>
+
+            <div class="qty-row">
+                <span>500g</span>
+
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Mappilai Samba"
+                    data-size="500g"
+                    data-price="60">
+            </div>
+
+            <div class="qty-row">
+                <span>1kg</span>
+
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Mappilai Samba"
+                    data-size="1kg"
+                    data-price="120">
+            </div>
+
+        </div>
+
+
+        <!-- APPAM -->
+
+        <div class="product-card">
+
+            <h3>Appam Batter</h3>
+
+            <div class="price-list">
+                <div class="price">
+                    <small>500g</small>
+                    <strong>₹30</strong>
+                </div>
+
+                <div class="price">
+                    <small>1kg</small>
+                    <strong>₹60</strong>
+                </div>
+            </div>
+
+            <div class="qty-row">
+                <span>500g</span>
+
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Appam Batter"
+                    data-size="500g"
+                    data-price="30">
+            </div>
+
+            <div class="qty-row">
+                <span>1kg</span>
+
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Appam Batter"
+                    data-size="1kg"
+                    data-price="60">
+            </div>
+
+        </div>
+
+
+        <!-- MILLET -->
+
+        <div class="product-card">
+
+            <h3>Millet Batter</h3>
+
+            <div class="price-list">
+                <div class="price">
+                    <small>500g</small>
+                    <strong>₹40</strong>
+                </div>
+
+                <div class="price">
+                    <small>1kg</small>
+                    <strong>₹80</strong>
+                </div>
+            </div>
+
+            <div class="qty-row">
+                <span>500g</span>
+
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Millet Batter"
+                    data-size="500g"
+                    data-price="40">
+            </div>
+
+            <div class="qty-row">
+                <span>1kg</span>
+
+                <input type="number"
+                    min="0"
+                    value="0"
+                    class="product-qty"
+                    data-product="Millet Batter"
+                    data-size="1kg"
+                    data-price="80">
             </div>
 
         </div>
 
     </div>
+</div>
 
 
-    <!-- ORDER -->
+<!-- ORDER -->
 
-    <div
-        class="section"
-        id="order"
-    >
+<div class="section" id="order">
 
-        <h2>Order Now</h2>
+    <h2>Order Now</h2>
 
+    <form id="orderForm">
 
-        <form id="orderForm">
+        <label for="customerName">
+            Customer Name
+        </label>
 
-            <label for="customerName">
-                Customer Name
-            </label>
+        <input
+            type="text"
+            id="customerName"
+            placeholder="Enter your name"
+            required
+        >
 
-            <input
-                type="text"
-                id="customerName"
-                placeholder="Enter your name"
-                required
-            >
+        <label for="phone">
+            Phone Number
+        </label>
 
+        <input
+            type="tel"
+            id="phone"
+            placeholder="Enter phone number"
+            required
+        >
 
-            <label for="phone">
-                Phone Number
-            </label>
+        <label for="address">
+            Delivery Address
+        </label>
 
-            <input
-                type="tel"
-                id="phone"
-                placeholder="Enter phone number"
-                required
-            >
+        <textarea
+            id="address"
+            placeholder="Enter delivery address"
+            required
+        ></textarea>
 
+        <label for="deliveryDate">
+            Delivery Date
+        </label>
 
-            <label for="address">
-                Delivery Address
-            </label>
+        <input
+            type="date"
+            id="deliveryDate"
+            required
+        >
 
-            <textarea
-                id="address"
-                placeholder="Enter delivery address"
-                required
-            ></textarea>
+        <!-- CART -->
 
+        <div class="cart-box">
 
-            <label for="deliveryDate">
-                Delivery Date
-            </label>
+            <h3>Your Order</h3>
 
-            <input
-                type="date"
-                id="deliveryDate"
-                required
-            >
-
-
-            <!-- ============================ -->
-            <!-- PAYMENT METHOD -->
-            <!-- ============================ -->
-
-            <div class="payment-section">
-
-                <h3>Mode of Payment</h3>
-
-
-                <label class="payment-option">
-
-                    <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="UPI"
-                    >
-
-                    📱 UPI / QR Code
-
-                </label>
-
-
-                <label class="payment-option">
-
-                    <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="COD"
-                    >
-
-                    💵 Cash on Delivery
-
-                </label>
-
-
-                <!-- QR -->
-
-                <div
-                    id="qrPaymentBox"
-                >
-
-                    <h3>
-                        📱 Scan & Pay
-                    </h3>
-
-                    <p>
-                        Scan the QR Code using your
-                        UPI app.
-                    </p>
-
-
-                    <div class="qr-placeholder">
-
-                        <strong>
-                            QR CODE
-                        </strong>
-
-                    </div>
-
-
-                    <p>
-                        After payment, click
-                        <b>Place Order</b>.
-                    </p>
-
-                </div>
-
+            <div id="cartItems">
+                No products selected.
             </div>
 
-
-            <!-- CART -->
-
-            <div class="cart-box">
-
-                <h3>Your Order</h3>
-
-                <div id="cartItems">
-                    No products selected.
-                </div>
-
-                <div
-                    id="cartTotal"
-                    class="cart-total"
-                >
-                    Total: ₹0
-                </div>
-
-            </div>
-
-
-            <button
-                type="submit"
-                id="submitButton"
+            <div
+                id="cartTotal"
+                class="cart-total"
             >
-                Place Order
-            </button>
-
-        </form>
-
-
-        <!-- SUCCESS -->
-
-        <div id="successMessage">
-
-            <h2>
-                ✅ Order Placed Successfully!
-            </h2>
-
-            <p>
-                Order Number:
-                <strong id="successOrderId"></strong>
-            </p>
-
-            <p>
-                Total:
-                <strong id="successTotal"></strong>
-            </p>
-
-            <p>
-                Delivery Date:
-                <strong id="successDeliveryDate"></strong>
-            </p>
-
-            <p>
-                Payment:
-                <strong id="successPayment"></strong>
-            </p>
+                Total: ₹0
+            </div>
 
         </div>
 
-    </div>
+        <button
+            type="submit"
+            id="submitButton"
+        >
+            Place Order
+        </button>
 
+    </form>
 
-    <!-- CONTACT -->
+    <!-- SUCCESS -->
 
-    <div
-        class="section"
-        id="contact"
-    >
+    <div id="successMessage">
 
-        <h2>Contact</h2>
+        <h2>✅ Order Placed Successfully!</h2>
 
-        <p style="text-align:center;">
-            📞 9025530118
+        <p>
+            Order Number:
+            <strong id="successOrderId"></strong>
+        </p>
+
+        <p>
+            Total:
+            <strong id="successTotal"></strong>
+        </p>
+
+        <p>
+            Delivery Date:
+            <strong id="successDeliveryDate"></strong>
         </p>
 
     </div>
+
+</div>
+
+
+<!-- CONTACT -->
+
+<div class="section" id="contact">
+
+    <h2>Contact</h2>
+
+    <p class="phone">
+        📞 9025530118
+    </p>
+
+</div>
 
 </div>
 
@@ -760,16 +752,11 @@
 
     <h2>Dhana Foods</h2>
 
-    <p>
-        Fresh • Traditional • Homemade
-    </p>
+    <p>Fresh • Traditional • Homemade</p>
 
-    <p>
-        © 2026 Dhana Foods. All Rights Reserved.
-    </p>
+    <p>© 2026 Dhana Foods. All Rights Reserved.</p>
 
 </footer>
-
 
 <script src="script.js"></script>
 
