@@ -1,44 +1,291 @@
-const quantityInputs =
-    document.querySelectorAll(".product-qty");
+document.addEventListener("DOMContentLoaded", () => {
 
-const cartItems =
-    document.getElementById("cartItems");
+    const orderForm = document.getElementById("orderForm");
+    const cartItemsBox = document.getElementById("cartItems");
+    const cartTotalBox = document.getElementById("cartTotal");
+    const submitButton = document.getElementById("submitButton");
 
-const cartTotal =
-    document.getElementById("cartTotal");
-
-const orderForm =
-    document.getElementById("orderForm");
-
-const submitButton =
-    document.getElementById("submitButton");
-
-const successMessage =
-    document.getElementById("successMessage");
-
-const paymentOptions =
-    document.querySelectorAll(
-        'input[name="paymentMethod"]'
-    );
-
-const qrPaymentBox =
-    document.getElementById("qrPaymentBox");
+    let currentItems = [];
 
 
-// =====================================
-// GET SELECTED PRODUCTS
-// =====================================
+    // =====================================================
+    // GET ALL PRODUCT QUANTITY INPUTS
+    // =====================================================
 
-function getSelectedItems() {
+    function getProductInputs() {
+        return document.querySelectorAll(".product-qty");
+    }
 
-    const items = [];
 
-    quantityInputs.forEach(input => {
+    // =====================================================
+    // READ PRODUCTS FROM PAGE
+    // =====================================================
 
-        const quantity =
-            Number(input.value);
+    function collectItems() {
 
-        if (quantity > 0) {
+        const items = [];
+
+        getProductInputs().forEach(input => {
+
+            const quantity = Number(input.value) || 0;
+
+            if (quantity <= 0) {
+                return;
+            }
+
+            const product =
+                input.dataset.product ||
+                input.getAttribute("data-product");
+
+            const size =
+                input.dataset.size ||
+                input.getAttribute("data-size");
+
+            const price =
+                Number(
+                    input.dataset.price ||
+                    input.getAttribute("data-price")
+                ) || 0;
+
+
+            if (!product || !size || price <= 0) {
+                return;
+            }
+
+
+            items.push({
+                product: product,
+                size: size,
+                quantity: quantity,
+                price: price
+            });
+
+        });
+
+
+        return items;
+    }
+
+
+    // =====================================================
+    // UPDATE CART
+    // =====================================================
+
+    function updateCart() {
+
+        currentItems = collectItems();
+
+        renderCart();
+
+    }
+
+
+    // =====================================================
+    // RENDER CART
+    // =====================================================
+
+    function renderCart() {
+
+        if (!cartItemsBox) {
+            return;
+        }
+
+
+        if (currentItems.length === 0) {
+
+            cartItemsBox.innerHTML = `
+                <div class="empty-cart">
+
+                    🛒 Your cart is empty.
+
+                    <br>
+
+                    <span>
+                        Select a batter above to add it to your order.
+                    </span>
+
+                </div>
+            `;
+
+            if (cartTotalBox) {
+                cartTotalBox.textContent = "₹0";
+            }
+
+            return;
+        }
+
+
+        let total = 0;
+
+
+        cartItemsBox.innerHTML = "";
+
+
+        currentItems.forEach((item, index) => {
+
+            const itemTotal =
+                item.quantity * item.price;
+
+            total += itemTotal;
+
+
+            const row =
+                document.createElement("div");
+
+            row.className = "cart-item";
+
+
+            row.innerHTML = `
+
+                <div class="cart-item-info">
+
+                    <strong>
+                        ${escapeHTML(item.product)}
+                    </strong>
+
+                    <span>
+                        ${escapeHTML(item.size)}
+                    </span>
+
+                </div>
+
+
+                <div class="cart-item-qty">
+
+                    <button
+                        type="button"
+                        class="cart-minus"
+                        data-index="${index}"
+                    >
+                        −
+                    </button>
+
+                    <span>
+                        ${item.quantity}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="cart-plus"
+                        data-index="${index}"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+
+                <div class="cart-item-price">
+
+                    ₹${itemTotal}
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="cart-remove"
+                    data-index="${index}"
+                    title="Remove"
+                >
+                    ✕
+                </button>
+
+            `;
+
+
+            cartItemsBox.appendChild(row);
+
+        });
+
+
+        if (cartTotalBox) {
+
+            cartTotalBox.textContent =
+                `₹${total}`;
+
+        }
+
+
+        // Add buttons
+
+        cartItemsBox
+            .querySelectorAll(".cart-minus")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const index =
+                            Number(button.dataset.index);
+
+                        changeQuantity(
+                            currentItems[index],
+                            -1
+                        );
+
+                    }
+                );
+
+            });
+
+
+        cartItemsBox
+            .querySelectorAll(".cart-plus")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const index =
+                            Number(button.dataset.index);
+
+                        changeQuantity(
+                            currentItems[index],
+                            1
+                        );
+
+                    }
+                );
+
+            });
+
+
+        cartItemsBox
+            .querySelectorAll(".cart-remove")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const index =
+                            Number(button.dataset.index);
+
+                        removeItem(
+                            currentItems[index]
+                        );
+
+                    }
+                );
+
+            });
+
+    }
+
+
+    // =====================================================
+    // CHANGE QUANTITY
+    // =====================================================
+
+    function changeQuantity(
+        item,
+        amount
+    ) {
+
+        getProductInputs().forEach(input => {
 
             const product =
                 input.dataset.product;
@@ -46,376 +293,410 @@ function getSelectedItems() {
             const size =
                 input.dataset.size;
 
-            const price =
-                Number(input.dataset.price);
 
-            items.push({
-                product: product,
-                size: size,
-                quantity: quantity,
-                price: price,
-                total: price * quantity
-            });
-        }
-    });
+            if (
+                product === item.product &&
+                size === item.size
+            ) {
 
-    return items;
-}
+                let newValue =
+                    (Number(input.value) || 0)
+                    + amount;
 
 
-// =====================================
-// UPDATE CART
-// =====================================
-
-function updateCart() {
-
-    const items =
-        getSelectedItems();
-
-    if (items.length === 0) {
-
-        cartItems.innerHTML =
-            "No products selected.";
-
-        cartTotal.textContent =
-            "Total: ₹0";
-
-        return;
-    }
-
-    let total = 0;
-
-    cartItems.innerHTML = "";
+                if (newValue < 0) {
+                    newValue = 0;
+                }
 
 
-    items.forEach(item => {
-
-        total += item.total;
-
-
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "cart-item";
-
-
-        div.innerHTML = `
-            <span>
-                ${item.product}
-                (${item.size})
-                × ${item.quantity}
-            </span>
-
-            <strong>
-                ₹${item.total}
-            </strong>
-        `;
-
-
-        cartItems.appendChild(div);
-
-    });
-
-
-    cartTotal.textContent =
-        `Total: ₹${total}`;
-}
-
-
-// =====================================
-// QUANTITY CHANGE
-// =====================================
-
-quantityInputs.forEach(input => {
-
-    input.addEventListener(
-        "input",
-        updateCart
-    );
-
-});
-
-
-// =====================================
-// PAYMENT METHOD
-// =====================================
-
-paymentOptions.forEach(option => {
-
-    option.addEventListener(
-        "change",
-        function () {
-
-            if (this.value === "UPI") {
-
-                qrPaymentBox.style.display =
-                    "block";
-
-            } else {
-
-                qrPaymentBox.style.display =
-                    "none";
+                input.value = newValue;
 
             }
 
-        }
-    );
-
-});
+        });
 
 
-// =====================================
-// PLACE ORDER
-// =====================================
+        updateCart();
 
-orderForm.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
+    }
 
 
-        // Get products
-        const items =
-            getSelectedItems();
+    // =====================================================
+    // REMOVE ITEM
+    // =====================================================
 
+    function removeItem(item) {
 
-        if (items.length === 0) {
+        getProductInputs().forEach(input => {
 
-            alert(
-                "Please select at least one product."
-            );
+            const product =
+                input.dataset.product;
 
-            return;
-        }
-
-
-        // Customer details
-        const customerName =
-            document
-                .getElementById("customerName")
-                .value
-                .trim();
-
-
-        const phone =
-            document
-                .getElementById("phone")
-                .value
-                .trim();
-
-
-        const address =
-            document
-                .getElementById("address")
-                .value
-                .trim();
-
-
-        const deliveryDate =
-            document
-                .getElementById("deliveryDate")
-                .value;
-
-
-        // Payment
-        const selectedPayment =
-            document.querySelector(
-                'input[name="paymentMethod"]:checked'
-            );
-
-
-        if (!selectedPayment) {
-
-            alert(
-                "Please select a payment method."
-            );
-
-            return;
-        }
-
-
-        const paymentMethod =
-            selectedPayment.value;
-
-
-        // Disable button
-        submitButton.disabled =
-            true;
-
-        submitButton.textContent =
-            "Placing Order...";
-
-
-        try {
-
-            const response =
-                await fetch(
-                    "/api/orders",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-
-                            customerName:
-                                customerName,
-
-                            phone:
-                                phone,
-
-                            address:
-                                address,
-
-                            items:
-                                items,
-
-                            deliveryDate:
-                                deliveryDate,
-
-                            paymentMethod:
-                                paymentMethod
-                        })
-                    }
-                );
-
-
-            const result =
-                await response.json();
+            const size =
+                input.dataset.size;
 
 
             if (
-                !response.ok ||
-                !result.success
+                product === item.product &&
+                size === item.size
             ) {
-
-                throw new Error(
-                    result.message ||
-                    "Unable to place order."
-                );
-            }
-
-
-            // =================================
-            // SUCCESS MESSAGE
-            // =================================
-
-            const successOrderId =
-                document.getElementById(
-                    "successOrderId"
-                );
-
-            const successTotal =
-                document.getElementById(
-                    "successTotal"
-                );
-
-            const successDeliveryDate =
-                document.getElementById(
-                    "successDeliveryDate"
-                );
-
-            const successPayment =
-                document.getElementById(
-                    "successPayment"
-                );
-
-
-            if (successOrderId) {
-
-                successOrderId.textContent =
-                    `#${result.orderId}`;
-            }
-
-
-            if (successTotal) {
-
-                successTotal.textContent =
-                    `₹${result.total}`;
-            }
-
-
-            if (successDeliveryDate) {
-
-                successDeliveryDate.textContent =
-                    deliveryDate;
-            }
-
-
-            if (successPayment) {
-
-                successPayment.textContent =
-                    paymentMethod === "UPI"
-                        ? "UPI / QR Code"
-                        : "Cash on Delivery";
-            }
-
-
-            if (successMessage) {
-
-                successMessage.style.display =
-                    "block";
-            }
-
-
-            // Reset form
-            orderForm.reset();
-
-
-            quantityInputs.forEach(input => {
 
                 input.value = 0;
 
-            });
+            }
+
+        });
 
 
-            qrPaymentBox.style.display =
-                "none";
+        updateCart();
+
+    }
 
 
-            updateCart();
+    // =====================================================
+    // LISTEN TO QUANTITY CHANGES
+    // =====================================================
+
+    getProductInputs().forEach(input => {
+
+        input.addEventListener(
+            "input",
+            updateCart
+        );
 
 
-            // Scroll to success message
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
+        input.addEventListener(
+            "change",
+            updateCart
+        );
+
+    });
 
 
-        } catch (error) {
+    // =====================================================
+    // FORM SUBMIT
+    // =====================================================
 
-            console.error(
-                "Order error:",
-                error
+    if (orderForm) {
+
+        orderForm.addEventListener(
+            "submit",
+            async (event) => {
+
+                event.preventDefault();
+
+
+                currentItems =
+                    collectItems();
+
+
+                if (
+                    currentItems.length === 0
+                ) {
+
+                    alert(
+                        "Please select at least one batter."
+                    );
+
+                    return;
+
+                }
+
+
+                const customerName =
+                    document.getElementById(
+                        "customerName"
+                    )?.value.trim();
+
+
+                const phone =
+                    document.getElementById(
+                        "phone"
+                    )?.value.trim();
+
+
+                const address =
+                    document.getElementById(
+                        "address"
+                    )?.value.trim();
+
+
+                const deliveryDate =
+                    document.getElementById(
+                        "deliveryDate"
+                    )?.value;
+
+
+                if (!customerName) {
+
+                    alert(
+                        "Please enter your name."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!phone) {
+
+                    alert(
+                        "Please enter your phone number."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!address) {
+
+                    alert(
+                        "Please enter your delivery address."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!deliveryDate) {
+
+                    alert(
+                        "Please select a delivery date."
+                    );
+
+                    return;
+
+                }
+
+
+                const total =
+                    currentItems.reduce(
+                        (sum, item) =>
+                            sum +
+                            (
+                                item.quantity *
+                                item.price
+                            ),
+                        0
+                    );
+
+
+                if (submitButton) {
+
+                    submitButton.disabled = true;
+
+                    submitButton.textContent =
+                        "⏳ Placing Order...";
+
+                }
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/orders",
+                            {
+
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+
+                                        customerName:
+                                            customerName,
+
+                                        phone:
+                                            phone,
+
+                                        address:
+                                            address,
+
+                                        deliveryDate:
+                                            deliveryDate,
+
+                                        items:
+                                            currentItems
+
+                                    })
+
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.message ||
+                            "Unable to place order."
+                        );
+
+                    }
+
+
+                    showSuccess(
+                        data,
+                        total,
+                        deliveryDate
+                    );
+
+
+                    orderForm.reset();
+
+
+                    currentItems = [];
+
+
+                    updateCart();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Order error:",
+                        error
+                    );
+
+
+                    alert(
+                        error.message ||
+                        "Unable to place order."
+                    );
+
+                } finally {
+
+                    if (submitButton) {
+
+                        submitButton.disabled =
+                            false;
+
+                        submitButton.textContent =
+                            "🥣 Place Order";
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // =====================================================
+    // SUCCESS MESSAGE
+    // =====================================================
+
+    function showSuccess(
+        data,
+        total,
+        deliveryDate
+    ) {
+
+        const successOrderId =
+            document.getElementById(
+                "successOrderId"
             );
+
+
+        const successTotal =
+            document.getElementById(
+                "successTotal"
+            );
+
+
+        const successDeliveryDate =
+            document.getElementById(
+                "successDeliveryDate"
+            );
+
+
+        const successMessage =
+            document.getElementById(
+                "successMessage"
+            );
+
+
+        if (successOrderId) {
+
+            successOrderId.textContent =
+                data.orderId ||
+                data.id ||
+                "-";
+
+        }
+
+
+        if (successTotal) {
+
+            successTotal.textContent =
+                `₹${data.total || total}`;
+
+        }
+
+
+        if (successDeliveryDate) {
+
+            successDeliveryDate.textContent =
+                deliveryDate;
+
+        }
+
+
+        if (successMessage) {
+
+            successMessage.style.display =
+                "block";
+
+            successMessage.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+        } else {
 
             alert(
-                error.message ||
-                "Unable to place order."
+                `Order placed successfully! Order #${
+                    data.orderId || data.id || ""
+                }`
             );
 
-
-        } finally {
-
-            submitButton.disabled =
-                false;
-
-            submitButton.textContent =
-                "Place Order";
         }
 
     }
-);
 
 
-// =====================================
-// INITIAL CART
-// =====================================
+    // =====================================================
+    // ESCAPE HTML
+    // =====================================================
 
-updateCart();
+    function escapeHTML(value) {
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    // =====================================================
+    // INITIAL CART
+    // =====================================================
+
+    updateCart();
+
+});

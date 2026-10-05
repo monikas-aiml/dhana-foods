@@ -1,581 +1,1258 @@
 const express = require("express");
-const { Pool } = require("pg");
+const sqlite3 = require("sqlite3").verbose();
+const path = require("path");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: false
-});
+const PORT = 10000;
+
+const DB_PATH = path.join(
+    __dirname,
+    "dhanafoods.db"
+);
+
+
+/* =====================================================
+   MIDDLEWARE
+===================================================== */
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+app.use(express.urlencoded({
+    extended: true
+}));
+
 app.use(express.static(__dirname));
 
 
-// =====================================
-// DATABASE INITIALIZATION
-// =====================================
+/* =====================================================
+   DATABASE
+===================================================== */
 
-async function initializeDatabase() {
+const db = new sqlite3.Database(
+    DB_PATH,
+    (error) => {
 
-    await pool.query(`
+        if (error) {
+
+            console.error(
+                "Database connection error:",
+                error
+            );
+
+        } else {
+
+            console.log(
+                "✅ Connected to SQLite database"
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   PRODUCT PRICES
+===================================================== */
+
+const PRODUCT_PRICES = {
+
+    "Idli Batter": {
+        "500g": 25,
+        "1kg": 45
+    },
+
+    "Dosa Batter": {
+        "500g": 25,
+        "1kg": 45
+    },
+
+    "Adai Batter": {
+        "500g": 30,
+        "1kg": 60
+    },
+
+    "Mappilai Samba Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Appam Batter": {
+        "500g": 30,
+        "1kg": 60
+    },
+
+    "Millet Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Poongar Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Karuppu Kavuni Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Keerai Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Kambu Yasnam Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Ragi Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Karinagaruvai Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Pachai Payiru Batter": {
+        "500g": 40,
+        "1kg": 80
+    }
+
+};
+
+
+/* =====================================================
+   ALLOWED STATUS
+===================================================== */
+
+const ALLOWED_STATUSES = [
+
+    "Pending",
+
+    "Preparing",
+
+    "Out for Delivery",
+
+    "Delivered",
+
+    "Cancelled"
+
+];
+
+
+/* =====================================================
+   CREATE / REPAIR DATABASE TABLE
+===================================================== */
+
+function setupDatabase() {
+
+    db.run(
+        `
         CREATE TABLE IF NOT EXISTS orders (
-            id SERIAL PRIMARY KEY,
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
             customer_name TEXT NOT NULL,
+
             phone TEXT NOT NULL,
+
             address TEXT NOT NULL,
-            product TEXT NOT NULL,
-            quantity TEXT NOT NULL,
-            price INTEGER NOT NULL,
+
+            items TEXT NOT NULL,
+
+            total REAL NOT NULL,
+
             delivery_date TEXT NOT NULL,
-            status TEXT DEFAULT 'Pending',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            items_json TEXT
+
+            status TEXT NOT NULL DEFAULT 'Pending',
+
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+
         )
-    `);
+        `,
+        (error) => {
 
-    // Add payment_method column if it does not exist
-    await pool.query(`
-        ALTER TABLE orders
-        ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'COD'
-    `);
+            if (error) {
 
-    console.log("PostgreSQL database ready.");
+                console.error(
+                    "❌ Table creation error:",
+                    error
+                );
+
+                return;
+
+            }
+
+
+            console.log(
+                "✅ Orders table ready"
+            );
+
+
+            repairDatabaseColumns();
+
+        }
+    );
+
 }
 
 
-// =====================================
-// TEST API
-// =====================================
+/* =====================================================
+   REPAIR OLD DATABASE COLUMNS
+===================================================== */
 
-app.get("/api/test", (req, res) => {
+function repairDatabaseColumns() {
 
-    res.json({
-        success: true,
-        message: "Dhana Foods backend is working with PostgreSQL!"
-    });
+    db.all(
+        `PRAGMA table_info(orders)`,
+        [],
+        (error, columns) => {
 
-});
+            if (error) {
 
+                console.error(
+                    "❌ Unable to inspect database:",
+                    error
+                );
 
-// =====================================
-// PLACE ORDER
-// =====================================
+                return;
 
-app.post("/api/orders", async (req, res) => {
-
-    try {
-
-        const {
-            customerName,
-            phone,
-            address,
-            items,
-            deliveryDate,
-            paymentMethod
-        } = req.body;
+            }
 
 
-        if (
-            !customerName ||
-            !phone ||
-            !address ||
-            !deliveryDate
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Please fill all customer details."
-            });
-
-        }
+            const existingColumns =
+                columns.map(
+                    column =>
+                        column.name
+                );
 
 
-        if (
-            !Array.isArray(items) ||
-            items.length === 0
-        ) {
+            const requiredColumns = {
 
-            return res.status(400).json({
-                success: false,
-                message: "Please select at least one product."
-            });
+                customer_name:
+                    "TEXT",
 
-        }
+                phone:
+                    "TEXT",
+
+                address:
+                    "TEXT",
+
+                items:
+                    "TEXT",
+
+                total:
+                    "REAL",
+
+                delivery_date:
+                    "TEXT",
+
+                status:
+                    "TEXT DEFAULT 'Pending'",
+
+                created_at:
+                    "TEXT"
+
+            };
 
 
-        const cleanedItems = items.map(item => {
-
-            const product =
-                String(item.product || "").trim();
-
-            const size =
-                String(item.size || "").trim();
-
-            const quantity =
-                Number(item.quantity);
-
-            const price =
-                Number(item.price);
+            const missingColumns =
+                Object.keys(
+                    requiredColumns
+                ).filter(
+                    column =>
+                        !existingColumns.includes(
+                            column
+                        )
+                );
 
 
             if (
-                !product ||
-                !size ||
-                !Number.isFinite(quantity) ||
-                quantity <= 0 ||
-                !Number.isFinite(price) ||
-                price < 0
+                missingColumns.length === 0
+            ) {
+
+                console.log(
+                    "✅ Database schema is up to date"
+                );
+
+                return;
+
+            }
+
+
+            let completed = 0;
+
+
+            missingColumns.forEach(
+                column => {
+
+                    const type =
+                        requiredColumns[
+                            column
+                        ];
+
+
+                    db.run(
+                        `
+                        ALTER TABLE orders
+                        ADD COLUMN ${column} ${type}
+                        `,
+                        (alterError) => {
+
+                            if (alterError) {
+
+                                console.error(
+                                    `❌ Could not add ${column}:`,
+                                    alterError.message
+                                );
+
+                            } else {
+
+                                console.log(
+                                    `✅ Added missing column: ${column}`
+                                );
+
+                            }
+
+
+                            completed++;
+
+
+                            if (
+                                completed ===
+                                missingColumns.length
+                            ) {
+
+                                console.log(
+                                    "✅ Database repair completed"
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   CLEAN / VALIDATE ITEMS
+===================================================== */
+
+function cleanItems(
+    incomingItems
+) {
+
+    if (
+        !Array.isArray(
+            incomingItems
+        )
+    ) {
+
+        throw new Error(
+            "Invalid order items."
+        );
+
+    }
+
+
+    const cleanedItems = [];
+
+
+    incomingItems.forEach(
+        item => {
+
+            const product =
+                String(
+                    item.product || ""
+                ).trim();
+
+
+            const size =
+                String(
+                    item.size || ""
+                ).trim();
+
+
+            const quantity =
+                Number(
+                    item.quantity
+                );
+
+
+            if (
+                quantity <= 0
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                !PRODUCT_PRICES[
+                    product
+                ]
             ) {
 
                 throw new Error(
-                    "Invalid product information."
+                    `Invalid product: ${product}`
                 );
 
             }
 
 
-            return {
-                product,
-                size,
-                quantity,
-                price,
-                total: price * quantity
-            };
-
-        });
-
-
-        const total =
-            cleanedItems.reduce(
-                (sum, item) =>
-                    sum + item.total,
-                0
-            );
-
-
-        const productSummary =
-            cleanedItems
-                .map(
-                    item =>
-                        `${item.product} (${item.size})`
-                )
-                .join(", ");
-
-
-        const quantitySummary =
-            cleanedItems
-                .map(
-                    item =>
-                        item.quantity
-                )
-                .join(", ");
-
-
-        const itemsJson =
-            JSON.stringify(cleanedItems);
-
-
-        const selectedPayment =
-            paymentMethod === "UPI"
-                ? "UPI"
-                : "COD";
-
-
-        const result =
-            await pool.query(
-                `
-                INSERT INTO orders (
-                    customer_name,
-                    phone,
-                    address,
-                    product,
-                    quantity,
-                    price,
-                    delivery_date,
-                    items_json,
-                    payment_method
-                )
-                VALUES (
-                    $1,
-                    $2,
-                    $3,
-                    $4,
-                    $5,
-                    $6,
-                    $7,
-                    $8,
-                    $9
-                )
-                RETURNING id
-                `,
-                [
-                    customerName,
-                    phone,
-                    address,
-                    productSummary,
-                    quantitySummary,
-                    total,
-                    deliveryDate,
-                    itemsJson,
-                    selectedPayment
+            if (
+                !PRODUCT_PRICES[
+                    product
+                ][
+                    size
                 ]
-            );
+            ) {
+
+                throw new Error(
+                    `Invalid size: ${product} - ${size}`
+                );
+
+            }
 
 
-        res.json({
-
-            success: true,
-
-            orderId:
-                result.rows[0].id,
-
-            total:
-                total,
-
-            paymentMethod:
-                selectedPayment,
-
-            message:
-                "Order placed successfully."
-
-        });
+            const price =
+                PRODUCT_PRICES[
+                    product
+                ][
+                    size
+                ];
 
 
-    } catch (error) {
+            cleanedItems.push({
 
-        console.error(
-            "Order creation error:",
-            error
+                product:
+                    product,
+
+                size:
+                    size,
+
+                quantity:
+                    quantity,
+
+                price:
+                    price
+
+            });
+
+        }
+    );
+
+
+    if (
+        cleanedItems.length === 0
+    ) {
+
+        throw new Error(
+            "Please select at least one batter."
         );
-
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Unable to place order."
-
-        });
 
     }
 
-});
+
+    return cleanedItems;
+
+}
 
 
-// =====================================
-// GET ALL ORDERS
-// =====================================
+/* =====================================================
+   CALCULATE TOTAL
+===================================================== */
 
-app.get("/api/orders", async (req, res) => {
+function calculateTotal(
+    items
+) {
 
-    try {
+    return items.reduce(
+        (
+            total,
+            item
+        ) => {
 
-        const result =
-            await pool.query(`
-                SELECT *
-                FROM orders
-                ORDER BY created_at DESC
-            `);
+            return total +
+                (
+                    item.quantity *
+                    item.price
+                );
+
+        },
+        0
+    );
+
+}
 
 
-        const formattedOrders =
-            result.rows.map(order => {
+/* =====================================================
+   CREATE ORDER
+===================================================== */
+
+app.post(
+    "/api/orders",
+    (req, res) => {
+
+        try {
+
+            const {
+
+                customerName,
+
+                phone,
+
+                address,
+
+                deliveryDate,
+
+                items
+
+            } = req.body;
+
+
+            if (
+                !customerName ||
+                !phone ||
+                !address ||
+                !deliveryDate
+            ) {
+
+                return res.status(400).json({
+
+                    message:
+                        "Please fill all customer details."
+
+                });
+
+            }
+
+
+            const cleanedItems =
+                cleanItems(
+                    items
+                );
+
+
+            const total =
+                calculateTotal(
+                    cleanedItems
+                );
+
+
+            const itemsJSON =
+                JSON.stringify(
+                    cleanedItems
+                );
+
+
+            /*
+               IMPORTANT:
+               This INSERT uses only the
+               new SQLite columns.
+            */
+
+            const sql = `
+
+                INSERT INTO orders (
+
+                    customer_name,
+
+                    phone,
+
+                    address,
+
+                    items,
+
+                    total,
+
+                    delivery_date,
+
+                    status,
+
+                    created_at
+
+                )
+
+                VALUES (
+
+                    ?,
+
+                    ?,
+
+                    ?,
+
+                    ?,
+
+                    ?,
+
+                    ?,
+
+                    'Pending',
+
+                    datetime('now','localtime')
+
+                )
+
+            `;
+
+
+            db.run(
+                sql,
+                [
+
+                    customerName.trim(),
+
+                    phone.trim(),
+
+                    address.trim(),
+
+                    itemsJSON,
+
+                    total,
+
+                    deliveryDate
+
+                ],
+                function(error) {
+
+                    if (error) {
+
+                        console.error(
+                            "❌ Order insert error:",
+                            error
+                        );
+
+
+                        return res.status(
+                            500
+                        ).json({
+
+                            message:
+                                error.message
+
+                        });
+
+                    }
+
+
+                    console.log(
+                        `✅ Order #${this.lastID} created`
+                    );
+
+
+                    res.status(201).json({
+
+                        success:
+                            true,
+
+                        message:
+                            "Order placed successfully.",
+
+                        orderId:
+                            this.lastID,
+
+                        total:
+                            total,
+
+                        items:
+                            cleanedItems
+
+                    });
+
+                }
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "❌ Order validation error:",
+                error
+            );
+
+
+            res.status(400).json({
+
+                message:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   GET ALL ORDERS
+===================================================== */
+
+app.get(
+    "/api/orders",
+    (req, res) => {
+
+        db.all(
+            `
+            SELECT
+                id,
+                customer_name,
+                phone,
+                address,
+                items,
+                total,
+                delivery_date,
+                status,
+                created_at
+
+            FROM orders
+
+            ORDER BY id DESC
+            `,
+            [],
+            (error, rows) => {
+
+                if (error) {
+
+                    console.error(
+                        "❌ Get orders error:",
+                        error
+                    );
+
+
+                    return res.status(
+                        500
+                    ).json({
+
+                        message:
+                            error.message
+
+                    });
+
+                }
+
+
+                const orders =
+                    rows.map(
+                        row => {
+
+                            let items = [];
+
+
+                            try {
+
+                                items =
+                                    JSON.parse(
+                                        row.items ||
+                                        "[]"
+                                    );
+
+                            } catch (
+                                parseError
+                            ) {
+
+                                items = [];
+
+                            }
+
+
+                            return {
+
+                                id:
+                                    row.id,
+
+                                customer_name:
+                                    row.customer_name,
+
+                                phone:
+                                    row.phone,
+
+                                address:
+                                    row.address,
+
+                                items:
+                                    items,
+
+                                total:
+                                    Number(
+                                        row.total
+                                    ) || 0,
+
+                                delivery_date:
+                                    row.delivery_date,
+
+                                status:
+                                    row.status ||
+                                    "Pending",
+
+                                created_at:
+                                    row.created_at
+
+                            };
+
+                        }
+                    );
+
+
+                res.json(
+                    orders
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* =====================================================
+   GET SINGLE ORDER
+===================================================== */
+
+app.get(
+    "/api/orders/:id",
+    (req, res) => {
+
+        const id =
+            Number(
+                req.params.id
+            );
+
+
+        if (
+            !Number.isInteger(id)
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid order ID."
+
+            });
+
+        }
+
+
+        db.get(
+            `
+            SELECT
+                id,
+                customer_name,
+                phone,
+                address,
+                items,
+                total,
+                delivery_date,
+                status,
+                created_at
+
+            FROM orders
+
+            WHERE id = ?
+            `,
+            [id],
+            (error, row) => {
+
+                if (error) {
+
+                    return res.status(
+                        500
+                    ).json({
+
+                        message:
+                            error.message
+
+                    });
+
+                }
+
+
+                if (!row) {
+
+                    return res.status(
+                        404
+                    ).json({
+
+                        message:
+                            "Order not found."
+
+                    });
+
+                }
+
 
                 let items = [];
 
 
-                if (order.items_json) {
+                try {
 
-                    try {
-
-                        items =
-                            JSON.parse(
-                                order.items_json
-                            );
-
-                    } catch (error) {
-
-                        console.error(
-                            "Invalid items JSON for order:",
-                            order.id
+                    items =
+                        JSON.parse(
+                            row.items ||
+                            "[]"
                         );
 
-                    }
-
-                }
-
-
-                // Old-order fallback
-                if (
-                    items.length === 0 &&
-                    order.product
+                } catch (
+                    parseError
                 ) {
 
-                    items = [
-                        {
-                            product:
-                                order.product,
-
-                            size:
-                                order.quantity,
-
-                            quantity:
-                                1,
-
-                            price:
-                                order.price,
-
-                            total:
-                                order.price
-                        }
-                    ];
+                    items = [];
 
                 }
 
 
-                return {
-                    ...order,
-                    items: items
-                };
+                res.json({
 
-            });
+                    id:
+                        row.id,
 
+                    customer_name:
+                        row.customer_name,
 
-        res.json(
-            formattedOrders
-        );
+                    phone:
+                        row.phone,
 
+                    address:
+                        row.address,
 
-    } catch (error) {
+                    items:
+                        items,
 
-        console.error(
-            "Get orders error:",
-            error
-        );
+                    total:
+                        Number(
+                            row.total
+                        ) || 0,
 
+                    delivery_date:
+                        row.delivery_date,
 
-        res.status(500).json({
+                    status:
+                        row.status,
 
-            success: false,
+                    created_at:
+                        row.created_at
 
-            message:
-                "Unable to load orders."
-
-        });
-
-    }
-
-});
-
-
-// =====================================
-// UPDATE ORDER STATUS
-// =====================================
-
-app.put("/api/orders/:id", async (req, res) => {
-
-    try {
-
-        const {
-            status
-        } = req.body;
-
-
-        const orderId =
-            Number(req.params.id);
-
-
-        const allowedStatuses = [
-            "Pending",
-            "Confirmed",
-            "Preparing",
-            "Ready",
-            "Delivered",
-            "Cancelled"
-        ];
-
-
-        if (
-            !allowedStatuses.includes(status)
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Invalid status."
-
-            });
-
-        }
-
-
-        const result =
-            await pool.query(
-                `
-                UPDATE orders
-                SET status = $1
-                WHERE id = $2
-                `,
-                [
-                    status,
-                    orderId
-                ]
-            );
-
-
-        if (
-            result.rowCount === 0
-        ) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message:
-                    "Order not found."
-
-            });
-
-        }
-
-
-        res.json({
-
-            success: true,
-
-            message:
-                "Order status updated."
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Update status error:",
-            error
-        );
-
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Unable to update order status."
-
-        });
-
-    }
-
-});
-
-
-// =====================================
-// DELETE ORDER
-// =====================================
-
-app.delete("/api/orders/:id", async (req, res) => {
-
-    try {
-
-        const orderId =
-            Number(req.params.id);
-
-
-        const result =
-            await pool.query(
-                `
-                DELETE FROM orders
-                WHERE id = $1
-                `,
-                [orderId]
-            );
-
-
-        if (
-            result.rowCount === 0
-        ) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message:
-                    "Order not found."
-
-            });
-
-        }
-
-
-        res.json({
-
-            success: true,
-
-            message:
-                "Order deleted successfully."
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Delete order error:",
-            error
-        );
-
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Unable to delete order."
-
-        });
-
-    }
-
-});
-
-
-// =====================================
-// START SERVER
-// =====================================
-
-initializeDatabase()
-
-    .then(() => {
-
-        app.listen(
-            PORT,
-            "0.0.0.0",
-            () => {
-
-                console.log(
-                    `Dhana Foods running on port ${PORT}`
-                );
+                });
 
             }
         );
 
-    })
+    }
+);
 
-    .catch(error => {
 
-        console.error(
-            "Database initialization failed:",
-            error
+/* =====================================================
+   UPDATE ORDER STATUS
+===================================================== */
+
+app.put(
+    "/api/orders/:id",
+    (req, res) => {
+
+        const id =
+            Number(
+                req.params.id
+            );
+
+
+        const status =
+            String(
+                req.body.status ||
+                ""
+            ).trim();
+
+
+        if (
+            !Number.isInteger(id)
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid order ID."
+
+            });
+
+        }
+
+
+        if (
+            !ALLOWED_STATUSES.includes(
+                status
+            )
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid order status."
+
+            });
+
+        }
+
+
+        db.run(
+            `
+            UPDATE orders
+
+            SET status = ?
+
+            WHERE id = ?
+            `,
+            [
+                status,
+                id
+            ],
+            function(error) {
+
+                if (error) {
+
+                    return res.status(
+                        500
+                    ).json({
+
+                        message:
+                            error.message
+
+                    });
+
+                }
+
+
+                if (
+                    this.changes === 0
+                ) {
+
+                    return res.status(
+                        404
+                    ).json({
+
+                        message:
+                            "Order not found."
+
+                    });
+
+                }
+
+
+                res.json({
+
+                    success:
+                        true,
+
+                    message:
+                        "Order status updated.",
+
+                    status:
+                        status
+
+                });
+
+            }
         );
 
-        process.exit(1);
+    }
+);
 
-    });
+
+/* =====================================================
+   DELETE ORDER
+===================================================== */
+
+app.delete(
+    "/api/orders/:id",
+    (req, res) => {
+
+        const id =
+            Number(
+                req.params.id
+            );
+
+
+        if (
+            !Number.isInteger(id)
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid order ID."
+
+            });
+
+        }
+
+
+        db.run(
+            `
+            DELETE FROM orders
+
+            WHERE id = ?
+            `,
+            [id],
+            function(error) {
+
+                if (error) {
+
+                    return res.status(
+                        500
+                    ).json({
+
+                        message:
+                            error.message
+
+                    });
+
+                }
+
+
+                if (
+                    this.changes === 0
+                ) {
+
+                    return res.status(
+                        404
+                    ).json({
+
+                        message:
+                            "Order not found."
+
+                    });
+
+                }
+
+
+                res.json({
+
+                    success:
+                        true,
+
+                    message:
+                        "Order deleted."
+
+                });
+
+            }
+        );
+
+    }
+);
+
+
+/* =====================================================
+   HEALTH CHECK
+===================================================== */
+
+app.get(
+    "/api/health",
+    (req, res) => {
+
+        res.json({
+
+            success:
+                true,
+
+            message:
+                "Dhana Foods server is running.",
+
+            database:
+                "SQLite",
+
+            port:
+                PORT
+
+        });
+
+    }
+);
+
+
+/* =====================================================
+   START DATABASE THEN SERVER
+===================================================== */
+
+setupDatabase();
+
+
+app.listen(
+    PORT,
+    () => {
+
+        console.log(
+            ""
+        );
+
+        console.log(
+            "===================================="
+        );
+
+        console.log(
+            "🥣 DHANA FOODS SERVER"
+        );
+
+        console.log(
+            "===================================="
+        );
+
+        console.log(
+            `✅ Server: http://localhost:${PORT}`
+        );
+
+        console.log(
+            `✅ Admin:  http://localhost:${PORT}/admin.html`
+        );
+
+        console.log(
+            `✅ Database: ${DB_PATH}`
+        );
+
+        console.log(
+            "===================================="
+        );
+
+    }
+);
+
+
+/* =====================================================
+   GRACEFUL SHUTDOWN
+===================================================== */
+
+process.on(
+    "SIGINT",
+    () => {
+
+        console.log(
+            "\nClosing database..."
+        );
+
+
+        db.close(
+            () => {
+
+                console.log(
+                    "Database closed."
+                );
+
+                process.exit(0);
+
+            }
+        );
+
+    }
+);

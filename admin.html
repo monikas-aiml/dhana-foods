@@ -10,74 +10,90 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Dhana Foods Admin</title>
+    <title>Dhana Foods Admin Dashboard</title>
+
 
     <style>
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
+
 
         body {
+            font-family: Arial, Helvetica, sans-serif;
 
-            font-family: Arial, sans-serif;
+            background:
+                linear-gradient(
+                    135deg,
+                    #fff8ef,
+                    #fffdf9
+                );
 
-            background: #fffaf0;
+            color: #33261f;
 
-            color: #333;
-
-            padding: 30px;
-
+            min-height: 100vh;
         }
 
-        .container {
 
-            max-width: 1200px;
+        /* =================================================
+           HEADER
+        ================================================= */
 
-            margin: auto;
+        header {
+            background:
+                linear-gradient(
+                    135deg,
+                    #6f2e12,
+                    #a94b1c
+                );
 
-        }
+            color: white;
 
-        h1 {
+            padding: 25px 20px;
 
-            margin-bottom: 10px;
-
-        }
-
-        .subtitle {
-
-            margin-bottom: 30px;
-
-            color: #666;
-
-        }
-
-        .orders {
-
-            display: grid;
-
-            gap: 20px;
-
-        }
-
-        .order-card {
-
-            background: white;
-
-            padding: 25px;
-
-            border-radius: 16px;
+            text-align: center;
 
             box-shadow:
                 0 5px 20px
-                rgba(0, 0, 0, 0.08);
-
+                rgba(70, 30, 10, 0.18);
         }
 
-        .order-header {
 
+        header h1 {
+            font-size: 32px;
+
+            margin-bottom: 5px;
+        }
+
+
+        header p {
+            opacity: 0.92;
+
+            font-size: 15px;
+        }
+
+
+        /* =================================================
+           MAIN
+        ================================================= */
+
+        .container {
+            width: 94%;
+
+            max-width: 1200px;
+
+            margin: 30px auto;
+        }
+
+
+        /* =================================================
+           TOP BAR
+        ================================================= */
+
+        .top-bar {
             display: flex;
 
             justify-content: space-between;
@@ -86,255 +102,641 @@
 
             gap: 15px;
 
-            margin-bottom: 20px;
-
-            flex-wrap: wrap;
-
+            margin-bottom: 25px;
         }
 
-        .order-header h3 {
 
-            color: #333;
+        .top-bar h2 {
+            color: #713014;
 
+            font-size: 28px;
         }
 
-        .customer-section {
 
-            background: #fffaf0;
+        .refresh-button {
+            border: none;
 
-            padding: 15px;
+            background: #7e3515;
+
+            color: white;
+
+            padding: 12px 20px;
+
+            border-radius: 10px;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+
+        .refresh-button:hover {
+            background: #a94b1c;
+
+            transform: translateY(-1px);
+        }
+
+
+        /* =================================================
+           SUMMARY
+        ================================================= */
+
+        .summary-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 18px;
+
+            margin-bottom: 30px;
+        }
+
+
+        .summary-card {
+            background: white;
+
+            border: 1px solid #ead7c1;
+
+            border-radius: 17px;
+
+            padding: 22px;
+
+            text-align: center;
+
+            box-shadow:
+                0 6px 22px
+                rgba(80, 40, 10, 0.07);
+        }
+
+
+        .summary-icon {
+            font-size: 30px;
+
+            margin-bottom: 5px;
+        }
+
+
+        .summary-number {
+            font-size: 30px;
+
+            font-weight: bold;
+
+            color: #843815;
+        }
+
+
+        .summary-label {
+            color: #74665d;
+
+            margin-top: 3px;
+        }
+
+
+        /* =================================================
+           LOADING
+        ================================================= */
+
+        #loading {
+            background: white;
+
+            border-radius: 16px;
+
+            padding: 35px;
+
+            text-align: center;
+
+            color: #7e3515;
+
+            font-weight: bold;
+
+            box-shadow:
+                0 6px 22px
+                rgba(80, 40, 10, 0.07);
+        }
+
+
+        /* =================================================
+           ERROR
+        ================================================= */
+
+        #errorMessage {
+            display: none;
+
+            background: #ffe4e4;
+
+            border: 1px solid #e1aaaa;
+
+            color: #a00000;
+
+            padding: 17px;
 
             border-radius: 12px;
 
             margin-bottom: 20px;
 
-        }
-
-        .customer-section p {
-
-            margin: 8px 0;
-
-        }
-
-        .items-title {
-
-            margin-bottom: 10px;
-
-        }
-
-        .items-table {
-
-            width: 100%;
-
-            border-collapse: collapse;
-
-            margin-bottom: 20px;
-
-        }
-
-        .items-table th,
-        .items-table td {
-
-            padding: 12px;
-
-            border-bottom:
-                1px solid #eee;
-
-            text-align: left;
-
-        }
-
-        .items-table th {
-
-            background: #f8f8f8;
-
-        }
-
-        .total {
-
-            text-align: right;
-
-            font-size: 20px;
+            text-align: center;
 
             font-weight: bold;
-
-            margin: 15px 0;
-
         }
 
-        .delivery {
 
-            margin: 15px 0;
+        /* =================================================
+           ORDER CARD
+        ================================================= */
 
-            padding: 12px;
+        .order-card {
+            background: white;
 
-            background: #f5f5f5;
+            border: 1px solid #ead7c1;
 
-            border-radius: 10px;
+            border-radius: 20px;
 
+            padding: 25px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 7px 25px
+                rgba(80, 40, 10, 0.08);
         }
 
-        .status-row {
 
+        /* =================================================
+           ORDER HEADER
+        ================================================= */
+
+        .order-header {
             display: flex;
+
+            justify-content: space-between;
 
             align-items: center;
 
             gap: 15px;
 
-            flex-wrap: wrap;
+            padding-bottom: 17px;
+
+            border-bottom:
+                1px solid #eaded4;
+        }
+
+
+        .order-number {
+            font-size: 23px;
+
+            font-weight: bold;
+
+            color: #713014;
+        }
+
+
+        .order-created {
+            color: #756960;
+
+            font-size: 14px;
+        }
+
+
+        /* =================================================
+           CUSTOMER
+        ================================================= */
+
+        .customer-box {
+            background: #fff8ed;
+
+            border: 1px solid #f0dfc8;
+
+            border-radius: 14px;
+
+            padding: 18px;
 
             margin-top: 20px;
-
         }
 
-        .status-select {
 
-            padding: 10px 14px;
+        .customer-row {
+            margin: 8px 0;
 
-            border-radius: 8px;
+            font-size: 16px;
 
-            border: 1px solid #ddd;
+            line-height: 1.5;
+        }
+
+
+        .customer-row strong {
+            color: #513426;
+        }
+
+
+        /* =================================================
+           PRODUCTS
+        ================================================= */
+
+        .products-title {
+            color: #713014;
+
+            font-size: 21px;
+
+            font-weight: bold;
+
+            margin-top: 25px;
+
+            margin-bottom: 12px;
+        }
+
+
+        .table-container {
+            width: 100%;
+
+            overflow-x: auto;
+
+            border:
+                1px solid #eaded4;
+
+            border-radius: 12px;
+        }
+
+
+        .products-table {
+            width: 100%;
+
+            min-width: 650px;
+
+            border-collapse: collapse;
+        }
+
+
+        .products-table th {
+            background: #f7efe6;
+
+            color: #4e392c;
+
+            padding: 13px;
+
+            text-align: left;
+
+            font-size: 14px;
+        }
+
+
+        .products-table td {
+            padding: 13px;
+
+            border-top:
+                1px solid #eee1d6;
 
             font-size: 15px;
-
-            cursor: pointer;
-
         }
 
-        .status {
 
-            display: inline-block;
+        .products-table tr:hover td {
+            background: #fffaf5;
+        }
 
-            padding: 9px 15px;
 
-            border-radius: 20px;
+        .product-name {
+            font-weight: bold;
 
-            background: #fff3cd;
+            color: #733315;
+        }
+
+
+        .quantity {
+            font-weight: bold;
+
+            text-align: center;
+        }
+
+
+        .unit-price {
+            color: #66574e;
+        }
+
+
+        .item-total {
+            font-weight: bold;
+
+            color: #9b431c;
+        }
+
+
+        /* =================================================
+           TOTAL
+        ================================================= */
+
+        .order-total {
+            display: flex;
+
+            justify-content: flex-end;
+
+            align-items: center;
+
+            gap: 10px;
+
+            margin-top: 18px;
+
+            padding-top: 17px;
+
+            border-top:
+                2px solid #e6cdb2;
+
+            font-size: 25px;
 
             font-weight: bold;
 
+            color: #713014;
         }
 
-        .status.Pending {
 
-            background: #fff3cd;
-
-            color: #856404;
-
+        .order-total-value {
+            color: #a9481c;
         }
 
-        .status.Confirmed {
 
-            background: #cfe2ff;
+        /* =================================================
+           DELIVERY
+        ================================================= */
 
-            color: #084298;
+        .delivery-box {
+            background: #f5f8f1;
 
+            border:
+                1px solid #d9e4cf;
+
+            border-radius: 12px;
+
+            padding: 15px;
+
+            margin-top: 18px;
+
+            color: #315a35;
+
+            font-size: 16px;
         }
 
-        .status.Preparing {
 
-            background: #ffe5b4;
+        /* =================================================
+           STATUS
+        ================================================= */
 
-            color: #8a4b00;
+        .status-section {
+            display: flex;
 
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            gap: 12px;
+
+            margin-top: 20px;
         }
 
-        .status.Ready {
 
-            background: #d1e7dd;
-
-            color: #0f5132;
-
-        }
-
-        .status.Delivered {
-
-            background: #d1e7dd;
-
-            color: #0f5132;
-
-        }
-
-        .status.Cancelled {
-
-            background: #f8d7da;
-
-            color: #842029;
-
-        }
-
-        .delete-btn {
-
-            margin-top: 15px;
-
-            padding: 10px 18px;
-
-            border: none;
-
-            border-radius: 8px;
-
-            background: #dc3545;
-
-            color: white;
-
+        .status-section label {
             font-weight: bold;
 
-            cursor: pointer;
-
+            color: #513426;
         }
 
-        .delete-btn:hover {
 
-            background: #b02a37;
+        .status-select {
+            padding: 11px 14px;
 
-        }
+            border:
+                1px solid #d6c0aa;
 
-        .no-orders {
+            border-radius: 9px;
 
             background: white;
 
-            padding: 30px;
+            color: #33261f;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            outline: none;
+        }
+
+
+        .status-select:focus {
+            border-color: #a9481c;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(169, 72, 28, 0.10);
+        }
+
+
+        .status-badge {
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 5px;
+
+            padding: 9px 15px;
+
+            border-radius: 30px;
+
+            font-weight: bold;
+
+            font-size: 14px;
+        }
+
+
+        .pending {
+            background: #fff0bd;
+
+            color: #806000;
+        }
+
+
+        .preparing {
+            background: #dcecff;
+
+            color: #07558a;
+        }
+
+
+        .out-delivery {
+            background: #ffe3c2;
+
+            color: #9a4d00;
+        }
+
+
+        .delivered {
+            background: #d9f5dd;
+
+            color: #18702d;
+        }
+
+
+        .cancelled {
+            background: #ffdede;
+
+            color: #a00000;
+        }
+
+
+        /* =================================================
+           DELETE
+        ================================================= */
+
+        .delete-button {
+            margin-top: 18px;
+
+            border: none;
+
+            background: #df3434;
+
+            color: white;
+
+            padding: 12px 18px;
+
+            border-radius: 9px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+
+        .delete-button:hover {
+            background: #bd2525;
+
+            transform: translateY(-1px);
+        }
+
+
+        /* =================================================
+           EMPTY
+        ================================================= */
+
+        .empty-orders {
+            background: white;
+
+            border: 1px solid #ead7c1;
+
+            border-radius: 18px;
+
+            padding: 50px 20px;
 
             text-align: center;
 
-            border-radius: 16px;
-
+            box-shadow:
+                0 6px 22px
+                rgba(80, 40, 10, 0.07);
         }
 
-        .error {
 
-            background: #f8d7da;
+        .empty-orders .emoji {
+            font-size: 50px;
 
-            color: #842029;
-
+            margin-bottom: 10px;
         }
 
-        @media (max-width: 600px) {
 
-            body {
+        .empty-orders h2 {
+            color: #713014;
 
-                padding: 15px;
+            margin-bottom: 5px;
+        }
 
+
+        .empty-orders p {
+            color: #756960;
+        }
+
+
+        /* =================================================
+           MOBILE
+        ================================================= */
+
+        @media (max-width: 750px) {
+
+            header h1 {
+                font-size: 27px;
             }
+
+
+            .container {
+                width: 94%;
+            }
+
+
+            .top-bar {
+                flex-direction: column;
+
+                align-items: stretch;
+            }
+
+
+            .top-bar h2 {
+                text-align: center;
+            }
+
+
+            .refresh-button {
+                width: 100%;
+            }
+
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
 
             .order-card {
-
-                padding: 18px;
-
+                padding: 17px;
             }
 
-            .items-table {
 
-                font-size: 14px;
+            .order-header {
+                flex-direction: column;
 
+                align-items: flex-start;
             }
 
-            .items-table th,
-            .items-table td {
 
-                padding: 8px;
+            .order-total {
+                justify-content: space-between;
 
+                font-size: 21px;
+            }
+
+
+            .status-section {
+                flex-direction: column;
+
+                align-items: stretch;
+            }
+
+
+            .status-select {
+                width: 100%;
+            }
+
+
+            .status-badge {
+                width: 100%;
+            }
+
+
+            .delete-button {
+                width: 100%;
             }
 
         }
@@ -346,26 +748,115 @@
 
 <body>
 
-    <div class="container">
 
-        <h1>
-            🌾 Dhana Foods Admin
-        </h1>
+<!-- =====================================================
+     HEADER
+===================================================== -->
 
-        <p class="subtitle">
-            Manage customer orders
-        </p>
+<header>
+
+    <h1>
+        🥣 Dhana Foods Admin Dashboard
+    </h1>
+
+    <p>
+        Customer Orders Management
+    </p>
+
+</header>
 
 
-        <div
-            id="orders"
-            class="orders"
+
+<div class="container">
+
+
+    <!-- =================================================
+         TOP BAR
+    ================================================= -->
+
+    <div class="top-bar">
+
+        <h2>
+            📋 Customer Orders
+        </h2>
+
+
+        <button
+            type="button"
+            class="refresh-button"
+            onclick="loadOrders()"
         >
+            🔄 Refresh Orders
+        </button>
 
-            <div class="no-orders">
+    </div>
 
-                Loading orders...
 
+
+    <!-- =================================================
+         SUMMARY
+    ================================================= -->
+
+    <div class="summary-grid">
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                📦
+            </div>
+
+            <div
+                id="totalOrders"
+                class="summary-number"
+            >
+                0
+            </div>
+
+            <div class="summary-label">
+                Total Orders
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                ⏳
+            </div>
+
+            <div
+                id="pendingOrders"
+                class="summary-number"
+            >
+                0
+            </div>
+
+            <div class="summary-label">
+                Pending Orders
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                💰
+            </div>
+
+            <div
+                id="totalSales"
+                class="summary-number"
+            >
+                ₹0
+            </div>
+
+            <div class="summary-label">
+                Total Sales
             </div>
 
         </div>
@@ -373,710 +864,1141 @@
     </div>
 
 
-    <script>
 
-        // =================================================
-        // LOAD ORDERS
-        // =================================================
+    <!-- =================================================
+         ERROR
+    ================================================= -->
 
-        async function loadOrders() {
+    <div
+        id="errorMessage"
+    ></div>
 
-            const ordersContainer =
-                document.getElementById(
-                    "orders"
-                );
 
-            try {
 
-                const response =
-                    await fetch(
-                        "/api/orders"
-                    );
+    <!-- =================================================
+         LOADING
+    ================================================= -->
 
-                if (!response.ok) {
+    <div id="loading">
 
-                    throw new Error(
-                        "Unable to load orders"
-                    );
+        ⏳ Loading orders...
 
-                }
+    </div>
 
-                const orders =
-                    await response.json();
 
 
-                if (
-                    !Array.isArray(orders) ||
-                    orders.length === 0
-                ) {
+    <!-- =================================================
+         ORDERS
+    ================================================= -->
 
-                    ordersContainer.innerHTML = `
+    <div
+        id="ordersContainer"
+    ></div>
 
-                        <div class="no-orders">
 
-                            <h3>
-                                No orders yet.
-                            </h3>
+</div>
 
-                            <p>
-                                New customer orders
-                                will appear here.
-                            </p>
 
-                        </div>
 
-                    `;
+<script>
 
-                    return;
 
-                }
+/* =====================================================
+   LOAD ORDERS
+===================================================== */
 
+async function loadOrders() {
 
-                ordersContainer.innerHTML = "";
+    const loading =
+        document.getElementById(
+            "loading"
+        );
 
 
-                orders.forEach(order => {
+    const container =
+        document.getElementById(
+            "ordersContainer"
+        );
 
-                    const card =
-                        document.createElement(
-                            "div"
-                        );
 
-                    card.className =
-                        "order-card";
+    const errorMessage =
+        document.getElementById(
+            "errorMessage"
+        );
 
 
-                    // -----------------------------------------
-                    // ITEMS
-                    // -----------------------------------------
+    loading.style.display =
+        "block";
 
-                    let items = [];
 
+    errorMessage.style.display =
+        "none";
 
-                    if (
-                        Array.isArray(
-                            order.items
-                        )
-                    ) {
 
-                        items =
-                            order.items;
+    container.innerHTML =
+        "";
 
-                    }
 
+    try {
 
-                    // -----------------------------------------
-                    // OLD ORDER FALLBACK
-                    // -----------------------------------------
 
-                    if (
-                        items.length === 0 &&
-                        order.product
-                    ) {
+        const response =
+            await fetch(
+                "/api/orders"
+            );
 
-                        items = [{
 
-                            product:
-                                order.product,
+        const data =
+            await response.json();
 
-                            size:
-                                order.quantity,
 
-                            quantity:
-                                1,
+        if (!response.ok) {
 
-                            price:
-                                order.price,
-
-                            total:
-                                order.price
-
-                        }];
-
-                    }
-
-
-                    // -----------------------------------------
-                    // ITEMS HTML
-                    // -----------------------------------------
-
-                    let itemsHTML = "";
-
-
-                    items.forEach(item => {
-
-                        itemsHTML += `
-
-                            <tr>
-
-                                <td>
-                                    ${escapeHTML(
-                                        item.product
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHTML(
-                                        item.size
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${item.quantity}
-                                </td>
-
-                                <td>
-                                    ₹${item.price}
-                                </td>
-
-                                <td>
-                                    ₹${item.total}
-                                </td>
-
-                            </tr>
-
-                        `;
-
-                    });
-
-
-                    // -----------------------------------------
-                    // ORDER CARD
-                    // -----------------------------------------
-
-                    card.innerHTML = `
-
-                        <div class="order-header">
-
-                            <h3>
-                                🧾 Order #${order.id}
-                            </h3>
-
-                            <small>
-                                ${formatDate(
-                                    order.created_at
-                                )}
-                            </small>
-
-                        </div>
-
-
-                        <div class="customer-section">
-
-                            <p>
-
-                                <strong>
-                                    👤 Customer:
-                                </strong>
-
-                                ${escapeHTML(
-                                    order.customer_name
-                                )}
-
-                            </p>
-
-
-                            <p>
-
-                                <strong>
-                                    📞 Phone:
-                                </strong>
-
-                                ${escapeHTML(
-                                    order.phone
-                                )}
-
-                            </p>
-
-
-                            <p>
-
-                                <strong>
-                                    📍 Address:
-                                </strong>
-
-                                ${escapeHTML(
-                                    order.address
-                                )}
-
-                            </p>
-
-                        </div>
-
-
-                        <h3 class="items-title">
-
-                            📦 Ordered Products
-
-                        </h3>
-
-
-                        <table class="items-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>
-                                        Product
-                                    </th>
-
-                                    <th>
-                                        Size
-                                    </th>
-
-                                    <th>
-                                        Qty
-                                    </th>
-
-                                    <th>
-                                        Price
-                                    </th>
-
-                                    <th>
-                                        Total
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody>
-
-                                ${itemsHTML}
-
-                            </tbody>
-
-                        </table>
-
-
-                        <div class="total">
-
-                            Total:
-                            ₹${Number(
-                                order.price || 0
-                            )}
-
-                        </div>
-
-
-                        <div class="delivery">
-
-                            📅
-
-                            <strong>
-                                Delivery Date:
-                            </strong>
-
-                            ${escapeHTML(
-                                order.delivery_date
-                            )}
-
-                        </div>
-
-
-                        <div class="status-row">
-
-                            <strong>
-                                Status:
-                            </strong>
-
-
-                            <select
-                                class="status-select"
-                                onchange="
-                                    updateStatus(
-                                        ${order.id},
-                                        this.value
-                                    )
-                                "
-                            >
-
-                                <option
-                                    value="Pending"
-                                    ${
-                                        order.status ===
-                                        "Pending"
-                                            ? "selected"
-                                            : ""
-                                    }
-                                >
-                                    Pending
-                                </option>
-
-
-                                <option
-                                    value="Confirmed"
-                                    ${
-                                        order.status ===
-                                        "Confirmed"
-                                            ? "selected"
-                                            : ""
-                                    }
-                                >
-                                    Confirmed
-                                </option>
-
-
-                                <option
-                                    value="Preparing"
-                                    ${
-                                        order.status ===
-                                        "Preparing"
-                                            ? "selected"
-                                            : ""
-                                    }
-                                >
-                                    Preparing
-                                </option>
-
-
-                                <option
-                                    value="Ready"
-                                    ${
-                                        order.status ===
-                                        "Ready"
-                                            ? "selected"
-                                            : ""
-                                    }
-                                >
-                                    Ready
-                                </option>
-
-
-                                <option
-                                    value="Delivered"
-                                    ${
-                                        order.status ===
-                                        "Delivered"
-                                            ? "selected"
-                                            : ""
-                                    }
-                                >
-                                    Delivered
-                                </option>
-
-
-                                <option
-                                    value="Cancelled"
-                                    ${
-                                        order.status ===
-                                        "Cancelled"
-                                            ? "selected"
-                                            : ""
-                                    }
-                                >
-                                    Cancelled
-                                </option>
-
-                            </select>
-
-
-                            <div
-                                class="status ${escapeHTML(
-                                    order.status
-                                )}"
-                            >
-
-                                ${escapeHTML(
-                                    order.status
-                                )}
-
-                            </div>
-
-                        </div>
-
-
-                        <button
-                            class="delete-btn"
-                            onclick="
-                                deleteOrder(
-                                    ${order.id}
-                                )
-                            "
-                        >
-                            🗑️ Delete Order
-                        </button>
-
-                    `;
-
-
-                    ordersContainer.appendChild(
-                        card
-                    );
-
-                });
-
-
-            } catch (error) {
-
-                console.error(error);
-
-
-                ordersContainer.innerHTML = `
-
-                    <div class="no-orders error">
-
-                        <h3>
-                            Unable to load orders.
-                        </h3>
-
-                        <p>
-                            Please check that
-                            the server is running.
-                        </p>
-
-                    </div>
-
-                `;
-
-            }
-
-        }
-
-
-        // =================================================
-        // UPDATE STATUS
-        // =================================================
-
-        async function updateStatus(
-            id,
-            status
-        ) {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `/api/orders/${id}`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    status: status
-                                })
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (
-                    !response.ok ||
-                    !result.success
-                ) {
-
-                    throw new Error(
-                        result.message ||
-                        "Unable to update order"
-                    );
-
-                }
-
-
-                loadOrders();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Unable to update order status."
-                );
-
-            }
-
-        }
-
-
-        // =================================================
-        // DELETE ORDER
-        // =================================================
-
-        async function deleteOrder(id) {
-
-            const confirmed =
-                confirm(
-                    `Are you sure you want to delete Order #${id}?`
-                );
-
-
-            if (!confirmed) {
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `/api/orders/${id}`,
-                        {
-                            method: "DELETE"
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (
-                    !response.ok ||
-                    !result.success
-                ) {
-
-                    throw new Error(
-                        result.message ||
-                        "Unable to delete order."
-                    );
-
-                }
-
-
-                alert(
-                    `Order #${id} deleted successfully.`
-                );
-
-
-                loadOrders();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-
-                alert(
-                    "Unable to delete order."
-                );
-
-            }
-
-        }
-
-
-        // =================================================
-        // HTML ESCAPE
-        // =================================================
-
-        function escapeHTML(value) {
-
-            if (
-                value === null ||
-                value === undefined
-            ) {
-
-                return "";
-
-            }
-
-
-            return String(value)
-
-                .replace(
-                    /&/g,
-                    "&amp;"
-                )
-
-                .replace(
-                    /</g,
-                    "&lt;"
-                )
-
-                .replace(
-                    />/g,
-                    "&gt;"
-                )
-
-                .replace(
-                    /"/g,
-                    "&quot;"
-                )
-
-                .replace(
-                    /'/g,
-                    "&#039;"
-                );
-
-        }
-
-
-        // =================================================
-        // FORMAT DATE
-        // =================================================
-
-        function formatDate(value) {
-
-            if (!value) {
-
-                return "";
-
-            }
-
-
-            const date =
-                new Date(
-                    value.replace(
-                        " ",
-                        "T"
-                    ) + "Z"
-                );
-
-
-            if (
-                isNaN(
-                    date.getTime()
-                )
-            ) {
-
-                return escapeHTML(
-                    value
-                );
-
-            }
-
-
-            return date.toLocaleString(
-                "en-IN",
-                {
-                    dateStyle: "medium",
-                    timeStyle: "short"
-                }
+            throw new Error(
+                data.message ||
+                "Unable to load orders."
             );
 
         }
 
 
-        // =================================================
-        // INITIAL LOAD
-        // =================================================
+        if (
+            !Array.isArray(data)
+        ) {
 
-        loadOrders();
+            throw new Error(
+                "Invalid orders response."
+            );
+
+        }
 
 
-        // =================================================
-        // AUTO REFRESH
-        // =================================================
+        updateSummary(data);
 
-        setInterval(
-            loadOrders,
-            30000
+
+        loading.style.display =
+            "none";
+
+
+        if (
+            data.length === 0
+        ) {
+
+            showEmptyOrders();
+
+            return;
+
+        }
+
+
+        data.forEach(
+            order => {
+
+                const card =
+                    createOrderCard(
+                        order
+                    );
+
+
+                container.appendChild(
+                    card
+                );
+
+            }
         );
 
-    </script>
+
+    } catch (error) {
+
+        console.error(
+            "Load orders error:",
+            error
+        );
+
+
+        loading.style.display =
+            "none";
+
+
+        errorMessage.textContent =
+            "❌ " +
+            (
+                error.message ||
+                "Unable to load orders."
+            );
+
+
+        errorMessage.style.display =
+            "block";
+
+    }
+
+}
+
+
+/* =====================================================
+   CREATE ORDER CARD
+===================================================== */
+
+function createOrderCard(
+    order
+) {
+
+    const card =
+        document.createElement(
+            "div"
+        );
+
+
+    card.className =
+        "order-card";
+
+
+    const items =
+        getOrderItems(
+            order
+        );
+
+
+    let productsHTML =
+        "";
+
+
+    if (
+        items.length === 0
+    ) {
+
+        productsHTML = `
+
+            <tr>
+
+                <td colspan="5">
+
+                    No product details found.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    } else {
+
+
+        items.forEach(
+            item => {
+
+                const product =
+                    escapeHTML(
+                        item.product ||
+                        "Unknown Product"
+                    );
+
+
+                const size =
+                    escapeHTML(
+                        item.size ||
+                        "-"
+                    );
+
+
+                const quantity =
+                    Number(
+                        item.quantity
+                    ) || 0;
+
+
+                const price =
+                    Number(
+                        item.price
+                    ) || 0;
+
+
+                const itemTotal =
+                    quantity * price;
+
+
+                productsHTML += `
+
+                    <tr>
+
+                        <td class="product-name">
+
+                            ${product}
+
+                        </td>
+
+
+                        <td>
+
+                            ${size}
+
+                        </td>
+
+
+                        <td class="quantity">
+
+                            ${quantity}
+
+                        </td>
+
+
+                        <td class="unit-price">
+
+                            ₹${price}
+
+                        </td>
+
+
+                        <td class="item-total">
+
+                            ₹${itemTotal}
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+    }
+
+
+    const total =
+        Number(
+            order.total
+        ) || calculateItemsTotal(
+            items
+        );
+
+
+    const status =
+        order.status ||
+        "Pending";
+
+
+    const createdAt =
+        formatDateTime(
+            order.created_at
+        );
+
+
+    const deliveryDate =
+        escapeHTML(
+            order.delivery_date ||
+            "-"
+        );
+
+
+    const customerName =
+        escapeHTML(
+            order.customer_name ||
+            ""
+        );
+
+
+    const phone =
+        escapeHTML(
+            order.phone ||
+            ""
+        );
+
+
+    const address =
+        escapeHTML(
+            order.address ||
+            ""
+        );
+
+
+    card.innerHTML = `
+
+        <!-- ORDER HEADER -->
+
+        <div class="order-header">
+
+            <div class="order-number">
+
+                🧾 Order #${order.id}
+
+            </div>
+
+
+            <div class="order-created">
+
+                ${createdAt}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- CUSTOMER -->
+
+        <div class="customer-box">
+
+
+            <div class="customer-row">
+
+                👤
+
+                <strong>
+                    Customer:
+                </strong>
+
+                ${customerName}
+
+            </div>
+
+
+            <div class="customer-row">
+
+                📞
+
+                <strong>
+                    Phone:
+                </strong>
+
+                ${phone}
+
+            </div>
+
+
+            <div class="customer-row">
+
+                📍
+
+                <strong>
+                    Address:
+                </strong>
+
+                ${address}
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- PRODUCTS -->
+
+        <div class="products-title">
+
+            📦 Ordered Products
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table class="products-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Product
+                        </th>
+
+                        <th>
+                            Size
+                        </th>
+
+                        <th>
+                            Qty
+                        </th>
+
+                        <th>
+                            Unit Price
+                        </th>
+
+                        <th>
+                            Item Total
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${productsHTML}
+
+                </tbody>
+
+
+            </table>
+
+        </div>
+
+
+
+        <!-- TOTAL -->
+
+        <div class="order-total">
+
+            <span>
+                Order Total:
+            </span>
+
+            <span class="order-total-value">
+
+                ₹${total}
+
+            </span>
+
+        </div>
+
+
+
+        <!-- DELIVERY -->
+
+        <div class="delivery-box">
+
+            📅
+
+            <strong>
+                Delivery Date:
+            </strong>
+
+            ${deliveryDate}
+
+        </div>
+
+
+
+        <!-- STATUS -->
+
+        <div class="status-section">
+
+            <label>
+                Order Status:
+            </label>
+
+
+            <select
+                class="status-select"
+                onchange="
+                    updateStatus(
+                        ${Number(order.id)},
+                        this.value
+                    )
+                "
+            >
+
+                <option
+                    value="Pending"
+                    ${status === "Pending"
+                        ? "selected"
+                        : ""}
+                >
+                    🟡 Pending
+                </option>
+
+
+                <option
+                    value="Preparing"
+                    ${status === "Preparing"
+                        ? "selected"
+                        : ""}
+                >
+                    🔵 Preparing
+                </option>
+
+
+                <option
+                    value="Out for Delivery"
+                    ${status === "Out for Delivery"
+                        ? "selected"
+                        : ""}
+                >
+                    🟠 Out for Delivery
+                </option>
+
+
+                <option
+                    value="Delivered"
+                    ${status === "Delivered"
+                        ? "selected"
+                        : ""}
+                >
+                    🟢 Delivered
+                </option>
+
+
+                <option
+                    value="Cancelled"
+                    ${status === "Cancelled"
+                        ? "selected"
+                        : ""}
+                >
+                    🔴 Cancelled
+                </option>
+
+            </select>
+
+
+            <span
+                class="
+                    status-badge
+                    ${getStatusClass(status)}
+                "
+            >
+
+                ${getStatusEmoji(status)}
+
+                ${escapeHTML(status)}
+
+            </span>
+
+
+        </div>
+
+
+
+        <!-- DELETE -->
+
+        <button
+            type="button"
+            class="delete-button"
+            onclick="
+                deleteOrder(
+                    ${Number(order.id)}
+                )
+            "
+        >
+
+            🗑️ Delete Order
+
+        </button>
+
+    `;
+
+
+    return card;
+
+}
+
+
+/* =====================================================
+   GET ORDER ITEMS
+===================================================== */
+
+function getOrderItems(
+    order
+) {
+
+    let items =
+        order.items;
+
+
+    if (
+        typeof items === "string"
+    ) {
+
+        try {
+
+            items =
+                JSON.parse(
+                    items
+                );
+
+        } catch (error) {
+
+            console.error(
+                "Unable to parse order items:",
+                error
+            );
+
+            items = [];
+
+        }
+
+    }
+
+
+    if (
+        !Array.isArray(items)
+    ) {
+
+        /*
+           Compatibility with very old
+           orders.
+        */
+
+        if (
+            order.product
+        ) {
+
+            return [
+
+                {
+
+                    product:
+                        order.product,
+
+                    size:
+                        order.size,
+
+                    quantity:
+                        Number(
+                            order.quantity
+                        ) || 1,
+
+                    price:
+                        Number(
+                            order.price
+                        ) || 0
+
+                }
+
+            ];
+
+        }
+
+
+        return [];
+
+    }
+
+
+    return items;
+
+}
+
+
+/* =====================================================
+   CALCULATE ITEMS TOTAL
+===================================================== */
+
+function calculateItemsTotal(
+    items
+) {
+
+    return items.reduce(
+        (
+            total,
+            item
+        ) => {
+
+            const quantity =
+                Number(
+                    item.quantity
+                ) || 0;
+
+
+            const price =
+                Number(
+                    item.price
+                ) || 0;
+
+
+            return total +
+                (
+                    quantity *
+                    price
+                );
+
+        },
+        0
+    );
+
+}
+
+
+/* =====================================================
+   UPDATE SUMMARY
+===================================================== */
+
+function updateSummary(
+    orders
+) {
+
+    const totalOrders =
+        orders.length;
+
+
+    const pendingOrders =
+        orders.filter(
+            order =>
+                order.status ===
+                "Pending"
+        ).length;
+
+
+    const totalSales =
+        orders.reduce(
+            (
+                total,
+                order
+            ) => {
+
+                return total +
+                    (
+                        Number(
+                            order.total
+                        ) || 0
+                    );
+
+            },
+            0
+        );
+
+
+    document.getElementById(
+        "totalOrders"
+    ).textContent =
+        totalOrders;
+
+
+    document.getElementById(
+        "pendingOrders"
+    ).textContent =
+        pendingOrders;
+
+
+    document.getElementById(
+        "totalSales"
+    ).textContent =
+        `₹${totalSales}`;
+
+}
+
+
+/* =====================================================
+   UPDATE STATUS
+===================================================== */
+
+async function updateStatus(
+    orderId,
+    newStatus
+) {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/orders/${orderId}`,
+                {
+
+                    method: "PUT",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            status:
+                                newStatus
+
+                        })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Unable to update status."
+            );
+
+        }
+
+
+        await loadOrders();
+
+
+    } catch (error) {
+
+        console.error(
+            "Status update error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Unable to update status."
+        );
+
+
+        await loadOrders();
+
+    }
+
+}
+
+
+/* =====================================================
+   DELETE ORDER
+===================================================== */
+
+async function deleteOrder(
+    orderId
+) {
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to delete Order #${orderId}?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/orders/${orderId}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Unable to delete order."
+            );
+
+        }
+
+
+        await loadOrders();
+
+
+    } catch (error) {
+
+        console.error(
+            "Delete order error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Unable to delete order."
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   STATUS CLASS
+===================================================== */
+
+function getStatusClass(
+    status
+) {
+
+    switch (status) {
+
+        case "Preparing":
+            return "preparing";
+
+        case "Out for Delivery":
+            return "out-delivery";
+
+        case "Delivered":
+            return "delivered";
+
+        case "Cancelled":
+            return "cancelled";
+
+        default:
+            return "pending";
+
+    }
+
+}
+
+
+/* =====================================================
+   STATUS EMOJI
+===================================================== */
+
+function getStatusEmoji(
+    status
+) {
+
+    switch (status) {
+
+        case "Preparing":
+            return "🔵";
+
+        case "Out for Delivery":
+            return "🟠";
+
+        case "Delivered":
+            return "🟢";
+
+        case "Cancelled":
+            return "🔴";
+
+        default:
+            return "🟡";
+
+    }
+
+}
+
+
+/* =====================================================
+   DATE FORMAT
+===================================================== */
+
+function formatDateTime(
+    value
+) {
+
+    if (!value) {
+
+        return "-";
+
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return escapeHTML(
+            String(value)
+        );
+
+    }
+
+
+    return date.toLocaleString(
+        "en-IN",
+        {
+
+            day: "numeric",
+
+            month: "short",
+
+            year: "numeric",
+
+            hour: "numeric",
+
+            minute: "2-digit"
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+    value
+) {
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   EMPTY ORDERS
+===================================================== */
+
+function showEmptyOrders() {
+
+    document.getElementById(
+        "ordersContainer"
+    ).innerHTML = `
+
+        <div class="empty-orders">
+
+            <div class="emoji">
+                📦
+            </div>
+
+            <h2>
+                No Orders Yet
+            </h2>
+
+            <p>
+                Customer orders will appear here.
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+loadOrders();
+
+
+</script>
+
 
 </body>
 
