@@ -1,669 +1,371 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Dhana Foods Admin Dashboard</title>
 
-
     <style>
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-
         body {
             font-family: Arial, Helvetica, sans-serif;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #fff8ef,
-                    #fffdf9
-                );
-
+            background: linear-gradient(135deg, #fff8ef, #fffdf9);
             color: #33261f;
-
             min-height: 100vh;
         }
 
-
-        /* =================================================
-           HEADER
-        ================================================= */
-
         header {
-            background:
-                linear-gradient(
-                    135deg,
-                    #6f2e12,
-                    #a94b1c
-                );
-
+            background: linear-gradient(135deg, #6f2e12, #a94b1c);
             color: white;
-
             padding: 25px 20px;
-
             text-align: center;
-
-            box-shadow:
-                0 5px 20px
-                rgba(70, 30, 10, 0.18);
+            box-shadow: 0 5px 20px rgba(70, 30, 10, 0.18);
         }
-
 
         header h1 {
             font-size: 32px;
-
             margin-bottom: 5px;
         }
-
 
         header p {
             opacity: 0.92;
-
             font-size: 15px;
         }
-
-
-        /* =================================================
-           MAIN
-        ================================================= */
 
         .container {
             width: 94%;
-
             max-width: 1200px;
-
             margin: 30px auto;
         }
 
-
-        /* =================================================
-           TOP BAR
-        ================================================= */
-
         .top-bar {
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
             gap: 15px;
-
             margin-bottom: 25px;
         }
-
 
         .top-bar h2 {
             color: #713014;
-
             font-size: 28px;
         }
 
-
         .refresh-button {
             border: none;
-
             background: #7e3515;
-
             color: white;
-
             padding: 12px 20px;
-
             border-radius: 10px;
-
             font-size: 15px;
-
             font-weight: bold;
-
             cursor: pointer;
-
             transition: 0.2s;
         }
 
-
         .refresh-button:hover {
             background: #a94b1c;
-
             transform: translateY(-1px);
         }
 
-
-        /* =================================================
-           SUMMARY
-        ================================================= */
-
         .summary-grid {
             display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
+            grid-template-columns: repeat(3, 1fr);
             gap: 18px;
-
             margin-bottom: 30px;
         }
 
-
         .summary-card {
             background: white;
-
             border: 1px solid #ead7c1;
-
             border-radius: 17px;
-
             padding: 22px;
-
             text-align: center;
-
-            box-shadow:
-                0 6px 22px
-                rgba(80, 40, 10, 0.07);
+            box-shadow: 0 6px 22px rgba(80, 40, 10, 0.07);
         }
-
 
         .summary-icon {
             font-size: 30px;
-
             margin-bottom: 5px;
         }
 
-
         .summary-number {
             font-size: 30px;
-
             font-weight: bold;
-
             color: #843815;
         }
 
-
         .summary-label {
             color: #74665d;
-
             margin-top: 3px;
         }
 
-
-        /* =================================================
-           LOADING
-        ================================================= */
-
         #loading {
             background: white;
-
             border-radius: 16px;
-
             padding: 35px;
-
             text-align: center;
-
             color: #7e3515;
-
             font-weight: bold;
-
-            box-shadow:
-                0 6px 22px
-                rgba(80, 40, 10, 0.07);
+            box-shadow: 0 6px 22px rgba(80, 40, 10, 0.07);
+            margin-bottom: 20px;
         }
-
-
-        /* =================================================
-           ERROR
-        ================================================= */
 
         #errorMessage {
             display: none;
-
             background: #ffe4e4;
-
             border: 1px solid #e1aaaa;
-
             color: #a00000;
-
             padding: 17px;
-
             border-radius: 12px;
-
             margin-bottom: 20px;
-
             text-align: center;
-
             font-weight: bold;
         }
-
-
-        /* =================================================
-           ORDER CARD
-        ================================================= */
 
         .order-card {
             background: white;
-
             border: 1px solid #ead7c1;
-
             border-radius: 20px;
-
             padding: 25px;
-
             margin-bottom: 25px;
-
-            box-shadow:
-                0 7px 25px
-                rgba(80, 40, 10, 0.08);
+            box-shadow: 0 7px 25px rgba(80, 40, 10, 0.08);
         }
-
-
-        /* =================================================
-           ORDER HEADER
-        ================================================= */
 
         .order-header {
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
             gap: 15px;
-
             padding-bottom: 17px;
-
-            border-bottom:
-                1px solid #eaded4;
+            border-bottom: 1px solid #eaded4;
         }
-
 
         .order-number {
             font-size: 23px;
-
             font-weight: bold;
-
             color: #713014;
         }
 
-
         .order-created {
             color: #756960;
-
             font-size: 14px;
         }
 
-
-        /* =================================================
-           CUSTOMER
-        ================================================= */
-
         .customer-box {
             background: #fff8ed;
-
             border: 1px solid #f0dfc8;
-
             border-radius: 14px;
-
             padding: 18px;
-
             margin-top: 20px;
         }
 
-
         .customer-row {
             margin: 8px 0;
-
             font-size: 16px;
-
             line-height: 1.5;
         }
-
 
         .customer-row strong {
             color: #513426;
         }
 
-
-        /* =================================================
-           PRODUCTS
-        ================================================= */
-
         .products-title {
             color: #713014;
-
             font-size: 21px;
-
             font-weight: bold;
-
             margin-top: 25px;
-
             margin-bottom: 12px;
         }
 
-
         .table-container {
             width: 100%;
-
             overflow-x: auto;
-
-            border:
-                1px solid #eaded4;
-
+            border: 1px solid #eaded4;
             border-radius: 12px;
         }
 
-
         .products-table {
             width: 100%;
-
             min-width: 650px;
-
             border-collapse: collapse;
         }
 
-
         .products-table th {
             background: #f7efe6;
-
             color: #4e392c;
-
             padding: 13px;
-
             text-align: left;
-
             font-size: 14px;
         }
 
-
         .products-table td {
             padding: 13px;
-
-            border-top:
-                1px solid #eee1d6;
-
+            border-top: 1px solid #eee1d6;
             font-size: 15px;
         }
-
 
         .products-table tr:hover td {
             background: #fffaf5;
         }
 
-
         .product-name {
             font-weight: bold;
-
             color: #733315;
         }
 
-
         .quantity {
             font-weight: bold;
-
             text-align: center;
         }
-
 
         .unit-price {
             color: #66574e;
         }
 
-
         .item-total {
             font-weight: bold;
-
             color: #9b431c;
         }
 
-
-        /* =================================================
-           TOTAL
-        ================================================= */
-
         .order-total {
             display: flex;
-
             justify-content: flex-end;
-
             align-items: center;
-
             gap: 10px;
-
             margin-top: 18px;
-
             padding-top: 17px;
-
-            border-top:
-                2px solid #e6cdb2;
-
+            border-top: 2px solid #e6cdb2;
             font-size: 25px;
-
             font-weight: bold;
-
             color: #713014;
         }
-
 
         .order-total-value {
             color: #a9481c;
         }
 
-
-        /* =================================================
-           DELIVERY
-        ================================================= */
-
         .delivery-box {
             background: #f5f8f1;
-
-            border:
-                1px solid #d9e4cf;
-
+            border: 1px solid #d9e4cf;
             border-radius: 12px;
-
             padding: 15px;
-
             margin-top: 18px;
-
             color: #315a35;
-
             font-size: 16px;
         }
 
-
-        /* =================================================
-           STATUS
-        ================================================= */
-
         .status-section {
             display: flex;
-
             align-items: center;
-
             flex-wrap: wrap;
-
             gap: 12px;
-
             margin-top: 20px;
         }
 
-
         .status-section label {
             font-weight: bold;
-
             color: #513426;
         }
 
-
         .status-select {
             padding: 11px 14px;
-
-            border:
-                1px solid #d6c0aa;
-
+            border: 1px solid #d6c0aa;
             border-radius: 9px;
-
             background: white;
-
             color: #33261f;
-
             font-size: 15px;
-
             font-weight: bold;
-
             cursor: pointer;
-
             outline: none;
         }
 
-
         .status-select:focus {
             border-color: #a9481c;
-
-            box-shadow:
-                0 0 0 3px
-                rgba(169, 72, 28, 0.10);
+            box-shadow: 0 0 0 3px rgba(169, 72, 28, 0.10);
         }
-
 
         .status-badge {
             display: inline-flex;
-
             align-items: center;
-
             justify-content: center;
-
             gap: 5px;
-
             padding: 9px 15px;
-
             border-radius: 30px;
-
             font-weight: bold;
-
             font-size: 14px;
         }
 
-
         .pending {
             background: #fff0bd;
-
             color: #806000;
         }
 
-
         .preparing {
             background: #dcecff;
-
             color: #07558a;
         }
 
-
         .out-delivery {
             background: #ffe3c2;
-
             color: #9a4d00;
         }
 
-
         .delivered {
             background: #d9f5dd;
-
             color: #18702d;
         }
 
-
         .cancelled {
             background: #ffdede;
-
             color: #a00000;
         }
 
-
-        /* =================================================
-           DELETE
-        ================================================= */
-
         .delete-button {
             margin-top: 18px;
-
             border: none;
-
             background: #df3434;
-
             color: white;
-
             padding: 12px 18px;
-
             border-radius: 9px;
-
             font-weight: bold;
-
             cursor: pointer;
-
             transition: 0.2s;
         }
 
-
         .delete-button:hover {
             background: #bd2525;
-
             transform: translateY(-1px);
         }
 
-
-        /* =================================================
-           EMPTY
-        ================================================= */
-
         .empty-orders {
             background: white;
-
             border: 1px solid #ead7c1;
-
             border-radius: 18px;
-
             padding: 50px 20px;
-
             text-align: center;
-
-            box-shadow:
-                0 6px 22px
-                rgba(80, 40, 10, 0.07);
+            box-shadow: 0 6px 22px rgba(80, 40, 10, 0.07);
         }
-
 
         .empty-orders .emoji {
             font-size: 50px;
-
             margin-bottom: 10px;
         }
 
-
         .empty-orders h2 {
             color: #713014;
-
             margin-bottom: 5px;
         }
-
 
         .empty-orders p {
             color: #756960;
         }
-
-
-        /* =================================================
-           MOBILE
-        ================================================= */
 
         @media (max-width: 750px) {
 
@@ -671,115 +373,72 @@
                 font-size: 27px;
             }
 
-
             .container {
                 width: 94%;
             }
 
-
             .top-bar {
                 flex-direction: column;
-
                 align-items: stretch;
             }
-
 
             .top-bar h2 {
                 text-align: center;
             }
 
-
             .refresh-button {
                 width: 100%;
             }
-
 
             .summary-grid {
                 grid-template-columns: 1fr;
             }
 
-
             .order-card {
                 padding: 17px;
             }
 
-
             .order-header {
                 flex-direction: column;
-
                 align-items: flex-start;
             }
 
-
             .order-total {
                 justify-content: space-between;
-
                 font-size: 21px;
             }
 
-
             .status-section {
                 flex-direction: column;
-
                 align-items: stretch;
             }
-
 
             .status-select {
                 width: 100%;
             }
 
-
             .status-badge {
                 width: 100%;
             }
 
-
             .delete-button {
                 width: 100%;
             }
-
         }
-
     </style>
-
 </head>
-
 
 <body>
 
-
-<!-- =====================================================
-     HEADER
-===================================================== -->
-
 <header>
-
-    <h1>
-        🥣 Dhana Foods Admin Dashboard
-    </h1>
-
-    <p>
-        Customer Orders Management
-    </p>
-
+    <h1>🥣 Dhana Foods Admin Dashboard</h1>
+    <p>Customer Orders Management</p>
 </header>
-
-
 
 <div class="container">
 
-
-    <!-- =================================================
-         TOP BAR
-    ================================================= -->
-
     <div class="top-bar">
-
-        <h2>
-            📋 Customer Orders
-        </h2>
-
+        <h2>📋 Customer Orders</h2>
 
         <button
             type="button"
@@ -788,305 +447,217 @@
         >
             🔄 Refresh Orders
         </button>
-
     </div>
-
-
-
-    <!-- =================================================
-         SUMMARY
-    ================================================= -->
 
     <div class="summary-grid">
 
-
         <div class="summary-card">
-
-            <div class="summary-icon">
-                📦
-            </div>
-
-            <div
-                id="totalOrders"
-                class="summary-number"
-            >
-                0
-            </div>
-
-            <div class="summary-label">
-                Total Orders
-            </div>
-
+            <div class="summary-icon">📦</div>
+            <div id="totalOrders" class="summary-number">0</div>
+            <div class="summary-label">Total Orders</div>
         </div>
 
-
-
         <div class="summary-card">
-
-            <div class="summary-icon">
-                ⏳
-            </div>
-
-            <div
-                id="pendingOrders"
-                class="summary-number"
-            >
-                0
-            </div>
-
-            <div class="summary-label">
-                Pending Orders
-            </div>
-
+            <div class="summary-icon">⏳</div>
+            <div id="pendingOrders" class="summary-number">0</div>
+            <div class="summary-label">Pending Orders</div>
         </div>
 
-
-
         <div class="summary-card">
-
-            <div class="summary-icon">
-                💰
-            </div>
-
-            <div
-                id="totalSales"
-                class="summary-number"
-            >
-                ₹0
-            </div>
-
-            <div class="summary-label">
-                Total Sales
-            </div>
-
+            <div class="summary-icon">💰</div>
+            <div id="totalSales" class="summary-number">₹0</div>
+            <div class="summary-label">Total Sales</div>
         </div>
 
     </div>
 
-
-
-    <!-- =================================================
-         ERROR
-    ================================================= -->
-
-    <div
-        id="errorMessage"
-    ></div>
-
-
-
-    <!-- =================================================
-         LOADING
-    ================================================= -->
+    <div id="errorMessage"></div>
 
     <div id="loading">
-
         ⏳ Loading orders...
-
     </div>
 
-
-
-    <!-- =================================================
-         ORDERS
-    ================================================= -->
-
-    <div
-        id="ordersContainer"
-    ></div>
-
+    <div id="ordersContainer"></div>
 
 </div>
 
-
-
 <script>
 
+    // =========================================================
+    // LOAD ORDERS
+    // =========================================================
 
-/* =====================================================
-   LOAD ORDERS
-===================================================== */
+    async function loadOrders() {
 
-async function loadOrders() {
+        const loading =
+            document.getElementById("loading");
 
-    const loading =
-        document.getElementById(
-            "loading"
-        );
+        const container =
+            document.getElementById("ordersContainer");
 
+        const errorMessage =
+            document.getElementById("errorMessage");
 
-    const container =
-        document.getElementById(
-            "ordersContainer"
-        );
+        loading.style.display = "block";
+        errorMessage.style.display = "none";
+        container.innerHTML = "";
 
+        try {
 
-    const errorMessage =
-        document.getElementById(
-            "errorMessage"
-        );
+            const response = await fetch("/api/orders", {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                },
+                cache: "no-store"
+            });
 
+            let data;
 
-    loading.style.display =
-        "block";
-
-
-    errorMessage.style.display =
-        "none";
-
-
-    container.innerHTML =
-        "";
-
-
-    try {
-
-
-        const response =
-            await fetch(
-                "/api/orders"
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Unable to load orders."
-            );
-
-        }
-
-
-        if (
-            !Array.isArray(data)
-        ) {
-
-            throw new Error(
-                "Invalid orders response."
-            );
-
-        }
-
-
-        updateSummary(data);
-
-
-        loading.style.display =
-            "none";
-
-
-        if (
-            data.length === 0
-        ) {
-
-            showEmptyOrders();
-
-            return;
-
-        }
-
-
-        data.forEach(
-            order => {
-
-                const card =
-                    createOrderCard(
-                        order
-                    );
-
-
-                container.appendChild(
-                    card
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                throw new Error(
+                    "Server returned an invalid response."
                 );
+            }
+
+            console.log("Orders API response:", data);
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Unable to load orders."
+                );
+            }
+
+            // =================================================
+            // IMPORTANT:
+            // Accept all common API response formats.
+            //
+            // Format 1:
+            // [ {...}, {...} ]
+            //
+            // Format 2:
+            // { orders: [ {...}, {...} ] }
+            //
+            // Format 3:
+            // { data: [ {...}, {...} ] }
+            // =================================================
+
+            let orders = null;
+
+            if (Array.isArray(data)) {
+
+                orders = data;
+
+            } else if (
+                data &&
+                Array.isArray(data.orders)
+            ) {
+
+                orders = data.orders;
+
+            } else if (
+                data &&
+                Array.isArray(data.data)
+            ) {
+
+                orders = data.data;
+
+            } else if (
+                data &&
+                data.order &&
+                typeof data.order === "object"
+            ) {
+
+                orders = [data.order];
 
             }
-        );
 
+            if (!orders) {
 
-    } catch (error) {
+                console.error(
+                    "Unexpected orders response:",
+                    data
+                );
 
-        console.error(
-            "Load orders error:",
-            error
-        );
+                throw new Error(
+                    "Invalid orders response."
+                );
+            }
 
+            updateSummary(orders);
 
-        loading.style.display =
-            "none";
+            loading.style.display = "none";
 
+            if (orders.length === 0) {
 
-        errorMessage.textContent =
-            "❌ " +
-            (
-                error.message ||
-                "Unable to load orders."
+                showEmptyOrders();
+                return;
+            }
+
+            orders.forEach(order => {
+
+                const card =
+                    createOrderCard(order);
+
+                container.appendChild(card);
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Load orders error:",
+                error
             );
 
+            loading.style.display = "none";
 
-        errorMessage.style.display =
-            "block";
+            errorMessage.textContent =
+                "❌ " +
+                (
+                    error.message ||
+                    "Unable to load orders."
+                );
 
+            errorMessage.style.display = "block";
+        }
     }
 
-}
 
+    // =========================================================
+    // CREATE ORDER CARD
+    // =========================================================
 
-/* =====================================================
-   CREATE ORDER CARD
-===================================================== */
+    function createOrderCard(order) {
 
-function createOrderCard(
-    order
-) {
+        const card =
+            document.createElement("div");
 
-    const card =
-        document.createElement(
-            "div"
-        );
+        card.className = "order-card";
 
+        const items =
+            getOrderItems(order);
 
-    card.className =
-        "order-card";
+        let productsHTML = "";
 
+        if (items.length === 0) {
 
-    const items =
-        getOrderItems(
-            order
-        );
+            productsHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center;">
+                        No product details found.
+                    </td>
+                </tr>
+            `;
 
+        } else {
 
-    let productsHTML =
-        "";
-
-
-    if (
-        items.length === 0
-    ) {
-
-        productsHTML = `
-
-            <tr>
-
-                <td colspan="5">
-
-                    No product details found.
-
-                </td>
-
-            </tr>
-
-        `;
-
-    } else {
-
-
-        items.forEach(
-            item => {
+            items.forEach(item => {
 
                 const product =
                     escapeHTML(
@@ -1094,912 +665,648 @@ function createOrderCard(
                         "Unknown Product"
                     );
 
-
                 const size =
                     escapeHTML(
                         item.size ||
                         "-"
                     );
 
-
                 const quantity =
-                    Number(
-                        item.quantity
-                    ) || 0;
-
+                    Number(item.quantity) || 0;
 
                 const price =
-                    Number(
-                        item.price
-                    ) || 0;
-
+                    Number(item.price) || 0;
 
                 const itemTotal =
                     quantity * price;
 
-
                 productsHTML += `
-
                     <tr>
 
                         <td class="product-name">
-
                             ${product}
-
                         </td>
-
 
                         <td>
-
                             ${size}
-
                         </td>
-
 
                         <td class="quantity">
-
                             ${quantity}
-
                         </td>
-
 
                         <td class="unit-price">
-
                             ₹${price}
-
                         </td>
-
 
                         <td class="item-total">
-
                             ₹${itemTotal}
-
                         </td>
 
                     </tr>
-
                 `;
-
-            }
-        );
-
-    }
-
-
-    const total =
-        Number(
-            order.total
-        ) || calculateItemsTotal(
-            items
-        );
-
-
-    const status =
-        order.status ||
-        "Pending";
-
-
-    const createdAt =
-        formatDateTime(
-            order.created_at
-        );
-
-
-    const deliveryDate =
-        escapeHTML(
-            order.delivery_date ||
-            "-"
-        );
-
-
-    const customerName =
-        escapeHTML(
-            order.customer_name ||
-            ""
-        );
-
-
-    const phone =
-        escapeHTML(
-            order.phone ||
-            ""
-        );
-
-
-    const address =
-        escapeHTML(
-            order.address ||
-            ""
-        );
-
-
-    card.innerHTML = `
-
-        <!-- ORDER HEADER -->
-
-        <div class="order-header">
-
-            <div class="order-number">
-
-                🧾 Order #${order.id}
-
-            </div>
-
-
-            <div class="order-created">
-
-                ${createdAt}
-
-            </div>
-
-        </div>
-
-
-
-        <!-- CUSTOMER -->
-
-        <div class="customer-box">
-
-
-            <div class="customer-row">
-
-                👤
-
-                <strong>
-                    Customer:
-                </strong>
-
-                ${customerName}
-
-            </div>
-
-
-            <div class="customer-row">
-
-                📞
-
-                <strong>
-                    Phone:
-                </strong>
-
-                ${phone}
-
-            </div>
-
-
-            <div class="customer-row">
-
-                📍
-
-                <strong>
-                    Address:
-                </strong>
-
-                ${address}
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- PRODUCTS -->
-
-        <div class="products-title">
-
-            📦 Ordered Products
-
-        </div>
-
-
-        <div class="table-container">
-
-            <table class="products-table">
-
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Product
-                        </th>
-
-                        <th>
-                            Size
-                        </th>
-
-                        <th>
-                            Qty
-                        </th>
-
-                        <th>
-                            Unit Price
-                        </th>
-
-                        <th>
-                            Item Total
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    ${productsHTML}
-
-                </tbody>
-
-
-            </table>
-
-        </div>
-
-
-
-        <!-- TOTAL -->
-
-        <div class="order-total">
-
-            <span>
-                Order Total:
-            </span>
-
-            <span class="order-total-value">
-
-                ₹${total}
-
-            </span>
-
-        </div>
-
-
-
-        <!-- DELIVERY -->
-
-        <div class="delivery-box">
-
-            📅
-
-            <strong>
-                Delivery Date:
-            </strong>
-
-            ${deliveryDate}
-
-        </div>
-
-
-
-        <!-- STATUS -->
-
-        <div class="status-section">
-
-            <label>
-                Order Status:
-            </label>
-
-
-            <select
-                class="status-select"
-                onchange="
-                    updateStatus(
-                        ${Number(order.id)},
-                        this.value
-                    )
-                "
-            >
-
-                <option
-                    value="Pending"
-                    ${status === "Pending"
-                        ? "selected"
-                        : ""}
-                >
-                    🟡 Pending
-                </option>
-
-
-                <option
-                    value="Preparing"
-                    ${status === "Preparing"
-                        ? "selected"
-                        : ""}
-                >
-                    🔵 Preparing
-                </option>
-
-
-                <option
-                    value="Out for Delivery"
-                    ${status === "Out for Delivery"
-                        ? "selected"
-                        : ""}
-                >
-                    🟠 Out for Delivery
-                </option>
-
-
-                <option
-                    value="Delivered"
-                    ${status === "Delivered"
-                        ? "selected"
-                        : ""}
-                >
-                    🟢 Delivered
-                </option>
-
-
-                <option
-                    value="Cancelled"
-                    ${status === "Cancelled"
-                        ? "selected"
-                        : ""}
-                >
-                    🔴 Cancelled
-                </option>
-
-            </select>
-
-
-            <span
-                class="
-                    status-badge
-                    ${getStatusClass(status)}
-                "
-            >
-
-                ${getStatusEmoji(status)}
-
-                ${escapeHTML(status)}
-
-            </span>
-
-
-        </div>
-
-
-
-        <!-- DELETE -->
-
-        <button
-            type="button"
-            class="delete-button"
-            onclick="
-                deleteOrder(
-                    ${Number(order.id)}
-                )
-            "
-        >
-
-            🗑️ Delete Order
-
-        </button>
-
-    `;
-
-
-    return card;
-
-}
-
-
-/* =====================================================
-   GET ORDER ITEMS
-===================================================== */
-
-function getOrderItems(
-    order
-) {
-
-    let items =
-        order.items;
-
-
-    if (
-        typeof items === "string"
-    ) {
-
-        try {
-
-            items =
-                JSON.parse(
-                    items
-                );
-
-        } catch (error) {
-
-            console.error(
-                "Unable to parse order items:",
-                error
+            });
+        }
+
+        const total =
+            Number(order.total) ||
+            calculateItemsTotal(items);
+
+        const status =
+            order.status ||
+            "Pending";
+
+        const createdAt =
+            formatDateTime(
+                order.created_at ||
+                order.createdAt
             );
 
-            items = [];
+        const deliveryDate =
+            escapeHTML(
+                order.delivery_date ||
+                order.deliveryDate ||
+                "-"
+            );
 
-        }
+        const customerName =
+            escapeHTML(
+                order.customer_name ||
+                order.customerName ||
+                ""
+            );
 
+        const phone =
+            escapeHTML(
+                order.phone ||
+                ""
+            );
+
+        const address =
+            escapeHTML(
+                order.address ||
+                ""
+            );
+
+        const orderId =
+            Number(order.id || order.orderId || 0);
+
+        card.innerHTML = `
+
+            <div class="order-header">
+
+                <div class="order-number">
+                    🧾 Order #${orderId}
+                </div>
+
+                <div class="order-created">
+                    ${createdAt}
+                </div>
+
+            </div>
+
+
+            <div class="customer-box">
+
+                <div class="customer-row">
+                    👤
+                    <strong>Customer:</strong>
+                    ${customerName}
+                </div>
+
+                <div class="customer-row">
+                    📞
+                    <strong>Phone:</strong>
+                    ${phone}
+                </div>
+
+                <div class="customer-row">
+                    📍
+                    <strong>Address:</strong>
+                    ${address}
+                </div>
+
+            </div>
+
+
+            <div class="products-title">
+                📦 Ordered Products
+            </div>
+
+
+            <div class="table-container">
+
+                <table class="products-table">
+
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Size</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Item Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${productsHTML}
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="order-total">
+
+                <span>
+                    Order Total:
+                </span>
+
+                <span class="order-total-value">
+                    ₹${total}
+                </span>
+
+            </div>
+
+
+            <div class="delivery-box">
+
+                📅
+                <strong>Delivery Date:</strong>
+                ${deliveryDate}
+
+            </div>
+
+
+            <div class="status-section">
+
+                <label>
+                    Order Status:
+                </label>
+
+                <select
+                    class="status-select"
+                    onchange="updateStatus(
+                        ${orderId},
+                        this.value
+                    )"
+                >
+
+                    <option
+                        value="Pending"
+                        ${status === "Pending" ? "selected" : ""}
+                    >
+                        🟡 Pending
+                    </option>
+
+                    <option
+                        value="Preparing"
+                        ${status === "Preparing" ? "selected" : ""}
+                    >
+                        🔵 Preparing
+                    </option>
+
+                    <option
+                        value="Out for Delivery"
+                        ${status === "Out for Delivery" ? "selected" : ""}
+                    >
+                        🟠 Out for Delivery
+                    </option>
+
+                    <option
+                        value="Delivered"
+                        ${status === "Delivered" ? "selected" : ""}
+                    >
+                        🟢 Delivered
+                    </option>
+
+                    <option
+                        value="Cancelled"
+                        ${status === "Cancelled" ? "selected" : ""}
+                    >
+                        🔴 Cancelled
+                    </option>
+
+                </select>
+
+
+                <span class="
+                    status-badge
+                    ${getStatusClass(status)}
+                ">
+
+                    ${getStatusEmoji(status)}
+                    ${escapeHTML(status)}
+
+                </span>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="delete-button"
+                onclick="deleteOrder(${orderId})"
+            >
+                🗑️ Delete Order
+            </button>
+
+        `;
+
+        return card;
     }
 
 
-    if (
-        !Array.isArray(items)
-    ) {
+    // =========================================================
+    // GET ORDER ITEMS
+    // =========================================================
 
-        /*
-           Compatibility with very old
-           orders.
-        */
+    function getOrderItems(order) {
 
-        if (
-            order.product
-        ) {
+        let items = order.items;
 
-            return [
+        if (typeof items === "string") {
 
-                {
+            try {
 
-                    product:
-                        order.product,
+                items = JSON.parse(items);
 
-                    size:
-                        order.size,
+            } catch (error) {
 
-                    quantity:
-                        Number(
-                            order.quantity
-                        ) || 1,
-
-                    price:
-                        Number(
-                            order.price
-                        ) || 0
-
-                }
-
-            ];
-
-        }
-
-
-        return [];
-
-    }
-
-
-    return items;
-
-}
-
-
-/* =====================================================
-   CALCULATE ITEMS TOTAL
-===================================================== */
-
-function calculateItemsTotal(
-    items
-) {
-
-    return items.reduce(
-        (
-            total,
-            item
-        ) => {
-
-            const quantity =
-                Number(
-                    item.quantity
-                ) || 0;
-
-
-            const price =
-                Number(
-                    item.price
-                ) || 0;
-
-
-            return total +
-                (
-                    quantity *
-                    price
+                console.error(
+                    "Unable to parse order items:",
+                    error
                 );
 
-        },
-        0
-    );
+                items = [];
+            }
+        }
 
-}
+        if (!Array.isArray(items)) {
+
+            // Compatibility with old order format
+
+            if (order.product) {
+
+                return [
+                    {
+                        product: order.product,
+                        size: order.size,
+                        quantity:
+                            Number(order.quantity) || 1,
+                        price:
+                            Number(order.price) || 0
+                    }
+                ];
+            }
+
+            return [];
+        }
+
+        return items;
+    }
 
 
-/* =====================================================
-   UPDATE SUMMARY
-===================================================== */
+    // =========================================================
+    // CALCULATE TOTAL
+    // =========================================================
 
-function updateSummary(
-    orders
-) {
+    function calculateItemsTotal(items) {
 
-    const totalOrders =
-        orders.length;
+        return items.reduce(
+            (total, item) => {
 
+                const quantity =
+                    Number(item.quantity) || 0;
 
-    const pendingOrders =
-        orders.filter(
-            order =>
-                order.status ===
-                "Pending"
-        ).length;
-
-
-    const totalSales =
-        orders.reduce(
-            (
-                total,
-                order
-            ) => {
+                const price =
+                    Number(item.price) || 0;
 
                 return total +
-                    (
-                        Number(
-                            order.total
-                        ) || 0
-                    );
+                    quantity * price;
 
             },
             0
         );
+    }
 
 
-    document.getElementById(
-        "totalOrders"
-    ).textContent =
-        totalOrders;
+    // =========================================================
+    // UPDATE SUMMARY
+    // =========================================================
 
+    function updateSummary(orders) {
 
-    document.getElementById(
-        "pendingOrders"
-    ).textContent =
-        pendingOrders;
+        const totalOrders =
+            orders.length;
 
+        const pendingOrders =
+            orders.filter(
+                order =>
+                    (order.status || "Pending") ===
+                    "Pending"
+            ).length;
 
-    document.getElementById(
-        "totalSales"
-    ).textContent =
-        `₹${totalSales}`;
+        const totalSales =
+            orders.reduce(
+                (total, order) => {
 
-}
+                    return total +
+                        (
+                            Number(order.total) || 0
+                        );
 
-
-/* =====================================================
-   UPDATE STATUS
-===================================================== */
-
-async function updateStatus(
-    orderId,
-    newStatus
-) {
-
-    try {
-
-        const response =
-            await fetch(
-                `/api/orders/${orderId}`,
-                {
-
-                    method: "PUT",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            status:
-                                newStatus
-
-                        })
-
-                }
+                },
+                0
             );
 
+        document.getElementById(
+            "totalOrders"
+        ).textContent =
+            totalOrders;
 
-        const data =
-            await response.json();
+        document.getElementById(
+            "pendingOrders"
+        ).textContent =
+            pendingOrders;
+
+        document.getElementById(
+            "totalSales"
+        ).textContent =
+            `₹${totalSales}`;
+    }
 
 
-        if (!response.ok) {
+    // =========================================================
+    // UPDATE STATUS
+    // =========================================================
 
-            throw new Error(
-                data.message ||
+    async function updateStatus(
+        orderId,
+        newStatus
+    ) {
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/orders/${orderId}`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                            "Accept":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            status: newStatus
+                        })
+                    }
+                );
+
+            let data;
+
+            try {
+                data = await response.json();
+            } catch (error) {
+                data = {};
+            }
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Unable to update status."
+                );
+            }
+
+            await loadOrders();
+
+        } catch (error) {
+
+            console.error(
+                "Status update error:",
+                error
+            );
+
+            alert(
+                error.message ||
                 "Unable to update status."
             );
 
+            await loadOrders();
         }
-
-
-        await loadOrders();
-
-
-    } catch (error) {
-
-        console.error(
-            "Status update error:",
-            error
-        );
-
-
-        alert(
-            error.message ||
-            "Unable to update status."
-        );
-
-
-        await loadOrders();
-
-    }
-
-}
-
-
-/* =====================================================
-   DELETE ORDER
-===================================================== */
-
-async function deleteOrder(
-    orderId
-) {
-
-    const confirmed =
-        confirm(
-            `Are you sure you want to delete Order #${orderId}?`
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
     }
 
 
-    try {
+    // =========================================================
+    // DELETE ORDER
+    // =========================================================
 
-        const response =
-            await fetch(
-                `/api/orders/${orderId}`,
-                {
-                    method: "DELETE"
-                }
+    async function deleteOrder(orderId) {
+
+        const confirmed =
+            confirm(
+                `Are you sure you want to delete Order #${orderId}?`
             );
 
+        if (!confirmed) {
+            return;
+        }
 
-        const data =
-            await response.json();
+        try {
 
+            const response =
+                await fetch(
+                    `/api/orders/${orderId}`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
 
-        if (!response.ok) {
+            let data;
 
-            throw new Error(
-                data.message ||
+            try {
+                data = await response.json();
+            } catch (error) {
+                data = {};
+            }
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Unable to delete order."
+                );
+            }
+
+            await loadOrders();
+
+        } catch (error) {
+
+            console.error(
+                "Delete order error:",
+                error
+            );
+
+            alert(
+                error.message ||
                 "Unable to delete order."
             );
+        }
+    }
 
+
+    // =========================================================
+    // STATUS CLASS
+    // =========================================================
+
+    function getStatusClass(status) {
+
+        switch (status) {
+
+            case "Preparing":
+                return "preparing";
+
+            case "Out for Delivery":
+                return "out-delivery";
+
+            case "Delivered":
+                return "delivered";
+
+            case "Cancelled":
+                return "cancelled";
+
+            default:
+                return "pending";
+        }
+    }
+
+
+    // =========================================================
+    // STATUS EMOJI
+    // =========================================================
+
+    function getStatusEmoji(status) {
+
+        switch (status) {
+
+            case "Preparing":
+                return "🔵";
+
+            case "Out for Delivery":
+                return "🟠";
+
+            case "Delivered":
+                return "🟢";
+
+            case "Cancelled":
+                return "🔴";
+
+            default:
+                return "🟡";
+        }
+    }
+
+
+    // =========================================================
+    // DATE FORMAT
+    // =========================================================
+
+    function formatDateTime(value) {
+
+        if (!value) {
+            return "-";
         }
 
+        const date =
+            new Date(value);
 
-        await loadOrders();
-
-
-    } catch (error) {
-
-        console.error(
-            "Delete order error:",
-            error
-        );
-
-
-        alert(
-            error.message ||
-            "Unable to delete order."
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   STATUS CLASS
-===================================================== */
-
-function getStatusClass(
-    status
-) {
-
-    switch (status) {
-
-        case "Preparing":
-            return "preparing";
-
-        case "Out for Delivery":
-            return "out-delivery";
-
-        case "Delivered":
-            return "delivered";
-
-        case "Cancelled":
-            return "cancelled";
-
-        default:
-            return "pending";
-
-    }
-
-}
-
-
-/* =====================================================
-   STATUS EMOJI
-===================================================== */
-
-function getStatusEmoji(
-    status
-) {
-
-    switch (status) {
-
-        case "Preparing":
-            return "🔵";
-
-        case "Out for Delivery":
-            return "🟠";
-
-        case "Delivered":
-            return "🟢";
-
-        case "Cancelled":
-            return "🔴";
-
-        default:
-            return "🟡";
-
-    }
-
-}
-
-
-/* =====================================================
-   DATE FORMAT
-===================================================== */
-
-function formatDateTime(
-    value
-) {
-
-    if (!value) {
-
-        return "-";
-
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return escapeHTML(
-            String(value)
-        );
-
-    }
-
-
-    return date.toLocaleString(
-        "en-IN",
-        {
-
-            day: "numeric",
-
-            month: "short",
-
-            year: "numeric",
-
-            hour: "numeric",
-
-            minute: "2-digit"
-
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return escapeHTML(
+                String(value)
+            );
         }
-    );
 
-}
-
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHTML(
-    value
-) {
-
-    return String(value)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
+        return date.toLocaleString(
+            "en-IN",
+            {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit"
+            }
         );
+    }
 
-}
+
+    // =========================================================
+    // ESCAPE HTML
+    // =========================================================
+
+    function escapeHTML(value) {
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
 
-/* =====================================================
-   EMPTY ORDERS
-===================================================== */
+    // =========================================================
+    // EMPTY ORDERS
+    // =========================================================
 
-function showEmptyOrders() {
+    function showEmptyOrders() {
 
-    document.getElementById(
-        "ordersContainer"
-    ).innerHTML = `
+        document.getElementById(
+            "ordersContainer"
+        ).innerHTML = `
 
-        <div class="empty-orders">
+            <div class="empty-orders">
 
-            <div class="emoji">
-                📦
+                <div class="emoji">
+                    📦
+                </div>
+
+                <h2>
+                    No Orders Yet
+                </h2>
+
+                <p>
+                    Customer orders will appear here.
+                </p>
+
             </div>
 
-            <h2>
-                No Orders Yet
-            </h2>
-
-            <p>
-                Customer orders will appear here.
-            </p>
-
-        </div>
-
-    `;
-
-}
+        `;
+    }
 
 
-/* =====================================================
-   START
-===================================================== */
+    // =========================================================
+    // START
+    // =========================================================
 
-loadOrders();
-
+    loadOrders();
 
 </script>
 
-
 </body>
-
 </html>
