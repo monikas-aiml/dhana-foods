@@ -1,141 +1,189 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    console.log("✅ Dhana Foods script loaded");
-
-    // =========================================================
-    // ELEMENTS
-    // =========================================================
+    /* =====================================================
+       ELEMENTS
+    ===================================================== */
 
     const orderForm = document.getElementById("orderForm");
     const cartItemsBox = document.getElementById("cartItems");
     const cartTotalBox = document.getElementById("cartTotal");
     const submitButton = document.getElementById("submitButton");
 
-    const productInputs = document.querySelectorAll(".product-qty");
+    const productInputs =
+        document.querySelectorAll(".product-qty");
 
-    console.log("🛒 Product inputs found:", productInputs.length);
 
-    // =========================================================
-    // CART
-    // =========================================================
+    /* =====================================================
+       SAFE HTML
+    ===================================================== */
+
+    function escapeHTML(value) {
+
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    /* =====================================================
+       GET CART ITEMS
+    ===================================================== */
 
     function getCartItems() {
 
         const items = [];
 
-        document.querySelectorAll(".product-qty").forEach(input => {
+        productInputs.forEach(input => {
 
-            const quantity = parseInt(input.value, 10) || 0;
+            const quantity =
+                Number(input.value);
 
-            if (quantity <= 0) {
-                return;
+            if (
+                Number.isInteger(quantity) &&
+                quantity > 0
+            ) {
+
+                items.push({
+
+                    product:
+                        String(
+                            input.dataset.product || ""
+                        ).trim(),
+
+                    size:
+                        String(
+                            input.dataset.size || ""
+                        ).trim(),
+
+                    quantity:
+                        quantity,
+
+                    price:
+                        Number(
+                            input.dataset.price || 0
+                        )
+
+                });
+
             }
 
-            const product = input.dataset.product;
-            const size = input.dataset.size;
-            const price = Number(input.dataset.price);
-
-            if (!product || !size || !price) {
-                console.warn(
-                    "Invalid product input:",
-                    input
-                );
-                return;
-            }
-
-            items.push({
-                product: product,
-                size: size,
-                quantity: quantity,
-                price: price,
-                subtotal: price * quantity
-            });
         });
 
         return items;
     }
 
-    // =========================================================
-    // UPDATE CART
-    // =========================================================
+
+    /* =====================================================
+       CALCULATE TOTAL
+    ===================================================== */
+
+    function calculateTotal(items) {
+
+        return items.reduce(
+            (total, item) => {
+
+                return total +
+                    (
+                        Number(item.quantity) *
+                        Number(item.price)
+                    );
+
+            },
+            0
+        );
+
+    }
+
+
+    /* =====================================================
+       FIND PRODUCT INPUT
+    ===================================================== */
+
+    function findProductInput(
+        product,
+        size
+    ) {
+
+        return Array.from(
+            productInputs
+        ).find(input =>
+
+            input.dataset.product === product &&
+            input.dataset.size === size
+
+        );
+
+    }
+
+
+    /* =====================================================
+       UPDATE CART
+    ===================================================== */
 
     function updateCart() {
 
-        if (!cartItemsBox || !cartTotalBox) {
-            console.error(
-                "❌ Cart elements not found."
-            );
-            return;
-        }
+        const items =
+            getCartItems();
 
-        const items = getCartItems();
+        const total =
+            calculateTotal(items);
 
-        // Empty cart
+
         if (items.length === 0) {
 
-            cartItemsBox.innerHTML = `
-                <div class="empty-cart">
-                    🛒 Your cart is empty.
-                    <br>
-                    <small>
-                        Select a batter above to add it to your order.
-                    </small>
-                </div>
-            `;
+            cartItemsBox.innerHTML =
+                "No products selected.";
 
-            cartTotalBox.textContent = "Total: ₹0";
+            cartTotalBox.textContent =
+                "Total: ₹0";
 
             return;
         }
 
-        let total = 0;
 
         let html = "";
 
-        items.forEach((item, index) => {
 
-            total += item.subtotal;
+        items.forEach(item => {
+
+            const itemTotal =
+                Number(item.quantity) *
+                Number(item.price);
+
 
             html += `
+
                 <div
                     class="cart-item"
-                    data-index="${index}"
                     style="
                         display:flex;
-                        align-items:center;
                         justify-content:space-between;
-                        gap:15px;
-                        padding:15px 0;
-                        border-bottom:1px solid #ead2bc;
+                        align-items:center;
+                        gap:10px;
+                        padding:10px 0;
+                        border-bottom:1px solid #eee;
                     "
                 >
 
-                    <div style="flex:1;">
+                    <div>
+
                         <strong>
                             ${escapeHTML(item.product)}
                         </strong>
 
-                        <div
-                            style="
-                                margin-top:5px;
-                                color:#777;
-                                font-size:14px;
-                            "
-                        >
+                        <br>
+
+                        <small>
                             ${escapeHTML(item.size)}
                             ×
                             ${item.quantity}
-                        </div>
+                        </small>
 
-                        <div
-                            style="
-                                margin-top:5px;
-                                font-weight:bold;
-                            "
-                        >
-                            ₹${item.subtotal}
-                        </div>
                     </div>
+
 
                     <div
                         style="
@@ -148,8 +196,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         <button
                             type="button"
                             class="cart-minus"
-                            data-product="${escapeAttribute(item.product)}"
-                            data-size="${escapeAttribute(item.size)}"
+                            data-product="${escapeHTML(item.product)}"
+                            data-size="${escapeHTML(item.size)}"
                             style="
                                 width:32px;
                                 height:32px;
@@ -161,21 +209,17 @@ document.addEventListener("DOMContentLoaded", () => {
                             −
                         </button>
 
-                        <span
-                            style="
-                                min-width:25px;
-                                text-align:center;
-                                font-weight:bold;
-                            "
-                        >
+
+                        <strong>
                             ${item.quantity}
-                        </span>
+                        </strong>
+
 
                         <button
                             type="button"
                             class="cart-plus"
-                            data-product="${escapeAttribute(item.product)}"
-                            data-size="${escapeAttribute(item.size)}"
+                            data-product="${escapeHTML(item.product)}"
+                            data-size="${escapeHTML(item.size)}"
                             style="
                                 width:32px;
                                 height:32px;
@@ -187,162 +231,135 @@ document.addEventListener("DOMContentLoaded", () => {
                             +
                         </button>
 
+
+                        <strong
+                            style="
+                                min-width:70px;
+                                text-align:right;
+                            "
+                        >
+                            ₹${itemTotal}
+                        </strong>
+
+
                         <button
                             type="button"
                             class="cart-remove"
-                            data-product="${escapeAttribute(item.product)}"
-                            data-size="${escapeAttribute(item.size)}"
+                            data-product="${escapeHTML(item.product)}"
+                            data-size="${escapeHTML(item.size)}"
                             style="
-                                margin-left:8px;
                                 border:none;
-                                background:transparent;
-                                color:#b00000;
-                                font-size:20px;
+                                background:none;
+                                color:#b42318;
                                 cursor:pointer;
+                                font-size:18px;
                             "
                             title="Remove"
                         >
-                            ×
+                            ✕
                         </button>
 
                     </div>
 
                 </div>
+
             `;
+
         });
 
-        cartItemsBox.innerHTML = html;
+
+        cartItemsBox.innerHTML =
+            html;
+
 
         cartTotalBox.textContent =
             `Total: ₹${total}`;
     }
 
-    // =========================================================
-    // ESCAPE HTML
-    // =========================================================
 
-    function escapeHTML(value) {
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    function escapeAttribute(value) {
-
-        return escapeHTML(value);
-    }
-
-    // =========================================================
-    // CHANGE QUANTITY
-    // =========================================================
+    /* =====================================================
+       PRODUCT INPUT EVENTS
+    ===================================================== */
 
     productInputs.forEach(input => {
 
-        input.addEventListener("input", () => {
+        input.addEventListener(
+            "input",
+            updateCart
+        );
 
-            let value = parseInt(input.value, 10);
+        input.addEventListener(
+            "change",
+            updateCart
+        );
 
-            if (isNaN(value) || value < 0) {
-                value = 0;
-            }
-
-            if (value > 100) {
-                value = 100;
-            }
-
-            input.value = value;
-
-            updateCart();
-        });
-
-        input.addEventListener("change", () => {
-
-            let value = parseInt(input.value, 10);
-
-            if (isNaN(value) || value < 0) {
-                value = 0;
-            }
-
-            if (value > 100) {
-                value = 100;
-            }
-
-            input.value = value;
-
-            updateCart();
-        });
     });
 
-    // =========================================================
-    // CART BUTTONS
-    // =========================================================
 
-    document.addEventListener("click", event => {
+    /* =====================================================
+       CART BUTTONS
+    ===================================================== */
 
-        const plusButton =
-            event.target.closest(".cart-plus");
+    document.addEventListener(
+        "click",
+        event => {
 
-        const minusButton =
-            event.target.closest(".cart-minus");
+            const button =
+                event.target.closest(
+                    ".cart-plus, .cart-minus, .cart-remove"
+                );
 
-        const removeButton =
-            event.target.closest(".cart-remove");
 
-        // ---------------------------------------------
-        // PLUS
-        // ---------------------------------------------
+            if (!button) {
+                return;
+            }
 
-        if (plusButton) {
 
             const product =
-                plusButton.dataset.product;
+                button.dataset.product;
 
             const size =
-                plusButton.dataset.size;
+                button.dataset.size;
+
 
             const input =
-                findProductInput(product, size);
+                findProductInput(
+                    product,
+                    size
+                );
 
-            if (input) {
 
-                let quantity =
-                    parseInt(input.value, 10) || 0;
+            if (!input) {
+                return;
+            }
+
+
+            let quantity =
+                Number(input.value) || 0;
+
+
+            /* PLUS */
+
+            if (
+                button.classList.contains(
+                    "cart-plus"
+                )
+            ) {
 
                 if (quantity < 100) {
                     quantity++;
                 }
 
-                input.value = quantity;
-
-                updateCart();
             }
 
-            return;
-        }
 
-        // ---------------------------------------------
-        // MINUS
-        // ---------------------------------------------
+            /* MINUS */
 
-        if (minusButton) {
-
-            const product =
-                minusButton.dataset.product;
-
-            const size =
-                minusButton.dataset.size;
-
-            const input =
-                findProductInput(product, size);
-
-            if (input) {
-
-                let quantity =
-                    parseInt(input.value, 10) || 0;
+            if (
+                button.classList.contains(
+                    "cart-minus"
+                )
+            ) {
 
                 quantity--;
 
@@ -350,64 +367,34 @@ document.addEventListener("DOMContentLoaded", () => {
                     quantity = 0;
                 }
 
-                input.value = quantity;
-
-                updateCart();
             }
 
-            return;
-        }
 
-        // ---------------------------------------------
-        // REMOVE
-        // ---------------------------------------------
-
-        if (removeButton) {
-
-            const product =
-                removeButton.dataset.product;
-
-            const size =
-                removeButton.dataset.size;
-
-            const input =
-                findProductInput(product, size);
-
-            if (input) {
-                input.value = 0;
-                updateCart();
-            }
-
-            return;
-        }
-
-    });
-
-    // =========================================================
-    // FIND PRODUCT INPUT
-    // =========================================================
-
-    function findProductInput(product, size) {
-
-        const inputs =
-            document.querySelectorAll(".product-qty");
-
-        for (const input of inputs) {
+            /* REMOVE */
 
             if (
-                input.dataset.product === product &&
-                input.dataset.size === size
+                button.classList.contains(
+                    "cart-remove"
+                )
             ) {
-                return input;
+
+                quantity = 0;
+
             }
+
+
+            input.value =
+                quantity;
+
+            updateCart();
+
         }
+    );
 
-        return null;
-    }
 
-    // =========================================================
-    // FORM SUBMISSION
-    // =========================================================
+    /* =====================================================
+       PLACE ORDER
+    ===================================================== */
 
     if (orderForm) {
 
@@ -417,51 +404,78 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 event.preventDefault();
 
-                console.log(
-                    "📦 Order form submitted"
-                );
 
-                const items = getCartItems();
+                /* -----------------------------------------
+                   CUSTOMER NAME
+                ----------------------------------------- */
 
-                // -----------------------------------------
-                // CHECK CART
-                // -----------------------------------------
-
-                if (items.length === 0) {
-
-                    alert(
-                        "Please add at least one product to your cart."
+                const customerNameInput =
+                    document.getElementById(
+                        "customerName"
                     );
 
-                    return;
-                }
 
-                // -----------------------------------------
-                // CUSTOMER DETAILS
-                // -----------------------------------------
+                /* -----------------------------------------
+                   PHONE
+                ----------------------------------------- */
+
+                const phoneInput =
+                    document.getElementById(
+                        "phone"
+                    );
+
+
+                /* -----------------------------------------
+                   ADDRESS
+                ----------------------------------------- */
+
+                const addressInput =
+                    document.getElementById(
+                        "address"
+                    );
+
+
+                /* -----------------------------------------
+                   DELIVERY DATE
+                ----------------------------------------- */
+
+                const deliveryDateInput =
+                    document.getElementById(
+                        "deliveryDate"
+                    );
+
+
+                /* -----------------------------------------
+                   READ VALUES
+                ----------------------------------------- */
 
                 const customerName =
-                    document
-                        .getElementById("customerName")
-                        ?.value
-                        .trim();
+                    customerNameInput
+                        ? customerNameInput.value.trim()
+                        : "";
+
 
                 const phone =
-                    document
-                        .getElementById("phone")
-                        ?.value
-                        .trim();
+                    phoneInput
+                        ? phoneInput.value.trim()
+                        : "";
+
 
                 const address =
-                    document
-                        .getElementById("address")
-                        ?.value
-                        .trim();
+                    addressInput
+                        ? addressInput.value.trim()
+                        : "";
+
 
                 const deliveryDate =
-                    document
-                        .getElementById("deliveryDate")
-                        ?.value;
+                    deliveryDateInput
+                        ? deliveryDateInput.value
+                        : "";
+
+
+                /* -----------------------------------------
+                   VALIDATION
+                ----------------------------------------- */
 
                 if (!customerName) {
 
@@ -469,8 +483,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         "Please enter your name."
                     );
 
+                    if (customerNameInput) {
+                        customerNameInput.focus();
+                    }
+
                     return;
                 }
+
 
                 if (!phone) {
 
@@ -478,17 +497,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         "Please enter your phone number."
                     );
 
-                    return;
-                }
-
-                if (!/^\d{10}$/.test(phone)) {
-
-                    alert(
-                        "Please enter a valid 10-digit mobile number."
-                    );
+                    if (phoneInput) {
+                        phoneInput.focus();
+                    }
 
                     return;
                 }
+
 
                 if (!address) {
 
@@ -496,165 +511,210 @@ document.addEventListener("DOMContentLoaded", () => {
                         "Please enter your delivery address."
                     );
 
+                    if (addressInput) {
+                        addressInput.focus();
+                    }
+
                     return;
                 }
+
 
                 if (!deliveryDate) {
 
                     alert(
-                        "Please select a delivery date."
+                        "Please select delivery date."
+                    );
+
+                    if (deliveryDateInput) {
+                        deliveryDateInput.focus();
+                    }
+
+                    return;
+                }
+
+
+                /* -----------------------------------------
+                   CART
+                ----------------------------------------- */
+
+                const items =
+                    getCartItems();
+
+
+                if (items.length === 0) {
+
+                    alert(
+                        "Please select at least one product."
                     );
 
                     return;
                 }
 
-                // -----------------------------------------
-                // TOTAL
-                // -----------------------------------------
 
-                const total =
-                    items.reduce(
-                        (sum, item) =>
-                            sum + item.subtotal,
-                        0
-                    );
-
-                // -----------------------------------------
-                // BUTTON
-                // -----------------------------------------
+                /* -----------------------------------------
+                   DISABLE BUTTON
+                ----------------------------------------- */
 
                 if (submitButton) {
 
-                    submitButton.disabled = true;
+                    submitButton.disabled =
+                        true;
 
                     submitButton.textContent =
-                        "⏳ Placing Order...";
+                        "Placing Order...";
                 }
+
 
                 try {
 
+                    /* -------------------------------------
+                       IMPORTANT:
+                       CUSTOMER NAME IS EXPLICITLY SENT
+                    ------------------------------------- */
+
+                    const orderData = {
+
+                        customerName:
+                            customerName,
+
+                        phone:
+                            phone,
+
+                        address:
+                            address,
+
+                        items:
+                            items,
+
+                        deliveryDate:
+                            deliveryDate
+
+                    };
+
+
                     console.log(
                         "Sending order:",
-                        {
-                            customerName,
-                            phone,
-                            address,
-                            deliveryDate,
-                            items,
-                            total
-                        }
+                        orderData
                     );
 
-                    // -------------------------------------
-                    // SEND TO SERVER
-                    // -------------------------------------
+
+                    /* -------------------------------------
+                       SEND TO SERVER
+                    ------------------------------------- */
 
                     const response =
                         await fetch(
                             "/api/orders",
                             {
+
                                 method: "POST",
 
                                 headers: {
                                     "Content-Type":
+                                        "application/json",
+
+                                    "Accept":
                                         "application/json"
                                 },
 
-                                body: JSON.stringify({
-                                    customerName,
-                                    phone,
-                                    address,
-                                    deliveryDate,
-                                    items
-                                })
+                                body:
+                                    JSON.stringify(
+                                        orderData
+                                    )
+
                             }
                         );
 
-                    const data =
-                        await response.json();
 
-                    console.log(
-                        "Server response:",
-                        data
-                    );
+                    const rawText =
+                        await response.text();
 
-                    if (!response.ok) {
+
+                    let data;
+
+                    try {
+
+                        data =
+                            JSON.parse(
+                                rawText
+                            );
+
+                    } catch (jsonError) {
+
+                        throw new Error(
+                            "Server returned invalid response."
+                        );
+
+                    }
+
+
+                    if (
+                        !response.ok ||
+                        data.success === false
+                    ) {
 
                         throw new Error(
                             data.message ||
                             "Unable to place order."
                         );
+
                     }
 
-                    if (!data.success) {
 
-                        throw new Error(
-                            data.message ||
-                            "Order failed."
-                        );
-                    }
-
-                    // -------------------------------------
-                    // ORDER NUMBER
-                    // -------------------------------------
-
-                    const orderId =
-                        data.orderId ??
-                        data.id ??
-                        data.order?.id ??
-                        "-";
-
-                    const orderTotal =
-                        data.total ??
-                        data.order?.total ??
-                        total;
-
-                    const orderDeliveryDate =
-                        data.deliveryDate ??
-                        data.order?.deliveryDate ??
-                        deliveryDate;
-
-                    // -------------------------------------
-                    // SUCCESS MESSAGE
-                    // -------------------------------------
+                    /* -------------------------------------
+                       SUCCESS
+                    ------------------------------------- */
 
                     const successMessage =
                         document.getElementById(
                             "successMessage"
                         );
 
+
                     const successOrderId =
                         document.getElementById(
                             "successOrderId"
                         );
+
 
                     const successTotal =
                         document.getElementById(
                             "successTotal"
                         );
 
+
                     const successDeliveryDate =
                         document.getElementById(
                             "successDeliveryDate"
                         );
 
+
                     if (successOrderId) {
 
                         successOrderId.textContent =
-                            orderId;
+                            data.orderId || "-";
+
                     }
+
 
                     if (successTotal) {
 
                         successTotal.textContent =
-                            `₹${orderTotal}`;
+                            `₹${Number(
+                                data.total || 0
+                            ).toFixed(2)}`;
+
                     }
+
 
                     if (successDeliveryDate) {
 
                         successDeliveryDate.textContent =
-                            orderDeliveryDate;
+                            data.deliveryDate ||
+                            deliveryDate;
+
                     }
+
 
                     if (successMessage) {
 
@@ -665,70 +725,90 @@ document.addEventListener("DOMContentLoaded", () => {
                             behavior: "smooth",
                             block: "center"
                         });
+
                     }
 
-                    // -------------------------------------
-                    // CLEAR CART
-                    // -------------------------------------
 
-                    document
-                        .querySelectorAll(".product-qty")
-                        .forEach(input => {
+                    /* -------------------------------------
+                       CLEAR PRODUCT QUANTITIES
+                    ------------------------------------- */
+
+                    productInputs.forEach(
+                        input => {
+
                             input.value = 0;
-                        });
+
+                        }
+                    );
+
 
                     updateCart();
 
-                    // -------------------------------------
-                    // RESET FORM
-                    // -------------------------------------
 
-                    orderForm.reset();
+                    /* -------------------------------------
+                       CLEAR CUSTOMER FORM
+                    ------------------------------------- */
+
+                    if (customerNameInput) {
+                        customerNameInput.value = "";
+                    }
+
+                    if (phoneInput) {
+                        phoneInput.value = "";
+                    }
+
+                    if (addressInput) {
+                        addressInput.value = "";
+                    }
+
+                    if (deliveryDateInput) {
+                        deliveryDateInput.value = "";
+                    }
+
 
                     console.log(
-                        "✅ Order placed successfully:",
-                        orderId
+                        "Order placed successfully:",
+                        data
                     );
 
-                    // -------------------------------------
-                    // BUTTON
-                    // -------------------------------------
-
-                    if (submitButton) {
-
-                        submitButton.disabled = false;
-
-                        submitButton.textContent =
-                            "🛒 Place Order";
-                    }
 
                 } catch (error) {
 
                     console.error(
-                        "❌ Order error:",
+                        "Order error:",
                         error
                     );
 
+
                     alert(
-                        error.message ||
-                        "Something went wrong while placing your order."
+                        "Unable to place order.\n\n" +
+                        error.message
                     );
+
+
+                } finally {
 
                     if (submitButton) {
 
-                        submitButton.disabled = false;
+                        submitButton.disabled =
+                            false;
 
                         submitButton.textContent =
-                            "🛒 Place Order";
+                            "Place Order";
+
                     }
+
                 }
+
             }
         );
+
     }
 
-    // =========================================================
-    // INITIAL CART
-    // =========================================================
+
+    /* =====================================================
+       INITIAL CART
+    ===================================================== */
 
     updateCart();
 
