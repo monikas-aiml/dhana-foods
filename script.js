@@ -1,1389 +1,1196 @@
 /* =========================================================
-   DHANA FOODS - CUSTOMER SCRIPT
-   Version 14
-   ========================================================= */
-
-console.log("Dhana Foods customer script v14 loaded.");
-
-/* =========================================================
-   OFFICIAL PRODUCT PRICES
-   ========================================================= */
-
-const PRODUCTS = {
-  "Idli Batter": {
-    "500g": 25,
-    "1kg": 45
-  },
-
-  "Dosa Batter": {
-    "500g": 25,
-    "1kg": 45
-  },
-
-  "Adai Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Mappilai Samba Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Appam Batter": {
-    "500g": 30,
-    "1kg": 60
-  },
-
-  "Millet Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Poonghar Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Karuppu Kavuni Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Keerai Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Kambu Yasnam Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Ragi Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Karunguruvai Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Pachai Payiru Batter": {
-    "500g": 40,
-    "1kg": 80
-  }
-};
-
-
-/* =========================================================
-   PRODUCT ALIASES
-   Allows old/alternate spellings to work
-   ========================================================= */
-
-const PRODUCT_ALIASES = {
-
-  "idli": "Idli Batter",
-  "idli batter": "Idli Batter",
-
-  "dosa": "Dosa Batter",
-  "dosa batter": "Dosa Batter",
-
-  "adai": "Adai Batter",
-  "adai batter": "Adai Batter",
-
-  "mappilai samba": "Mappilai Samba Batter",
-  "mappilai samba batter": "Mappilai Samba Batter",
-
-  "mapillai samba": "Mappilai Samba Batter",
-  "mapillai samba batter": "Mappilai Samba Batter",
-
-  "appam": "Appam Batter",
-  "appam batter": "Appam Batter",
-
-  "millet": "Millet Batter",
-  "millet batter": "Millet Batter",
-
-  "poonghar": "Poonghar Batter",
-  "poonghar batter": "Poonghar Batter",
-
-  "poongar": "Poonghar Batter",
-  "poongar batter": "Poonghar Batter",
-
-  "poongaar": "Poonghar Batter",
-  "poongaar batter": "Poonghar Batter",
-
-  "karuppu kavuni": "Karuppu Kavuni Batter",
-  "karuppu kavuni batter": "Karuppu Kavuni Batter",
-
-  "karupu kavuni": "Karuppu Kavuni Batter",
-  "karupu kavuni batter": "Karuppu Kavuni Batter",
-
-  "keerai": "Keerai Batter",
-  "keerai batter": "Keerai Batter",
-
-  "kambu yasnam": "Kambu Yasnam Batter",
-  "kambu yasnam batter": "Kambu Yasnam Batter",
-
-  "ragi": "Ragi Batter",
-  "ragi batter": "Ragi Batter",
-
-  "karunguruvai": "Karunguruvai Batter",
-  "karunguruvai batter": "Karunguruvai Batter",
-
-  "karinagaruvai": "Karunguruvai Batter",
-  "karinagaruvai batter": "Karunguruvai Batter",
-
-  "karunaguvrai": "Karunguruvai Batter",
-  "karunaguvrai batter": "Karunguruvai Batter",
-
-  "karumburuvai": "Karunguruvai Batter",
-  "karumburuvai batter": "Karunguruvai Batter",
-
-  "pachai payiru": "Pachai Payiru Batter",
-  "pachai payiru batter": "Pachai Payiru Batter",
-
-  "pachai payir": "Pachai Payiru Batter",
-  "pachai payir batter": "Pachai Payiru Batter"
-};
-
-
-/* =========================================================
-   NORMALIZATION
-   ========================================================= */
-
-function normalizeProductKey(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[\s_-]+/g, " ");
-}
-
-
-function normalizeProductName(value) {
-  const original = String(value || "").trim();
-
-  if (!original) {
-    return "";
-  }
-
-  const key = normalizeProductKey(original);
-
-  return PRODUCT_ALIASES[key] || original;
-}
-
-
-/* =========================================================
-   CART
-   ========================================================= */
-
-let cart = [];
-
-
-/* =========================================================
-   GET ELEMENT
-   ========================================================= */
-
-function getElement(id) {
-  return document.getElementById(id);
-}
-
-
-/* =========================================================
-   FORMAT RUPEES
-   ========================================================= */
-
-function formatPrice(value) {
-  return `₹${Number(value || 0).toFixed(0)}`;
-}
-
-
-/* =========================================================
-   GET PRICE
-   ========================================================= */
-
-function getProductPrice(productName, size) {
-
-  const canonicalName = normalizeProductName(productName);
-
-  if (
-    !PRODUCTS[canonicalName] ||
-    !PRODUCTS[canonicalName][size]
-  ) {
-    return null;
-  }
-
-  return PRODUCTS[canonicalName][size];
-}
-
-
-/* =========================================================
-   ADD PRODUCT TO CART
-   ========================================================= */
-
-function addToCart(productName, size, quantity) {
-
-  const canonicalName = normalizeProductName(productName);
-
-  const qty = Number(quantity);
-
-  if (!canonicalName || !size || !qty || qty < 1) {
-    return;
-  }
-
-  const price = getProductPrice(canonicalName, size);
-
-  if (price === null) {
-    alert("Invalid product or size.");
-    return;
-  }
-
-  const existing = cart.find(
-    item =>
-      item.productName === canonicalName &&
-      item.size === size
-  );
-
-  if (existing) {
-
-    existing.quantity += qty;
-
-  } else {
-
-    cart.push({
-      productName: canonicalName,
-      size: size,
-      quantity: qty,
-      price: price
-    });
-
-  }
-
-  renderCart();
-}
-
-
-/* =========================================================
-   REMOVE CART ITEM
-   ========================================================= */
-
-function removeFromCart(index) {
-
-  if (index < 0 || index >= cart.length) {
-    return;
-  }
-
-  cart.splice(index, 1);
-
-  renderCart();
-}
-
-
-/* =========================================================
-   CHANGE QUANTITY
-   ========================================================= */
-
-function changeCartQuantity(index, change) {
-
-  if (!cart[index]) {
-    return;
-  }
-
-  cart[index].quantity += change;
-
-  if (cart[index].quantity <= 0) {
-    cart.splice(index, 1);
-  }
-
-  renderCart();
-}
-
-
-/* =========================================================
-   CALCULATE CART TOTAL
-   ========================================================= */
-
-function calculateCartTotal() {
-
-  return cart.reduce(
-    (total, item) =>
-      total + (Number(item.price) * Number(item.quantity)),
-    0
-  );
-}
-
-
-/* =========================================================
-   RENDER CART
-   ========================================================= */
-
-function renderCart() {
-
-  const cartContainer =
-    getElement("cartItems") ||
-    getElement("cart");
-
-  const cartTotal =
-    getElement("cartTotal");
-
-  const cartCount =
-    getElement("cartCount");
-
-  if (!cartContainer) {
-    return;
-  }
-
-  if (cart.length === 0) {
-
-    cartContainer.innerHTML = `
-      <div class="empty-cart">
-        🛒 Your cart is empty.
-      </div>
-    `;
-
-    if (cartTotal) {
-      cartTotal.textContent = "₹0";
+   DHANA FOODS
+   Customer Cart + Order System
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* =======================================================
+     PRODUCT PRICES
+  ======================================================= */
+
+  const PRODUCTS = {
+    "Idli Batter": {
+      "500g": 25,
+      "1kg": 45
+    },
+
+    "Dosa Batter": {
+      "500g": 25,
+      "1kg": 45
+    },
+
+    "Adai Batter": {
+      "500g": 40,
+      "1kg": 80
+    },
+
+    "Mappilai Samba Batter": {
+      "500g": 40,
+      "1kg": 80
+    },
+
+    "Appam Batter": {
+      "500g": 30,
+      "1kg": 60
+    },
+
+    "Millet Batter": {
+      "500g": 40,
+      "1kg": 80
+    },
+
+    "Poonghar Batter": {
+      "500g": 40,
+      "1kg": 80
+    },
+
+    "Karuppu Kavuni Batter": {
+      "500g": 40,
+      "1kg": 80
+    },
+
+    "Keerai Batter": {
+      "500g": 40,
+      "1kg": 80
+    },
+
+    "Kambu Yasnam Batter": {
+      "500g": 40,
+      "1kg": 80
+    },
+
+    "Ragi Batter": {
+      "500g": 40,
+      "1kg": 80
+    },
+
+    "Karunguruvai Batter": {
+      "500g": 40,
+      "1kg": 80
+    },
+
+    "Pachai Payiru Batter": {
+      "500g": 40,
+      "1kg": 80
     }
-
-    if (cartCount) {
-      cartCount.textContent = "0";
-    }
-
-    return;
-  }
+  };
 
 
-  let html = "";
+  /* =======================================================
+     PRODUCT ALIASES
+  ======================================================= */
 
-  cart.forEach((item, index) => {
+  const PRODUCT_ALIASES = {
 
-    const itemTotal =
-      Number(item.price) * Number(item.quantity);
+    "idli": "Idli Batter",
+    "idli batter": "Idli Batter",
 
-    html += `
-      <div class="cart-item">
+    "dosa": "Dosa Batter",
+    "dosa batter": "Dosa Batter",
 
-        <div class="cart-item-info">
-          <strong>${escapeHtml(item.productName)}</strong>
-          <span>${escapeHtml(item.size)}</span>
-        </div>
+    "adai": "Adai Batter",
+    "adai batter": "Adai Batter",
 
-        <div class="cart-item-price">
-          ${formatPrice(item.price)}
-        </div>
+    "mappilai samba": "Mappilai Samba Batter",
+    "mappilai samba batter": "Mappilai Samba Batter",
 
-        <div class="cart-quantity">
+    "mapillai samba": "Mappilai Samba Batter",
+    "mapillai samba batter": "Mappilai Samba Batter",
 
-          <button
-            type="button"
-            onclick="changeCartQuantity(${index}, -1)"
-          >
-            −
-          </button>
+    "appam": "Appam Batter",
+    "appam batter": "Appam Batter",
 
-          <span>${item.quantity}</span>
+    "millet": "Millet Batter",
+    "millet batter": "Millet Batter",
 
-          <button
-            type="button"
-            onclick="changeCartQuantity(${index}, 1)"
-          >
-            +
-          </button>
+    "poonghar": "Poonghar Batter",
+    "poonghar batter": "Poonghar Batter",
 
-        </div>
+    "poongar": "Poonghar Batter",
+    "poongar batter": "Poonghar Batter",
 
-        <div class="cart-item-total">
-          ${formatPrice(itemTotal)}
-        </div>
+    "poongar batter": "Poonghar Batter",
 
-        <button
-          type="button"
-          class="remove-cart-item"
-          onclick="removeFromCart(${index})"
-        >
-          ✕
-        </button>
+    "karuppu kavuni": "Karuppu Kavuni Batter",
+    "karuppu kavuni batter": "Karuppu Kavuni Batter",
 
-      </div>
-    `;
-  });
+    "karupu kavuni": "Karuppu Kavuni Batter",
+    "karupu kavuni batter": "Karuppu Kavuni Batter",
 
+    "keerai": "Keerai Batter",
+    "keerai batter": "Keerai Batter",
 
-  cartContainer.innerHTML = html;
+    "kambu yasnam": "Kambu Yasnam Batter",
+    "kambu yasnam batter": "Kambu Yasnam Batter",
 
+    "ragi": "Ragi Batter",
+    "ragi batter": "Ragi Batter",
 
-  const total = calculateCartTotal();
+    "karunguruvai": "Karunguruvai Batter",
+    "karunguruvai batter": "Karunguruvai Batter",
 
-  if (cartTotal) {
-    cartTotal.textContent = formatPrice(total);
-  }
+    "karinagaruvai": "Karunguruvai Batter",
+    "karinagaruvai batter": "Karunguruvai Batter",
 
+    "karunaguvrai": "Karunguruvai Batter",
+    "karunaguvrai batter": "Karunguruvai Batter",
 
-  if (cartCount) {
+    "karumburuvai": "Karunguruvai Batter",
+    "karumburuvai batter": "Karunguruvai Batter",
 
-    const count = cart.reduce(
-      (sum, item) => sum + Number(item.quantity),
-      0
-    );
+    "pachai payiru": "Pachai Payiru Batter",
+    "pachai payiru batter": "Pachai Payiru Batter",
 
-    cartCount.textContent = String(count);
-  }
-}
+    "pachai payir": "Pachai Payiru Batter",
+    "pachai payir batter": "Pachai Payiru Batter"
+  };
 
 
-/* =========================================================
-   READ PRODUCT QUANTITY INPUTS
-   ========================================================= */
+  /* =======================================================
+     CART
+  ======================================================= */
 
-function readProductInputs() {
+  let cart = [];
 
-  const inputs =
+
+  /* =======================================================
+     DOM ELEMENTS
+  ======================================================= */
+
+  const quantityInputs =
     document.querySelectorAll(".product-qty");
 
-  inputs.forEach(input => {
+  const cartItems =
+    document.getElementById("cartItems");
 
-    const quantity = Number(input.value || 0);
+  const cartTotal =
+    document.getElementById("cartTotal");
 
-    if (!quantity || quantity < 1) {
-      return;
+  const cartCount =
+    document.getElementById("cartCount");
+
+  const formItemCount =
+    document.getElementById("formItemCount");
+
+  const formOrderTotal =
+    document.getElementById("formOrderTotal");
+
+  const orderForm =
+    document.getElementById("orderForm");
+
+  const placeOrderBtn =
+    document.getElementById("placeOrderBtn");
+
+  const orderSuccess =
+    document.getElementById("orderSuccess");
+
+  const deliveryDateInput =
+    document.getElementById("deliveryDate");
+
+
+  /* =======================================================
+     NORMALIZE PRODUCT NAME
+  ======================================================= */
+
+  function normalizeProductKey(value) {
+
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, " ");
+
+  }
+
+
+  function normalizeProductName(value) {
+
+    const original =
+      String(value || "").trim();
+
+    if (!original) {
+      return "";
     }
 
-    const productName =
-      normalizeProductName(
-        input.dataset.product ||
-        input.dataset.name ||
-        input.getAttribute("data-product") ||
-        ""
-      );
+    const key =
+      normalizeProductKey(original);
 
-    const size =
-      input.dataset.size ||
-      input.getAttribute("data-size") ||
-      "";
+    return PRODUCT_ALIASES[key] || original;
 
-    if (!productName || !size) {
-      return;
+  }
+
+
+  /* =======================================================
+     GET OFFICIAL PRICE
+  ======================================================= */
+
+  function getOfficialPrice(product, size) {
+
+    const canonicalProduct =
+      normalizeProductName(product);
+
+    if (
+      !PRODUCTS[canonicalProduct] ||
+      !PRODUCTS[canonicalProduct][size]
+    ) {
+      return null;
     }
 
-    const price =
-      getProductPrice(productName, size);
+    return PRODUCTS[canonicalProduct][size];
 
-    if (price === null) {
-      console.warn(
-        "Invalid product input:",
-        productName,
-        size
-      );
-      return;
-    }
+  }
 
-    const existing = cart.find(
-      item =>
-        item.productName === productName &&
-        item.size === size
-    );
 
-    if (existing) {
+  /* =======================================================
+     READ PRODUCT INPUTS
+  ======================================================= */
 
-      existing.quantity += quantity;
+  function readProductInputs() {
 
-    } else {
+    const items = [];
 
-      cart.push({
-        productName,
+    quantityInputs.forEach((input) => {
+
+      let quantity =
+        parseInt(input.value, 10);
+
+      if (
+        Number.isNaN(quantity) ||
+        quantity < 0
+      ) {
+        quantity = 0;
+      }
+
+      if (quantity === 0) {
+        return;
+      }
+
+      const product =
+        normalizeProductName(
+          input.dataset.product
+        );
+
+      const size =
+        input.dataset.size;
+
+      const price =
+        getOfficialPrice(product, size);
+
+      if (
+        !product ||
+        !size ||
+        price === null
+      ) {
+        return;
+      }
+
+      items.push({
+        product,
         size,
         quantity,
         price
       });
 
+    });
+
+    return items;
+
+  }
+
+
+  /* =======================================================
+     SYNC INPUTS → CART
+  ======================================================= */
+
+  function syncCartFromInputs() {
+
+    cart =
+      readProductInputs();
+
+    renderCart();
+
+  }
+
+
+  /* =======================================================
+     RENDER CART
+  ======================================================= */
+
+  function renderCart() {
+
+    if (!cartItems) {
+      return;
     }
 
-    input.value = "";
-  });
+    if (cart.length === 0) {
 
+      cartItems.innerHTML = `
+        <div class="empty-cart">
 
-  renderCart();
-}
+          <div>🛒</div>
 
+          <h3>
+            Your cart is empty
+          </h3>
 
-/* =========================================================
-   CUSTOMER FORM VALUES
-   ========================================================= */
+          <p>
+            Select your favourite batter above.
+          </p>
 
-function getCustomerDetails() {
+        </div>
+      `;
 
-  const customerNameInput =
-    getElement("customerName");
-
-  const phoneInput =
-    getElement("phone");
-
-  const addressInput =
-    getElement("address");
-
-  const deliveryDateInput =
-    getElement("deliveryDate");
-
-
-  const customerName =
-    customerNameInput
-      ? customerNameInput.value.trim()
-      : "";
-
-
-  const phone =
-    phoneInput
-      ? phoneInput.value.trim()
-      : "";
-
-
-  const address =
-    addressInput
-      ? addressInput.value.trim()
-      : "";
-
-
-  const deliveryDate =
-    deliveryDateInput
-      ? deliveryDateInput.value
-      : "";
-
-
-  return {
-    customerName,
-    phone,
-    address,
-    deliveryDate
-  };
-}
-
-
-/* =========================================================
-   VALIDATE CUSTOMER DETAILS
-   ========================================================= */
-
-function validateCustomerDetails(details) {
-
-  if (!details.customerName) {
-
-    alert("Please enter your name.");
-
-    const input = getElement("customerName");
-
-    if (input) {
-      input.focus();
-    }
-
-    return false;
-  }
-
-
-  if (!details.phone) {
-
-    alert("Please enter your phone number.");
-
-    const input = getElement("phone");
-
-    if (input) {
-      input.focus();
-    }
-
-    return false;
-  }
-
-
-  const phoneDigits =
-    details.phone.replace(/\D/g, "");
-
-  if (phoneDigits.length < 10) {
-
-    alert("Please enter a valid phone number.");
-
-    const input = getElement("phone");
-
-    if (input) {
-      input.focus();
-    }
-
-    return false;
-  }
-
-
-  if (!details.address) {
-
-    alert("Please enter your delivery address.");
-
-    const input = getElement("address");
-
-    if (input) {
-      input.focus();
-    }
-
-    return false;
-  }
-
-
-  if (!details.deliveryDate) {
-
-    alert("Please select a delivery date.");
-
-    const input = getElement("deliveryDate");
-
-    if (input) {
-      input.focus();
-    }
-
-    return false;
-  }
-
-
-  return true;
-}
-
-
-/* =========================================================
-   CREATE ORDER
-   ========================================================= */
-
-async function placeOrder(event) {
-
-  if (event) {
-    event.preventDefault();
-  }
-
-
-  /*
-     First read products from the quantity boxes.
-  */
-  readProductInputs();
-
-
-  /*
-     Customer details are read AT SUBMIT TIME.
-     This prevents old/empty values being sent.
-  */
-  const details =
-    getCustomerDetails();
-
-
-  if (!validateCustomerDetails(details)) {
-    return;
-  }
-
-
-  if (cart.length === 0) {
-
-    alert(
-      "Please add at least one product to your cart."
-    );
-
-    return;
-  }
-
-
-  /*
-     Build clean order items.
-     Prices are always taken from the official
-     client-side price table.
-  */
-
-  const items = cart.map(item => {
-
-    const productName =
-      normalizeProductName(item.productName);
-
-    const size =
-      item.size;
-
-    const quantity =
-      Number(item.quantity);
-
-    const price =
-      getProductPrice(productName, size);
-
-
-    return {
-      productName,
-      size,
-      quantity,
-      price
-    };
-
-  });
-
-
-  /*
-     Final safety check.
-  */
-
-  for (const item of items) {
-
-    if (!PRODUCTS[item.productName]) {
-
-      alert(
-        `Invalid product: ${item.productName}`
-      );
+      updateCartSummary();
 
       return;
     }
 
 
-    if (
-      item.size !== "500g" &&
-      item.size !== "1kg"
-    ) {
-
-      alert(
-        `Invalid size for ${item.productName}.`
-      );
-
-      return;
-    }
+    cartItems.innerHTML = "";
 
 
-    if (
-      !Number.isInteger(item.quantity) ||
-      item.quantity < 1
-    ) {
+    cart.forEach((item, index) => {
 
-      alert(
-        `Invalid quantity for ${item.productName}.`
-      );
-
-      return;
-    }
-
-  }
+      const itemTotal =
+        item.price * item.quantity;
 
 
-  /*
-     IMPORTANT:
-     No payment information is included.
-     No UPI.
-     No QR.
-     No COD.
-     No payment screenshot.
-  */
+      const row =
+        document.createElement("div");
 
-  const orderData = {
+      row.className = "cart-item";
 
-    customerName:
-      details.customerName,
+      row.innerHTML = `
 
-    phone:
-      details.phone,
+        <div class="cart-item-icon">
+          🥣
+        </div>
 
-    address:
-      details.address,
+        <div class="cart-item-info">
 
-    items:
-      items,
+          <strong>
+            ${escapeHtml(item.product)}
+          </strong>
 
-    deliveryDate:
-      details.deliveryDate
+          <span>
+            ${escapeHtml(item.size)}
+            × ${item.quantity}
+          </span>
 
-  };
+        </div>
 
+        <div class="cart-item-price">
 
-  console.log(
-    "Sending order to server:",
-    orderData
-  );
+          ₹${itemTotal}
 
+        </div>
 
-  const submitButton =
-    document.querySelector(
-      'button[type="submit"], #placeOrderBtn'
-    );
+        <button
+          type="button"
+          class="cart-remove"
+          data-index="${index}"
+          aria-label="Remove item"
+        >
+          ✕
+        </button>
 
+      `;
 
-  const originalButtonText =
-    submitButton
-      ? submitButton.textContent
-      : "";
+      cartItems.appendChild(row);
 
-
-  try {
-
-    if (submitButton) {
-
-      submitButton.disabled = true;
-
-      submitButton.textContent =
-        "Placing Order...";
-    }
+    });
 
 
-    const response =
-      await fetch("/api/orders", {
+    document
+      .querySelectorAll(".cart-remove")
+      .forEach((button) => {
 
-        method: "POST",
+        button.addEventListener(
+          "click",
+          () => {
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+            const index =
+              Number(button.dataset.index);
 
-        body: JSON.stringify(orderData)
+            removeCartItem(index);
+
+          }
+        );
 
       });
 
 
-    let result = null;
+    updateCartSummary();
 
-    try {
+  }
 
-      result =
-        await response.json();
 
-    } catch (jsonError) {
+  /* =======================================================
+     REMOVE CART ITEM
+  ======================================================= */
 
-      result = null;
+  function removeCartItem(index) {
 
+    const item =
+      cart[index];
+
+    if (!item) {
+      return;
     }
 
 
-    console.log(
-      "Server response:",
-      result
-    );
+    quantityInputs.forEach((input) => {
+
+      const product =
+        normalizeProductName(
+          input.dataset.product
+        );
+
+      const size =
+        input.dataset.size;
+
+      if (
+        product === item.product &&
+        size === item.size
+      ) {
+
+        input.value = 0;
+
+      }
+
+    });
 
 
-    if (!response.ok) {
-
-      const errorMessage =
-        result?.error ||
-        result?.message ||
-        "Unable to place order.";
-
-      throw new Error(errorMessage);
-    }
-
-
-    if (
-      result &&
-      result.success === false
-    ) {
-
-      throw new Error(
-        result.error ||
-        result.message ||
-        "Unable to place order."
-      );
-    }
-
-
-    /*
-       Support different successful response formats.
-    */
-
-    const orderId =
-      result?.order?.id ||
-      result?.id ||
-      result?.orderId ||
-      result?.data?.id ||
-      "Success";
-
-
-    const serverTotal =
-      result?.order?.total ||
-      result?.total ||
-      calculateCartTotal();
-
-
-    showOrderSuccess(
-      orderId,
-      serverTotal,
-      details.deliveryDate
-    );
-
-
-    /*
-       Clear cart after successful order.
-    */
-
-    cart = [];
+    cart.splice(index, 1);
 
     renderCart();
 
-
-    /*
-       Clear customer form.
-    */
-
-    clearCustomerForm();
-
-
-  } catch (error) {
-
-    console.error(
-      "Order placement error:",
-      error
-    );
-
-
-    alert(
-      error.message ||
-      "Something went wrong while placing your order."
-    );
-
-
-  } finally {
-
-    if (submitButton) {
-
-      submitButton.disabled = false;
-
-      submitButton.textContent =
-        originalButtonText ||
-        "Place Order";
-
-    }
-
   }
 
-}
+
+  /* =======================================================
+     CART SUMMARY
+  ======================================================= */
+
+  function updateCartSummary() {
+
+    let total = 0;
+    let itemCount = 0;
 
 
-/* =========================================================
-   SUCCESS MESSAGE
-   ========================================================= */
+    cart.forEach((item) => {
 
-function showOrderSuccess(
-  orderId,
-  total,
-  deliveryDate
-) {
+      total +=
+        item.price * item.quantity;
 
-  const successBox =
-    getElement("orderSuccess") ||
-    getElement("successMessage") ||
-    getElement("success");
+      itemCount +=
+        item.quantity;
 
-  const formattedDate =
-    formatDeliveryDate(deliveryDate);
-
-
-  const message = `
-    <div class="success-content">
-
-      <div class="success-icon">
-        ✅
-      </div>
-
-      <h2>Order Placed Successfully!</h2>
-
-      <p>
-        Thank you for ordering from
-        <strong>DHANA FOODS</strong>.
-      </p>
-
-      <p>
-        <strong>Order ID:</strong>
-        #${escapeHtml(String(orderId))}
-      </p>
-
-      <p>
-        <strong>Total:</strong>
-        ${formatPrice(total)}
-      </p>
-
-      <p>
-        <strong>Delivery Date:</strong>
-        ${escapeHtml(formattedDate)}
-      </p>
-
-      <p>
-        Our team will prepare your fresh batter.
-      </p>
-
-    </div>
-  `;
-
-
-  if (successBox) {
-
-    successBox.innerHTML = message;
-
-    successBox.style.display = "block";
-
-    successBox.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
     });
 
-  } else {
 
-    alert(
-      `Order placed successfully!\n\n` +
-      `Order ID: #${orderId}\n` +
-      `Total: ${formatPrice(total)}\n` +
-      `Delivery Date: ${formattedDate}`
-    );
+    if (cartTotal) {
 
-  }
+      cartTotal.textContent =
+        `₹${total}`;
 
-}
-
-
-/* =========================================================
-   FORMAT DELIVERY DATE
-   ========================================================= */
-
-function formatDeliveryDate(dateValue) {
-
-  if (!dateValue) {
-    return "-";
-  }
-
-
-  const date =
-    new Date(`${dateValue}T00:00:00`);
-
-
-  if (Number.isNaN(date.getTime())) {
-    return dateValue;
-  }
-
-
-  return date.toLocaleDateString(
-    "en-IN",
-    {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric"
-    }
-  );
-}
-
-
-/* =========================================================
-   CLEAR CUSTOMER FORM
-   ========================================================= */
-
-function clearCustomerForm() {
-
-  const form =
-    getElement("orderForm") ||
-    document.querySelector("form");
-
-
-  if (form) {
-
-    /*
-       Do not blindly reset every element if
-       the page contains unrelated forms.
-    */
-
-    const name =
-      getElement("customerName");
-
-    const phone =
-      getElement("phone");
-
-    const address =
-      getElement("address");
-
-    const deliveryDate =
-      getElement("deliveryDate");
-
-
-    if (name) {
-      name.value = "";
     }
 
-    if (phone) {
-      phone.value = "";
+
+    if (cartCount) {
+
+      cartCount.textContent =
+        `${itemCount} ${
+          itemCount === 1
+            ? "item"
+            : "items"
+        }`;
+
     }
 
-    if (address) {
-      address.value = "";
+
+    if (formItemCount) {
+
+      formItemCount.textContent =
+        itemCount;
+
     }
 
-    if (deliveryDate) {
-      deliveryDate.value = "";
+
+    if (formOrderTotal) {
+
+      formOrderTotal.textContent =
+        `₹${total}`;
+
     }
 
   }
 
-}
 
+  /* =======================================================
+     INPUT EVENTS
+  ======================================================= */
 
-/* =========================================================
-   ESCAPE HTML
-   ========================================================= */
+  quantityInputs.forEach((input) => {
 
-function escapeHtml(value) {
+    input.addEventListener(
+      "input",
+      () => {
 
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
+        let value =
+          parseInt(input.value, 10);
 
+        if (
+          Number.isNaN(value) ||
+          value < 0
+        ) {
+          input.value = 0;
+        }
 
-/* =========================================================
-   SET MINIMUM DELIVERY DATE
-   ========================================================= */
+        syncCartFromInputs();
 
-function setMinimumDeliveryDate() {
-
-  const deliveryDate =
-    getElement("deliveryDate");
-
-
-  if (!deliveryDate) {
-    return;
-  }
-
-
-  const now =
-    new Date();
-
-
-  const year =
-    now.getFullYear();
-
-
-  const month =
-    String(now.getMonth() + 1)
-      .padStart(2, "0");
-
-
-  const day =
-    String(now.getDate())
-      .padStart(2, "0");
-
-
-  const today =
-    `${year}-${month}-${day}`;
-
-
-  deliveryDate.min = today;
-}
-
-
-/* =========================================================
-   CONNECT FORM
-   ========================================================= */
-
-function connectOrderForm() {
-
-  const form =
-    getElement("orderForm");
-
-
-  if (!form) {
-    console.warn(
-      "orderForm not found."
-    );
-
-    return;
-  }
-
-
-  /*
-     Prevent duplicate event listeners.
-  */
-
-  if (form.dataset.dhanaConnected === "true") {
-    return;
-  }
-
-
-  form.dataset.dhanaConnected = "true";
-
-
-  form.addEventListener(
-    "submit",
-    placeOrder
-  );
-}
-
-
-/* =========================================================
-   CONNECT PRODUCT BUTTONS
-   ========================================================= */
-
-function connectProductButtons() {
-
-  const buttons =
-    document.querySelectorAll(
-      "[data-product][data-size]"
+      }
     );
 
 
-  buttons.forEach(button => {
+    input.addEventListener(
+      "change",
+      () => {
 
-    /*
-       If the button is already connected,
-       don't connect it again.
-    */
+        let value =
+          parseInt(input.value, 10);
 
-    if (
-      button.dataset.dhanaConnected === "true"
-    ) {
-      return;
-    }
+        if (
+          Number.isNaN(value) ||
+          value < 0
+        ) {
+          input.value = 0;
+        }
 
-
-    /*
-       Only automatically handle buttons
-       that look like Add-to-cart buttons.
-    */
-
-    const text =
-      String(button.textContent || "")
-        .toLowerCase();
-
-
-    if (
-      !text.includes("add") &&
-      !text.includes("cart")
-    ) {
-      return;
-    }
-
-
-    button.dataset.dhanaConnected = "true";
-
-
-    button.addEventListener(
-      "click",
-      function(event) {
-
-        event.preventDefault();
-
-
-        const productName =
-          normalizeProductName(
-            button.dataset.product
-          );
-
-
-        const size =
-          button.dataset.size;
-
-
-        const quantity =
-          Number(
-            button.dataset.quantity || 1
-          );
-
-
-        addToCart(
-          productName,
-          size,
-          quantity
-        );
+        syncCartFromInputs();
 
       }
     );
 
   });
 
-}
 
+  /* =======================================================
+     ESCAPE HTML
+  ======================================================= */
 
-/* =========================================================
-   UPDATE PRODUCT PRICE DISPLAY
-   ========================================================= */
+  function escapeHtml(value) {
 
-function updatePriceDisplays() {
-
-  /*
-     Supports elements such as:
-
-     data-product="Idli Batter"
-     data-size="500g"
-
-     or
-
-     data-product="Idli Batter"
-     data-size="1kg"
-  */
-
-  const elements =
-    document.querySelectorAll(
-      "[data-product][data-size][data-price]"
-    );
-
-
-  elements.forEach(element => {
-
-    const productName =
-      normalizeProductName(
-        element.dataset.product
-      );
-
-
-    const size =
-      element.dataset.size;
-
-
-    const price =
-      getProductPrice(
-        productName,
-        size
-      );
-
-
-    if (price !== null) {
-
-      element.textContent =
-        formatPrice(price);
-
-    }
-
-  });
-
-}
-
-
-/* =========================================================
-   GLOBAL FUNCTIONS
-   ========================================================= */
-
-window.addToCart =
-  addToCart;
-
-window.removeFromCart =
-  removeFromCart;
-
-window.changeCartQuantity =
-  changeCartQuantity;
-
-window.placeOrder =
-  placeOrder;
-
-window.renderCart =
-  renderCart;
-
-
-/* =========================================================
-   PAGE LOAD
-   ========================================================= */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  function() {
-
-    console.log(
-      "DHANA FOODS customer page ready."
-    );
-
-
-    setMinimumDeliveryDate();
-
-    connectOrderForm();
-
-    connectProductButtons();
-
-    updatePriceDisplays();
-
-    renderCart();
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
 
   }
-);
+
+
+  /* =======================================================
+     MINIMUM DELIVERY DATE
+  ======================================================= */
+
+  function setMinimumDeliveryDate() {
+
+    if (!deliveryDateInput) {
+      return;
+    }
+
+    const today =
+      new Date();
+
+    const year =
+      today.getFullYear();
+
+    const month =
+      String(
+        today.getMonth() + 1
+      ).padStart(2, "0");
+
+    const day =
+      String(
+        today.getDate()
+      ).padStart(2, "0");
+
+
+    const minimumDate =
+      `${year}-${month}-${day}`;
+
+
+    deliveryDateInput.min =
+      minimumDate;
+
+  }
+
+
+  setMinimumDeliveryDate();
+
+
+  /* =======================================================
+     PHONE VALIDATION
+  ======================================================= */
+
+  function isValidPhone(phone) {
+
+    const cleaned =
+      String(phone || "")
+        .replace(/\D/g, "");
+
+    return /^[6-9]\d{9}$/.test(
+      cleaned
+    );
+
+  }
+
+
+  /* =======================================================
+     SHOW MESSAGE
+  ======================================================= */
+
+  function showOrderMessage(
+    message,
+    type = "success"
+  ) {
+
+    if (!orderSuccess) {
+      return;
+    }
+
+    orderSuccess.textContent =
+      message;
+
+    orderSuccess.className =
+      `order-success ${type}`;
+
+    orderSuccess.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+  }
+
+
+  /* =======================================================
+     ORDER SUBMISSION
+  ======================================================= */
+
+  if (orderForm) {
+
+    orderForm.addEventListener(
+      "submit",
+      async (event) => {
+
+        event.preventDefault();
+
+
+        syncCartFromInputs();
+
+
+        if (cart.length === 0) {
+
+          showOrderMessage(
+            "🛒 Please select at least one batter before placing your order.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        const customerNameInput =
+          document.getElementById(
+            "customerName"
+          );
+
+        const phoneInput =
+          document.getElementById(
+            "phone"
+          );
+
+        const addressInput =
+          document.getElementById(
+            "address"
+          );
+
+
+        const customerName =
+          customerNameInput
+            ? customerNameInput.value.trim()
+            : "";
+
+
+        const phone =
+          phoneInput
+            ? phoneInput.value.trim()
+            : "";
+
+
+        const address =
+          addressInput
+            ? addressInput.value.trim()
+            : "";
+
+
+        const deliveryDate =
+          deliveryDateInput
+            ? deliveryDateInput.value
+            : "";
+
+
+        if (!customerName) {
+
+          showOrderMessage(
+            "👤 Please enter your name.",
+            "error"
+          );
+
+          customerNameInput?.focus();
+
+          return;
+        }
+
+
+        if (!isValidPhone(phone)) {
+
+          showOrderMessage(
+            "📱 Please enter a valid 10-digit Indian mobile number.",
+            "error"
+          );
+
+          phoneInput?.focus();
+
+          return;
+        }
+
+
+        if (!address) {
+
+          showOrderMessage(
+            "🏠 Please enter your delivery address.",
+            "error"
+          );
+
+          addressInput?.focus();
+
+          return;
+        }
+
+
+        if (!deliveryDate) {
+
+          showOrderMessage(
+            "📅 Please select a delivery date.",
+            "error"
+          );
+
+          deliveryDateInput?.focus();
+
+          return;
+        }
+
+
+        const selectedPayment =
+          document.querySelector(
+            'input[name="paymentMethod"]:checked'
+          );
+
+
+        const paymentMethod =
+          selectedPayment
+            ? selectedPayment.value
+            : "COD";
+
+
+        const orderData = {
+
+          customerName,
+
+          phone,
+
+          address,
+
+          deliveryDate,
+
+          paymentMethod,
+
+          items: cart.map((item) => ({
+            product:
+              normalizeProductName(
+                item.product
+              ),
+
+            size:
+              item.size,
+
+            quantity:
+              Number(item.quantity),
+
+            price:
+              Number(item.price)
+          }))
+
+        };
+
+
+        /* ===============================================
+           BUTTON LOADING
+        =============================================== */
+
+        const originalButtonText =
+          placeOrderBtn
+            ? placeOrderBtn.innerHTML
+            : "";
+
+
+        if (placeOrderBtn) {
+
+          placeOrderBtn.disabled =
+            true;
+
+          placeOrderBtn.innerHTML =
+            "⏳ Placing Your Order...";
+
+        }
+
+
+        if (orderSuccess) {
+
+          orderSuccess.textContent =
+            "";
+
+          orderSuccess.className =
+            "order-success";
+
+        }
+
+
+        try {
+
+          const response =
+            await fetch(
+              "/api/orders",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body:
+                  JSON.stringify(
+                    orderData
+                  )
+              }
+            );
+
+
+          let data = null;
+
+
+          try {
+
+            data =
+              await response.json();
+
+          } catch {
+
+            data = null;
+
+          }
+
+
+          if (!response.ok) {
+
+            const serverMessage =
+              data?.error ||
+              data?.message ||
+              "Unable to place your order.";
+
+            throw new Error(
+              serverMessage
+            );
+
+          }
+
+
+          /* =============================================
+             SUCCESS
+          ============================================= */
+
+          const orderId =
+            data?.order?.id ||
+            data?.id ||
+            data?.orderId ||
+            "";
+
+
+          let successMessage =
+            "🎉 Your order has been placed successfully! ❤️";
+
+
+          if (orderId) {
+
+            successMessage +=
+              ` Order #${orderId}`;
+
+          }
+
+
+          showOrderMessage(
+            successMessage,
+            "success"
+          );
+
+
+          /* Clear quantities */
+
+          quantityInputs.forEach(
+            (input) => {
+              input.value = 0;
+            }
+          );
+
+
+          cart = [];
+
+          renderCart();
+
+
+          /* Reset customer form */
+
+          orderForm.reset();
+
+
+          /* Keep minimum delivery date */
+
+          setMinimumDeliveryDate();
+
+
+          /* Reset payment */
+
+          const codRadio =
+            document.querySelector(
+              'input[name="paymentMethod"][value="COD"]'
+            );
+
+          if (codRadio) {
+            codRadio.checked = true;
+          }
+
+
+          /* Reset button */
+
+          if (placeOrderBtn) {
+
+            placeOrderBtn.disabled =
+              false;
+
+            placeOrderBtn.innerHTML =
+              originalButtonText ||
+              "🛒 Place My Order";
+
+          }
+
+
+        } catch (error) {
+
+          console.error(
+            "Order submission error:",
+            error
+          );
+
+
+          showOrderMessage(
+            `❌ ${
+              error.message ||
+              "Something went wrong. Please try again."
+            }`,
+            "error"
+          );
+
+
+          if (placeOrderBtn) {
+
+            placeOrderBtn.disabled =
+              false;
+
+            placeOrderBtn.innerHTML =
+              originalButtonText ||
+              "🛒 Place My Order";
+
+          }
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     SMOOTH NAVIGATION
+  ======================================================= */
+
+  document
+    .querySelectorAll(
+      'a[href^="#"]'
+    )
+    .forEach((link) => {
+
+      link.addEventListener(
+        "click",
+        (event) => {
+
+          const targetId =
+            link.getAttribute("href");
+
+          if (
+            !targetId ||
+            targetId === "#"
+          ) {
+            return;
+          }
+
+
+          const target =
+            document.querySelector(
+              targetId
+            );
+
+
+          if (!target) {
+            return;
+          }
+
+
+          event.preventDefault();
+
+
+          target.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+        }
+      );
+
+    });
+
+
+  /* =======================================================
+     SCROLL REVEAL
+  ======================================================= */
+
+  const revealElements =
+    document.querySelectorAll(
+      ".feature-card, .schedule-card, .product-card, .status-step"
+    );
+
+
+  if (
+    "IntersectionObserver" in window
+  ) {
+
+    const observer =
+      new IntersectionObserver(
+        (entries) => {
+
+          entries.forEach(
+            (entry) => {
+
+              if (
+                entry.isIntersecting
+              ) {
+
+                entry.target.classList.add(
+                  "visible"
+                );
+
+                observer.unobserve(
+                  entry.target
+                );
+
+              }
+
+            }
+          );
+
+        },
+        {
+          threshold: 0.12
+        }
+      );
+
+
+    revealElements.forEach(
+      (element) => {
+
+        observer.observe(
+          element
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     HEADER SCROLL EFFECT
+  ======================================================= */
+
+  const header =
+    document.querySelector(
+      ".main-header"
+    );
+
+
+  window.addEventListener(
+    "scroll",
+    () => {
+
+      if (!header) {
+        return;
+      }
+
+
+      if (window.scrollY > 30) {
+
+        header.style.boxShadow =
+          "0 10px 30px rgba(20,60,30,0.10)";
+
+      } else {
+
+        header.style.boxShadow =
+          "0 5px 25px rgba(20,60,30,0.06)";
+
+      }
+
+    },
+    {
+      passive: true
+    }
+  );
+
+
+  /* =======================================================
+     INITIAL CART
+  ======================================================= */
+
+  renderCart();
+
+  setMinimumDeliveryDate();
+
+
+  console.log(
+    "🥣 DHANA FOODS customer system loaded successfully."
+  );
+
+});

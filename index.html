@@ -1,1372 +1,1910 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
 
-    <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+  <meta
+    name="description"
+    content="Dhana Foods - Fresh homemade Idli, Dosa and traditional millet batters."
+  >
 
-    <title>Dhana Foods</title>
+  <title>DHANA FOODS | Fresh Batter, Made With Love ❤️</title>
 
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #fff8f0;
-            color: #222;
-        }
-
-        header {
-            background: #ffffff;
-            padding: 25px;
-            text-align: center;
-            box-shadow:
-                0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        header h1 {
-            margin: 0;
-            color: #222;
-            font-size: 34px;
-        }
-
-        header p {
-            margin: 8px 0;
-            color: #666;
-        }
-
-        nav {
-            margin-top: 15px;
-        }
-
-        nav a {
-            margin: 0 12px;
-            text-decoration: none;
-            color: #222;
-            font-weight: bold;
-        }
-
-        .container {
-            width: 92%;
-            max-width: 1000px;
-            margin: 30px auto;
-        }
-
-        .section {
-            background: white;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-radius: 15px;
-            box-shadow:
-                0 4px 15px rgba(0,0,0,0.08);
-        }
-
-        .section h2 {
-            text-align: center;
-            margin-top: 0;
-        }
-
-        .products {
-            display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(240px, 1fr));
-            gap: 18px;
-        }
-
-        .product-card {
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 18px;
-            background: #fff;
-        }
-
-        .product-card h3 {
-            margin-top: 0;
-        }
-
-        .product-card p {
-            margin: 7px 0;
-            font-weight: 600;
-            color: #633219;
-        }
-
-        .qty-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .product-qty {
-            width: 85px;
-            padding: 9px;
-            border: 1px solid #bbb;
-            border-radius: 7px;
-        }
-
-        label {
-            display: block;
-            margin-top: 14px;
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
-
-        input,
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #bbb;
-            border-radius: 7px;
-            font-size: 15px;
-        }
-
-        textarea {
-            min-height: 90px;
-            resize: vertical;
-        }
-
-        /* CART */
-
-        .cart-box {
-            margin-top: 20px;
-            padding: 18px;
-            background: #f7f7f7;
-            border-radius: 10px;
-        }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 9px 0;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .cart-total {
-            text-align: right;
-            margin-top: 15px;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            margin-top: 20px;
-            border: none;
-            border-radius: 9px;
-            background: #111;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #333;
-        }
-
-        button:disabled {
-            background: #999;
-        }
-
-        #successMessage {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background: #e9f8e9;
-            border: 1px solid #58a558;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        footer {
-            background: #111;
-            color: white;
-            text-align: center;
-            padding: 30px;
-            margin-top: 40px;
-        }
-
-        /* HERO */
-
-        .hero {
-            background: #fffaf0;
-            min-height: 610px;
-            display: flex;
-            align-items: center;
-        }
-
-        .hero-inner {
-            width: 92%;
-            max-width: 1350px;
-            margin: 0 auto;
-            padding: 80px 0;
-        }
-
-        .hero-eyebrow {
-            font-size: 18px;
-            color: #17324d;
-            margin-bottom: 28px;
-        }
-
-        .hero h2 {
-            margin: 0 0 28px;
-            font-size: clamp(48px, 5vw, 76px);
-            line-height: 1.02;
-            color: #303030;
-            letter-spacing: -1px;
-        }
-
-        .hero h2 em {
-            font-weight: 700;
-        }
-
-        .hero p {
-            font-size: 20px;
-            line-height: 1.7;
-            color: #17324d;
-            margin: 0 0 35px;
-        }
-
-        .hero-button {
-            display: inline-block;
-            background: #333;
-            color: #fff;
-            text-decoration: none;
-            padding: 17px 30px;
-            border-radius: 30px;
-            font-size: 17px;
-        }
-
-        .hero-button:hover {
-            background: #111;
-        }
-
-        /* PRODUCT PRICE */
-
-        .price {
-            color: #7b3919;
-            font-weight: bold;
-        }
-
-        /* RESPONSIVE */
-
-        @media(max-width:600px) {
-
-            header h1 {
-                font-size: 28px;
-            }
-
-            nav a {
-                display: inline-block;
-                margin: 7px;
-            }
-
-            .container {
-                width: 95%;
-            }
-
-            .hero {
-                min-height: 520px;
-            }
-
-            .hero-inner {
-                padding: 55px 0;
-            }
-
-            .hero h2 {
-                font-size: 44px;
-            }
-
-            .hero p {
-                font-size: 17px;
-            }
-
-        }
-
-    </style>
-
+  <link rel="stylesheet" href="style.css?v=30">
 </head>
-
 
 <body>
 
-
-<!-- =====================================================
-     HEADER
-===================================================== -->
-
-<header>
-
-    <h1>
-        Dhana Foods
-    </h1>
-
-    <p>
-        Fresh • Traditional • Homemade
-    </p>
-
-    <nav>
-
-        <a href="#">
-            Home
-        </a>
-
-        <a href="#products">
-            Products
-        </a>
-
-        <a href="#order">
-            Order Now
-        </a>
-
-        <a href="#contact">
-            Contact
-        </a>
-
-    </nav>
-
-</header>
+  <!-- Floating decoration -->
+  <div class="floating-food food-1">🥣</div>
+  <div class="floating-food food-2">🌾</div>
+  <div class="floating-food food-3">🥞</div>
+  <div class="floating-food food-4">🌿</div>
 
 
-<!-- =====================================================
-     HERO
-===================================================== -->
+  <!-- ================= HEADER ================= -->
 
-<section class="hero">
+  <header class="main-header">
 
-    <div class="hero-inner">
+    <div class="header-container">
 
-        <div class="hero-eyebrow">
-            🌿 Fresh • Healthy • Homemade
+      <a href="#home" class="brand">
+
+        <div class="brand-logo">
+          🥣
+        </div>
+
+        <div class="brand-text">
+          <h1>DHANA FOODS</h1>
+          <span>Fresh • Homemade • Healthy</span>
+        </div>
+
+      </a>
+
+
+      <nav class="main-nav">
+
+        <a href="#home">🏠 Home</a>
+        <a href="#schedule">🗓️ Schedule</a>
+        <a href="#products">🥣 Batters</a>
+        <a href="#order">🛒 Order</a>
+        <a href="#contact">📞 Contact</a>
+
+      </nav>
+
+
+      <a href="#products" class="header-order-btn">
+        🛒 Order Now
+      </a>
+
+    </div>
+
+  </header>
+
+
+  <!-- ================= MAIN ================= -->
+
+  <main>
+
+
+    <!-- ================= HERO ================= -->
+
+    <section id="home" class="hero-section">
+
+      <div class="hero-content">
+
+        <div class="hero-badge">
+          🌿 100% Homemade & Fresh
         </div>
 
         <h2>
-            Traditional Taste,
-            <br>
-            <em>Made Fresh for You</em>
+          Fresh Batter,
+          <span>Made With Love ❤️</span>
         </h2>
 
-        <p>
-            Freshly prepared traditional batters
-            made with quality ingredients
-            <br class="desktop-only">
-            and homemade care.
+        <p class="hero-tagline">
+          Wholesome Millets. Healthy You.
         </p>
 
-        <a
-            class="hero-button"
-            href="#order"
-        >
-            Order Now →
-        </a>
-
-    </div>
-
-</section>
+        <p class="hero-description">
+          Freshly prepared traditional batters made with carefully
+          selected ingredients for delicious and healthy breakfasts
+          at home.
+        </p>
 
 
-<!-- =====================================================
-     MAIN CONTAINER
-===================================================== -->
+        <div class="hero-buttons">
 
-<div class="container">
+          <a
+            href="#products"
+            class="primary-btn"
+          >
+            🛒 Order Now
+          </a>
 
-
-<!-- =====================================================
-     PRODUCTS
-===================================================== -->
-
-<div
-    class="section"
-    id="products"
->
-
-    <h2>
-        Our Products
-    </h2>
-
-
-    <div class="products">
-
-
-        <!-- =================================================
-             IDLI
-        ================================================== -->
-
-        <div class="product-card">
-
-            <h3>
-                🥣 Idli Batter
-            </h3>
-
-            <p class="price">
-                500g – ₹25
-            </p>
-
-            <p class="price">
-                1kg – ₹45
-            </p>
-
-
-            <div class="qty-row">
-
-                <span>
-                    500g
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Idli Batter"
-                    data-size="500g"
-                    data-price="25"
-                >
-
-            </div>
-
-
-            <div class="qty-row">
-
-                <span>
-                    1kg
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Idli Batter"
-                    data-size="1kg"
-                    data-price="45"
-                >
-
-            </div>
+          <a
+            href="#schedule"
+            class="secondary-btn"
+          >
+            🗓️ Weekly Schedule
+          </a>
 
         </div>
 
 
-        <!-- =================================================
-             DOSA
-        ================================================== -->
+        <div class="hero-highlights">
 
-        <div class="product-card">
+          <div>
+            <span>🥣</span>
+            <strong>Fresh Daily</strong>
+          </div>
 
-            <h3>
-                🥞 Dosa Batter
-            </h3>
+          <div>
+            <span>🌿</span>
+            <strong>No Preservatives</strong>
+          </div>
 
-            <p class="price">
-                500g – ₹25
-            </p>
+          <div>
+            <span>🚚</span>
+            <strong>Door Delivery</strong>
+          </div>
 
-            <p class="price">
-                1kg – ₹45
-            </p>
+        </div>
 
-
-            <div class="qty-row">
-
-                <span>
-                    500g
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Dosa Batter"
-                    data-size="500g"
-                    data-price="25"
-                >
-
-            </div>
+      </div>
 
 
-            <div class="qty-row">
+      <div class="hero-visual">
 
-                <span>
-                    1kg
-                </span>
+        <div class="hero-bowl">
+          🥣
+        </div>
 
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Dosa Batter"
-                    data-size="1kg"
-                    data-price="45"
-                >
+        <div class="hero-floating-card card-one">
+          🌾 Traditional
+        </div>
 
-            </div>
+        <div class="hero-floating-card card-two">
+          ❤️ Homemade
+        </div>
+
+        <div class="hero-floating-card card-three">
+          ✨ Fresh
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= FEATURES ================= -->
+
+    <section class="features-section">
+
+      <div class="section-container">
+
+        <div class="section-heading">
+
+          <span>WHY DHANA FOODS?</span>
+
+          <h2>
+            Good Food Starts With
+            <span>Good Ingredients 🌿</span>
+          </h2>
 
         </div>
 
 
-        <!-- =================================================
-             ADAI
-        ================================================== -->
+        <div class="feature-grid">
 
-        <div class="product-card">
+
+          <article class="feature-card">
+
+            <div class="feature-icon">
+              🌾
+            </div>
 
             <h3>
-                🌾 Adai Batter
+              Traditional Ingredients
             </h3>
 
-            <p class="price">
-                500g – ₹40
+            <p>
+              Carefully selected grains, millets and
+              traditional ingredients.
             </p>
 
-            <p class="price">
-                1kg – ₹80
+          </article>
+
+
+          <article class="feature-card">
+
+            <div class="feature-icon">
+              🥣
+            </div>
+
+            <h3>
+              Freshly Prepared
+            </h3>
+
+            <p>
+              Our batter is prepared fresh for a
+              delicious homemade taste.
             </p>
 
+          </article>
 
-            <div class="qty-row">
 
-                <span>
-                    500g
-                </span>
+          <article class="feature-card">
 
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Adai Batter"
-                    data-size="500g"
-                    data-price="40"
-                >
-
+            <div class="feature-icon">
+              🌿
             </div>
 
+            <h3>
+              No Preservatives
+            </h3>
 
-            <div class="qty-row">
+            <p>
+              Fresh and natural batter without
+              unnecessary additives.
+            </p>
 
-                <span>
-                    1kg
-                </span>
+          </article>
 
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Adai Batter"
-                    data-size="1kg"
-                    data-price="80"
-                >
 
+          <article class="feature-card">
+
+            <div class="feature-icon">
+              🚚
             </div>
+
+            <h3>
+              Door Delivery
+            </h3>
+
+            <p>
+              Order from home and get your favourite
+              batter delivered.
+            </p>
+
+          </article>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= WEEKLY SCHEDULE ================= -->
+
+    <section
+      id="schedule"
+      class="schedule-section"
+    >
+
+      <div class="section-container">
+
+
+        <div class="section-heading">
+
+          <span>
+            🗓️ WEEKLY BATTER SCHEDULE
+          </span>
+
+          <h2>
+            Something Fresh
+            <span>Every Day! 🥣</span>
+          </h2>
+
+          <p>
+            Idli & Dosa Batter are available daily.
+            Traditional special batters are prepared
+            according to the weekly schedule.
+          </p>
 
         </div>
 
 
-        <!-- =================================================
-             MAPPAILAI SAMBA
-        ================================================== -->
+        <!-- DAILY -->
 
-        <div class="product-card">
+        <div class="daily-batter-banner">
 
-            <h3>
-                🌾 Mappilai Samba Batter
-            </h3>
+          <div class="daily-icon">
+            🥞
+          </div>
 
-            <p class="price">
-                500g – ₹40
-            </p>
+          <div>
 
-            <p class="price">
-                1kg – ₹80
-            </p>
+            <strong>
+              IDLI & DOSA BATTER AVAILABLE DAILY
+            </strong>
 
+            <span>
+              Freshly prepared • Homemade taste • Ready to cook
+            </span>
 
-            <div class="qty-row">
+          </div>
 
-                <span>
-                    500g
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Mappilai Samba Batter"
-                    data-size="500g"
-                    data-price="40"
-                >
-
-            </div>
-
-
-            <div class="qty-row">
-
-                <span>
-                    1kg
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Mappilai Samba Batter"
-                    data-size="1kg"
-                    data-price="80"
-                >
-
-            </div>
+          <div class="daily-heart">
+            ❤️
+          </div>
 
         </div>
 
 
-        <!-- =================================================
-             APPAM
-        ================================================== -->
+        <!-- DAYS -->
 
-        <div class="product-card">
-
-            <h3>
-                🥞 Appam Batter
-            </h3>
-
-            <p class="price">
-                500g – ₹30
-            </p>
-
-            <p class="price">
-                1kg – ₹60
-            </p>
+        <div class="weekly-schedule">
 
 
-            <div class="qty-row">
+          <div class="schedule-card monday">
 
-                <span>
-                    500g
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Appam Batter"
-                    data-size="500g"
-                    data-price="30"
-                >
-
+            <div class="schedule-day">
+              <span>🔴</span>
+              <strong>MONDAY</strong>
             </div>
 
-
-            <div class="qty-row">
-
-                <span>
-                    1kg
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Appam Batter"
-                    data-size="1kg"
-                    data-price="60"
-                >
-
+            <div class="schedule-items">
+              <span>🥞 Adai Batter</span>
+              <span>🌾 Mappilai Samba Batter</span>
             </div>
+
+          </div>
+
+
+          <div class="schedule-card tuesday">
+
+            <div class="schedule-day">
+              <span>🟠</span>
+              <strong>TUESDAY</strong>
+            </div>
+
+            <div class="schedule-items">
+              <span>🥣 Appam Batter</span>
+              <span>🌾 Poonghar Batter</span>
+            </div>
+
+          </div>
+
+
+          <div class="schedule-card wednesday">
+
+            <div class="schedule-day">
+              <span>🟢</span>
+              <strong>WEDNESDAY</strong>
+            </div>
+
+            <div class="schedule-items">
+              <span>🌾 Millet Batter</span>
+              <span>🖤 Karuppu Kavuni Batter</span>
+            </div>
+
+          </div>
+
+
+          <div class="schedule-card thursday">
+
+            <div class="schedule-day">
+              <span>🔵</span>
+              <strong>THURSDAY</strong>
+            </div>
+
+            <div class="schedule-items">
+              <span>🌿 Keerai Batter</span>
+              <span>🌾 Kambu Yasnam Batter</span>
+            </div>
+
+          </div>
+
+
+          <div class="schedule-card friday">
+
+            <div class="schedule-day">
+              <span>🟣</span>
+              <strong>FRIDAY</strong>
+            </div>
+
+            <div class="schedule-items">
+              <span>🌾 Ragi Batter</span>
+              <span>🖤 Karunguruvai Batter</span>
+            </div>
+
+          </div>
+
+
+          <div class="schedule-card saturday">
+
+            <div class="schedule-day">
+              <span>🩷</span>
+              <strong>SATURDAY</strong>
+            </div>
+
+            <div class="schedule-items">
+              <span>🥣 Appam Batter</span>
+              <span>🌱 Pachai Payiru Batter</span>
+            </div>
+
+          </div>
+
 
         </div>
 
 
-        <!-- =================================================
-             MILLET
-        ================================================== -->
+        <div class="schedule-note">
 
-        <div class="product-card">
+          🌿
+          <strong>
+            Freshly prepared according to the weekly schedule.
+          </strong>
 
-            <h3>
-                🌾 Millet Batter
-            </h3>
+          Please order your favourite batter in advance.
 
-            <p class="price">
-                500g – ₹40
-            </p>
+        </div>
 
-            <p class="price">
-                1kg – ₹80
-            </p>
+      </div>
+
+    </section>
 
 
-            <div class="qty-row">
+    <!-- ================= PRODUCTS ================= -->
 
-                <span>
-                    500g
-                </span>
+    <section
+      id="products"
+      class="products-section"
+    >
 
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Millet Batter"
-                    data-size="500g"
-                    data-price="40"
-                >
-
-            </div>
+      <div class="section-container">
 
 
-            <div class="qty-row">
+        <div class="section-heading">
 
-                <span>
-                    1kg
-                </span>
+          <span>
+            🥣 OUR BATTERS
+          </span>
 
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Millet Batter"
-                    data-size="1kg"
-                    data-price="80"
-                >
+          <h2>
+            Fresh Batters For
+            <span>Your Family ❤️</span>
+          </h2>
 
-            </div>
+          <p>
+            Choose your favourite batter, select the quantity
+            and add it to your cart.
+          </p>
 
         </div>
 
 
-        <!-- =================================================
-             POONGHAR
-        ================================================== -->
-
-        <div class="product-card">
-
-            <h3>
-                🌾 Poonghar Batter
-            </h3>
-
-            <p class="price">
-                500g – ₹40
-            </p>
-
-            <p class="price">
-                1kg – ₹80
-            </p>
+        <div class="product-grid">
 
 
-            <div class="qty-row">
+          <!-- IDLI -->
 
-                <span>
-                    500g
-                </span>
+          <article class="product-card">
+
+            <div class="product-icon">
+              🥞
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                DAILY
+              </span>
+
+              <h3>
+                Idli Batter
+              </h3>
+
+              <p>
+                Soft & fluffy homemade idlis.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹25</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹45</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
 
                 <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Poonghar Batter"
-                    data-size="500g"
-                    data-price="40"
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Idli Batter"
+                  data-size="500g"
+                  data-price="25"
                 >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Idli Batter"
+                  data-size="1kg"
+                  data-price="45"
+                >
+
+              </div>
 
             </div>
 
+          </article>
 
-            <div class="qty-row">
 
-                <span>
-                    1kg
-                </span>
+          <!-- DOSA -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🫓
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                DAILY
+              </span>
+
+              <h3>
+                Dosa Batter
+              </h3>
+
+              <p>
+                Crispy & delicious homemade dosas.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹25</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹45</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
 
                 <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Poonghar Batter"
-                    data-size="1kg"
-                    data-price="80"
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Dosa Batter"
+                  data-size="500g"
+                  data-price="25"
                 >
 
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Dosa Batter"
+                  data-size="1kg"
+                  data-price="45"
+                >
+
+              </div>
+
             </div>
+
+          </article>
+
+
+          <!-- ADAI -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🥞
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                MONDAY
+              </span>
+
+              <h3>
+                Adai Batter
+              </h3>
+
+              <p>
+                Traditional protein-rich adai.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹40</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹80</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Adai Batter"
+                  data-size="500g"
+                  data-price="40"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Adai Batter"
+                  data-size="1kg"
+                  data-price="80"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- MAPPILAI SAMBA -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🌾
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                MONDAY
+              </span>
+
+              <h3>
+                Mappilai Samba Batter
+              </h3>
+
+              <p>
+                Traditional red rice goodness.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹40</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹80</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Mappilai Samba Batter"
+                  data-size="500g"
+                  data-price="40"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Mappilai Samba Batter"
+                  data-size="1kg"
+                  data-price="80"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- APPAM -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🥣
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                TUE / SAT
+              </span>
+
+              <h3>
+                Appam Batter
+              </h3>
+
+              <p>
+                Soft centre with delicious edges.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹30</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹60</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Appam Batter"
+                  data-size="500g"
+                  data-price="30"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Appam Batter"
+                  data-size="1kg"
+                  data-price="60"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- MILLET -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🌾
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                WEDNESDAY
+              </span>
+
+              <h3>
+                Millet Batter
+              </h3>
+
+              <p>
+                Wholesome millet goodness.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹40</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹80</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Millet Batter"
+                  data-size="500g"
+                  data-price="40"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Millet Batter"
+                  data-size="1kg"
+                  data-price="80"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- POONGHAR -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🌿
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                TUESDAY
+              </span>
+
+              <h3>
+                Poonghar Batter
+              </h3>
+
+              <p>
+                Traditional wholesome flavour.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹40</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹80</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Poonghar Batter"
+                  data-size="500g"
+                  data-price="40"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Poonghar Batter"
+                  data-size="1kg"
+                  data-price="80"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- KARUPPU KAVUNI -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🖤
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                WEDNESDAY
+              </span>
+
+              <h3>
+                Karuppu Kavuni Batter
+              </h3>
+
+              <p>
+                Rich traditional black rice.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹40</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹80</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Karuppu Kavuni Batter"
+                  data-size="500g"
+                  data-price="40"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Karuppu Kavuni Batter"
+                  data-size="1kg"
+                  data-price="80"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- KEERAI -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🌿
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                THURSDAY
+              </span>
+
+              <h3>
+                Keerai Batter
+              </h3>
+
+              <p>
+                Green goodness for your family.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹40</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹80</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Keerai Batter"
+                  data-size="500g"
+                  data-price="40"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Keerai Batter"
+                  data-size="1kg"
+                  data-price="80"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- KAMBU -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🌾
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                THURSDAY
+              </span>
+
+              <h3>
+                Kambu Yasnam Batter
+              </h3>
+
+              <p>
+                Healthy traditional millet choice.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹40</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹80</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Kambu Yasnam Batter"
+                  data-size="500g"
+                  data-price="40"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Kambu Yasnam Batter"
+                  data-size="1kg"
+                  data-price="80"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- RAGI -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🌾
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                FRIDAY
+              </span>
+
+              <h3>
+                Ragi Batter
+              </h3>
+
+              <p>
+                Nutritious ragi for a healthy meal.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹40</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹80</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Ragi Batter"
+                  data-size="500g"
+                  data-price="40"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Ragi Batter"
+                  data-size="1kg"
+                  data-price="80"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- KARUNGURUVAI -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🖤
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                FRIDAY
+              </span>
+
+              <h3>
+                Karunguruvai Batter
+              </h3>
+
+              <p>
+                Traditional rice with wholesome goodness.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹40</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹80</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Karunguruvai Batter"
+                  data-size="500g"
+                  data-price="40"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Karunguruvai Batter"
+                  data-size="1kg"
+                  data-price="80"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- PACHAI PAYIRU -->
+
+          <article class="product-card">
+
+            <div class="product-icon">
+              🌱
+            </div>
+
+            <div class="product-content">
+
+              <span class="product-tag">
+                SATURDAY
+              </span>
+
+              <h3>
+                Pachai Payiru Batter
+              </h3>
+
+              <p>
+                Fresh green gram traditional batter.
+              </p>
+
+
+              <div class="product-prices">
+
+                <label>
+                  500g
+                  <strong>₹40</strong>
+                </label>
+
+                <label>
+                  1kg
+                  <strong>₹80</strong>
+                </label>
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  500g Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Pachai Payiru Batter"
+                  data-size="500g"
+                  data-price="40"
+                >
+
+              </div>
+
+
+              <div class="product-quantity">
+
+                <label>
+                  1kg Quantity
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="product-qty"
+                  data-product="Pachai Payiru Batter"
+                  data-size="1kg"
+                  data-price="80"
+                >
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= CART + ORDER ================= -->
+
+    <section
+      id="order"
+      class="order-section"
+    >
+
+      <div class="section-container">
+
+
+        <div class="section-heading">
+
+          <span>
+            🛒 YOUR ORDER
+          </span>
+
+          <h2>
+            Build Your
+            <span>Fresh Batter Basket</span>
+          </h2>
 
         </div>
 
 
-        <!-- =================================================
-             KARUPPU KAVUNI
-        ================================================== -->
+        <div class="order-layout">
 
-        <div class="product-card">
 
-            <h3>
-                🖤 Karuppu Kavuni Batter
-            </h3>
+          <!-- CART -->
 
-            <p class="price">
-                500g – ₹40
-            </p>
+          <div class="cart-box">
 
-            <p class="price">
-                1kg – ₹80
-            </p>
+            <div class="cart-header">
 
+              <div>
+                <span>🛒</span>
+                <h3>Your Cart</h3>
+              </div>
 
-            <div class="qty-row">
-
-                <span>
-                    500g
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Karuppu Kavuni Batter"
-                    data-size="500g"
-                    data-price="40"
-                >
-
-            </div>
-
-
-            <div class="qty-row">
-
-                <span>
-                    1kg
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Karuppu Kavuni Batter"
-                    data-size="1kg"
-                    data-price="80"
-                >
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             KEERAI
-        ================================================== -->
-
-        <div class="product-card">
-
-            <h3>
-                🥬 Keerai Batter
-            </h3>
-
-            <p class="price">
-                500g – ₹40
-            </p>
-
-            <p class="price">
-                1kg – ₹80
-            </p>
-
-
-            <div class="qty-row">
-
-                <span>
-                    500g
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Keerai Batter"
-                    data-size="500g"
-                    data-price="40"
-                >
-
-            </div>
-
-
-            <div class="qty-row">
-
-                <span>
-                    1kg
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Keerai Batter"
-                    data-size="1kg"
-                    data-price="80"
-                >
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             KAMBU YASNAM
-        ================================================== -->
-
-        <div class="product-card">
-
-            <h3>
-                🌾 Kambu Yasnam Batter
-            </h3>
-
-            <p class="price">
-                500g – ₹40
-            </p>
-
-            <p class="price">
-                1kg – ₹80
-            </p>
-
-
-            <div class="qty-row">
-
-                <span>
-                    500g
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Kambu Yasnam Batter"
-                    data-size="500g"
-                    data-price="40"
-                >
-
-            </div>
-
-
-            <div class="qty-row">
-
-                <span>
-                    1kg
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Kambu Yasnam Batter"
-                    data-size="1kg"
-                    data-price="80"
-                >
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             RAGI
-        ================================================== -->
-
-        <div class="product-card">
-
-            <h3>
-                🌾 Ragi Batter
-            </h3>
-
-            <p class="price">
-                500g – ₹40
-            </p>
-
-            <p class="price">
-                1kg – ₹80
-            </p>
-
-
-            <div class="qty-row">
-
-                <span>
-                    500g
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Ragi Batter"
-                    data-size="500g"
-                    data-price="40"
-                >
-
-            </div>
-
-
-            <div class="qty-row">
-
-                <span>
-                    1kg
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Ragi Batter"
-                    data-size="1kg"
-                    data-price="80"
-                >
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             KARUNGURUVAI
-        ================================================== -->
-
-        <div class="product-card">
-
-            <h3>
-                🌾 Karunguruvai Batter
-            </h3>
-
-            <p class="price">
-                500g – ₹40
-            </p>
-
-            <p class="price">
-                1kg – ₹80
-            </p>
-
-
-            <div class="qty-row">
-
-                <span>
-                    500g
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Karunguruvai Batter"
-                    data-size="500g"
-                    data-price="40"
-                >
-
-            </div>
-
-
-            <div class="qty-row">
-
-                <span>
-                    1kg
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Karunguruvai Batter"
-                    data-size="1kg"
-                    data-price="80"
-                >
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             PACHAI PAYIRU
-        ================================================== -->
-
-        <div class="product-card">
-
-            <h3>
-                🌱 Pachai Payiru Batter
-            </h3>
-
-            <p class="price">
-                500g – ₹40
-            </p>
-
-            <p class="price">
-                1kg – ₹80
-            </p>
-
-
-            <div class="qty-row">
-
-                <span>
-                    500g
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Pachai Payiru Batter"
-                    data-size="500g"
-                    data-price="40"
-                >
-
-            </div>
-
-
-            <div class="qty-row">
-
-                <span>
-                    1kg
-                </span>
-
-                <input
-                    type="number"
-                    min="0"
-                    value="0"
-                    class="product-qty"
-                    data-product="Pachai Payiru Batter"
-                    data-size="1kg"
-                    data-price="80"
-                >
-
-            </div>
-
-        </div>
-
-
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     ORDER
-===================================================== -->
-
-<div
-    class="section"
-    id="order"
->
-
-    <h2>
-        Order Now
-    </h2>
-
-
-    <form id="orderForm">
-
-
-        <label for="customerName">
-            Customer Name
-        </label>
-
-        <input
-            type="text"
-            id="customerName"
-            placeholder="Enter your name"
-            required
-        >
-
-
-        <label for="phone">
-            Phone Number
-        </label>
-
-        <input
-            type="tel"
-            id="phone"
-            placeholder="Enter phone number"
-            required
-        >
-
-
-        <label for="address">
-            Delivery Address
-        </label>
-
-        <textarea
-            id="address"
-            placeholder="Enter delivery address"
-            required
-        ></textarea>
-
-
-        <label for="deliveryDate">
-            Delivery Date
-        </label>
-
-        <input
-            type="date"
-            id="deliveryDate"
-            required
-        >
-
-
-        <!-- =================================================
-             CART
-        ================================================== -->
-
-        <div class="cart-box">
-
-            <h3>
-                🛒 Your Order
-            </h3>
-
-            <div id="cartItems">
-
-                No products selected.
+              <span id="cartCount">
+                0 items
+              </span>
 
             </div>
 
 
             <div
-                id="cartTotal"
-                class="cart-total"
+              id="cartItems"
+              class="cart-items"
             >
 
-                Total: ₹0
+              <div class="empty-cart">
+
+                <div>🛒</div>
+
+                <h3>
+                  Your cart is empty
+                </h3>
+
+                <p>
+                  Select your favourite batter above.
+                </p>
+
+              </div>
 
             </div>
+
+
+            <div class="cart-total">
+
+              <span>
+                Total Amount
+              </span>
+
+              <strong id="cartTotal">
+                ₹0
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- CUSTOMER FORM -->
+
+          <div class="customer-form-box">
+
+            <div class="form-heading">
+
+              <span>📝</span>
+
+              <div>
+
+                <h3>
+                  Customer Details
+                </h3>
+
+                <p>
+                  Enter your details to place your order.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <form id="orderForm">
+
+
+              <div class="form-group">
+
+                <label for="customerName">
+                  👤 Name
+                </label>
+
+                <input
+                  type="text"
+                  id="customerName"
+                  name="customerName"
+                  placeholder="Enter your name"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label for="phone">
+                  📱 Phone Number
+                </label>
+
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="Enter your phone number"
+                  maxlength="10"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label for="address">
+                  🏠 Delivery Address
+                </label>
+
+                <textarea
+                  id="address"
+                  name="address"
+                  rows="4"
+                  placeholder="Enter your complete delivery address"
+                  required
+                ></textarea>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label for="deliveryDate">
+                  📅 Delivery Date
+                </label>
+
+                <input
+                  type="date"
+                  id="deliveryDate"
+                  name="deliveryDate"
+                  required
+                >
+
+              </div>
+
+
+              <div class="order-summary-box">
+
+                <div>
+                  <span>🛒 Selected Items</span>
+                  <strong id="formItemCount">0</strong>
+                </div>
+
+                <div>
+                  <span>💰 Total</span>
+                  <strong id="formOrderTotal">₹0</strong>
+                </div>
+
+              </div>
+
+
+              <button
+                type="submit"
+                id="placeOrderBtn"
+                class="place-order-btn"
+              >
+                🛒 Place My Order
+              </button>
+
+
+              <div
+                id="orderSuccess"
+                class="order-success"
+                aria-live="polite"
+              ></div>
+
+
+            </form>
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= ORDER STATUS ================= -->
+
+    <section class="status-section">
+
+      <div class="section-container">
+
+
+        <div class="section-heading">
+
+          <span>
+            📦 ORDER JOURNEY
+          </span>
+
+          <h2>
+            From Our Kitchen
+            <span>To Your Door ❤️</span>
+          </h2>
 
         </div>
 
 
-        <button
-            type="submit"
-            id="submitButton"
+        <div class="status-timeline">
+
+
+          <div class="status-step">
+
+            <div>🟡</div>
+
+            <strong>
+              Pending
+            </strong>
+
+            <span>
+              Order received
+            </span>
+
+          </div>
+
+
+          <div class="status-line"></div>
+
+
+          <div class="status-step">
+
+            <div>🔵</div>
+
+            <strong>
+              Preparing
+            </strong>
+
+            <span>
+              Fresh batter being prepared
+            </span>
+
+          </div>
+
+
+          <div class="status-line"></div>
+
+
+          <div class="status-step">
+
+            <div>🟠</div>
+
+            <strong>
+              Out for Delivery
+            </strong>
+
+            <span>
+              On the way
+            </span>
+
+          </div>
+
+
+          <div class="status-line"></div>
+
+
+          <div class="status-step">
+
+            <div>🟢</div>
+
+            <strong>
+              Delivered
+            </strong>
+
+            <span>
+              Enjoy your meal!
+            </span>
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= CONTACT ================= -->
+
+    <section
+      id="contact"
+      class="contact-section"
+    >
+
+      <div class="contact-container">
+
+        <div class="contact-icon">
+          🥣
+        </div>
+
+        <div>
+
+          <span>
+            DHANA FOODS
+          </span>
+
+          <h2>
+            Fresh Batter,
+            Made With Love ❤️
+          </h2>
+
+          <p>
+            Traditional taste • Healthy choices •
+            Freshly prepared
+          </p>
+
+        </div>
+
+
+        <a
+          href="tel:9025530118"
+          class="contact-phone"
         >
-            🥣 Place Order
-        </button>
+          📞 9025530118
+        </a>
+
+      </div>
+
+    </section>
 
 
-    </form>
+  </main>
 
 
-    <!-- =================================================
-         SUCCESS
-    ================================================== -->
+  <!-- ================= FOOTER ================= -->
 
-    <div id="successMessage">
+  <footer class="site-footer">
 
-        <h2>
-            ✅ Order Placed Successfully!
-        </h2>
+    <div>
 
-        <p>
+      <strong>
+        🥣 DHANA FOODS
+      </strong>
 
-            Order Number:
-
-            <strong id="successOrderId"></strong>
-
-        </p>
-
-        <p>
-
-            Total:
-
-            <strong id="successTotal"></strong>
-
-        </p>
-
-        <p>
-
-            Delivery Date:
-
-            <strong id="successDeliveryDate"></strong>
-
-        </p>
+      <span>
+        Wholesome Millets. Healthy You.
+      </span>
 
     </div>
 
-</div>
-
-
-<!-- =====================================================
-     CONTACT
-===================================================== -->
-
-<div
-    class="section"
-    id="contact"
->
-
-    <h2>
-        Contact
-    </h2>
-
-    <p style="text-align:center;">
-
-        📞 9025530118
-
-    </p>
-
-</div>
-
-
-</div>
-
-
-<!-- =====================================================
-     FOOTER
-===================================================== -->
-
-<footer>
-
-    <h2>
-        Dhana Foods
-    </h2>
 
     <p>
-        Fresh • Traditional • Homemade
+      © 2026 Dhana Foods. Freshly made with ❤️
     </p>
 
-    <p>
-        © 2026 Dhana Foods. All Rights Reserved.
-    </p>
-
-</footer>
+  </footer>
 
 
-<!-- =====================================================
-     CUSTOMER SCRIPT
-===================================================== -->
+  <!-- ================= SCRIPT ================= -->
 
-<script src="script.js?v=14"></script>
-
+  <script src="script.js?v=30"></script>
 
 </body>
-
 </html>
