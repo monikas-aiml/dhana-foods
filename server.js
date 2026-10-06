@@ -1,904 +1,1054 @@
+require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
 const { Pool } = require("pg");
 
 const app = express();
 
-const PORT = process.env.PORT || 10000;
+const PORT = Number(process.env.PORT) || 10000;
 
-// ======================================================
-// DHANA FOODS - PRODUCT PRICES
-// ======================================================
 
-const PRODUCT_PRICES = {
-  "Idli Batter": {
-    "500g": 25,
-    "1kg": 45
-  },
-
-  "Dosa Batter": {
-    "500g": 25,
-    "1kg": 45
-  },
-
-  "Adai Batter": {
-    "500g": 30,
-    "1kg": 60
-  },
-
-  "Mappilai Samba Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Appam Batter": {
-    "500g": 30,
-    "1kg": 60
-  },
-
-  "Millet Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Poongar Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Karuppu Kavuni Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Keerai Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Kambu Yasnam Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Ragi Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Karinagaruvai Batter": {
-    "500g": 40,
-    "1kg": 80
-  },
-
-  "Pachai Payiru Batter": {
-    "500g": 40,
-    "1kg": 80
-  }
-};
-
-const ALLOWED_STATUSES = [
-  "Pending",
-  "Preparing",
-  "Out for Delivery",
-  "Delivered",
-  "Cancelled"
-];
-
-// ======================================================
-// MIDDLEWARE
-// ======================================================
-
-app.use(express.json({ limit: "1mb" }));
-app.use(express.urlencoded({ extended: true }));
-
-app.use(express.static(__dirname));
-
-// ======================================================
-// POSTGRESQL
-// ======================================================
+/* =========================================================
+   POSTGRESQL
+========================================================= */
 
 if (!process.env.DATABASE_URL) {
-  console.error("❌ DATABASE_URL is not set.");
-  console.error("Please set DATABASE_URL before starting the server.");
+    console.error("DATABASE_URL is missing.");
 }
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL,
 
-  ssl: process.env.DATABASE_URL
-    ? { rejectUnauthorized: false }
-    : false,
-
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000
+    ssl: process.env.DATABASE_URL
+        ? {
+            rejectUnauthorized: false
+        }
+        : false
 });
 
-pool.on("error", (error) => {
-  console.error("❌ Unexpected PostgreSQL error:", error);
-});
 
-// ======================================================
-// DATABASE SETUP
-// ======================================================
+/* =========================================================
+   MIDDLEWARE
+========================================================= */
 
-async function setupDatabase() {
-  try {
-    // --------------------------------------------------
-    // Check whether an old orders table exists
-    // --------------------------------------------------
+app.use(express.json());
 
-    const tableCheck = await pool.query(`
-      SELECT column_name
-      FROM information_schema.columns
-      WHERE table_schema = 'public'
-      AND table_name = 'orders'
-      ORDER BY ordinal_position
-    `);
+app.use(
+    express.urlencoded({
+        extended: true
+    })
+);
 
-    const oldColumns = tableCheck.rows.map(
-      row => row.column_name
-    );
+app.use(
+    express.static(
+        path.join(__dirname)
+    )
+);
 
-    // --------------------------------------------------
-    // OLD DATABASE STRUCTURE DETECTED
-    //
-    // The old version used a "product" column.
-    // Our new version stores all cart items in JSONB.
-    //
-    // There are no real customer orders, so it is safe
-    // to remove the old testing table.
-    // --------------------------------------------------
 
-    if (oldColumns.includes("product")) {
-      console.log("⚠️ Old orders table detected.");
-      console.log("🗑️ Removing old test orders table...");
+/* =========================================================
+   DHANA FOODS OFFICIAL PRICES
+========================================================= */
 
-      await pool.query(`
-        DROP TABLE IF EXISTS orders
-      `);
+const PRODUCT_PRICES = {
 
-      console.log("✅ Old orders table removed.");
+    "Idli Batter": {
+        "500g": 25,
+        "1kg": 45
+    },
+
+    "Dosa Batter": {
+        "500g": 25,
+        "1kg": 45
+    },
+
+    "Adai Batter": {
+        "500g": 30,
+        "1kg": 60
+    },
+
+    "Mappilai Samba": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Appam Batter": {
+        "500g": 30,
+        "1kg": 60
+    },
+
+    "Millet Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Poongar": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Karuppu Kavuni": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Keerai Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Kambu Yasnam": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Ragi Batter": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Karinagaruvai": {
+        "500g": 40,
+        "1kg": 80
+    },
+
+    "Pachai Payiru": {
+        "500g": 40,
+        "1kg": 80
     }
 
-    // --------------------------------------------------
-    // Create the correct orders table
-    // --------------------------------------------------
+};
 
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS orders (
-        id SERIAL PRIMARY KEY,
 
-        customer_name TEXT NOT NULL,
+/* =========================================================
+   ALLOWED STATUS
+========================================================= */
 
-        phone TEXT NOT NULL,
+const ALLOWED_STATUSES = [
+    "Pending",
+    "Preparing",
+    "Out for Delivery",
+    "Delivered",
+    "Cancelled"
+];
 
-        address TEXT NOT NULL,
 
-        items JSONB NOT NULL,
+/* =========================================================
+   DATABASE SETUP
+========================================================= */
 
-        total NUMERIC(10, 2) NOT NULL,
+async function initDatabase() {
 
-        delivery_date TEXT NOT NULL,
+    try {
 
-        status TEXT NOT NULL DEFAULT 'Pending',
+        console.log("Checking PostgreSQL database...");
 
-        created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
 
-    console.log("✅ PostgreSQL orders table is ready.");
+        /* -----------------------------------------------
+           CREATE ORDERS TABLE
+        ----------------------------------------------- */
 
-  } catch (error) {
-    console.error("❌ Database setup failed:");
-    console.error(error);
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS orders (
 
-    throw error;
-  }
+                id SERIAL PRIMARY KEY,
+
+                customer_name TEXT,
+
+                phone TEXT,
+
+                address TEXT,
+
+                items JSONB,
+
+                total NUMERIC(10,2),
+
+                delivery_date DATE,
+
+                status TEXT DEFAULT 'Pending',
+
+                created_at TIMESTAMP
+                    DEFAULT CURRENT_TIMESTAMP
+
+            )
+        `);
+
+
+        /* -----------------------------------------------
+           ADD COLUMNS IF OLD TABLE EXISTS
+        ----------------------------------------------- */
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS customer_name TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS phone TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS address TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS items JSONB
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS total NUMERIC(10,2)
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS delivery_date DATE
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS status TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP
+        `);
+
+
+        /* -----------------------------------------------
+           OLD LEGACY COLUMNS
+        ----------------------------------------------- */
+
+        await pool.query(`
+            DO $$
+            BEGIN
+
+                IF EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                    AND table_name = 'orders'
+                    AND column_name = 'product'
+                ) THEN
+                    ALTER TABLE orders
+                    ALTER COLUMN product DROP NOT NULL;
+                END IF;
+
+
+                IF EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                    AND table_name = 'orders'
+                    AND column_name = 'size'
+                ) THEN
+                    ALTER TABLE orders
+                    ALTER COLUMN size DROP NOT NULL;
+                END IF;
+
+
+                IF EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                    AND table_name = 'orders'
+                    AND column_name = 'quantity'
+                ) THEN
+                    ALTER TABLE orders
+                    ALTER COLUMN quantity DROP NOT NULL;
+                END IF;
+
+
+                IF EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                    AND table_name = 'orders'
+                    AND column_name = 'price'
+                ) THEN
+                    ALTER TABLE orders
+                    ALTER COLUMN price DROP NOT NULL;
+                END IF;
+
+            END $$;
+        `);
+
+
+        /* -----------------------------------------------
+           FIX OLD NULL STATUS
+        ----------------------------------------------- */
+
+        await pool.query(`
+            UPDATE orders
+            SET status = 'Pending'
+            WHERE status IS NULL
+        `);
+
+
+        console.log("PostgreSQL database ready.");
+
+    } catch (error) {
+
+        console.error(
+            "Database initialization error:",
+            error
+        );
+
+        throw error;
+    }
 }
 
-// ======================================================
-// CLEAN + VALIDATE ITEMS
-// ======================================================
 
-function cleanItems(items) {
-  if (!Array.isArray(items) || items.length === 0) {
-    throw new Error("Your cart is empty.");
-  }
+/* =========================================================
+   CREATE ORDER
+========================================================= */
 
-  const cleanedItems = [];
+app.post(
+    "/api/orders",
+    async (req, res) => {
 
-  for (const item of items) {
-    const product = String(item.product || "").trim();
-    const size = String(item.size || "").trim();
+        try {
 
-    const quantity = Number(item.quantity);
+            console.log(
+                "ORDER REQUEST RECEIVED:",
+                JSON.stringify(req.body, null, 2)
+            );
 
-    if (!product) {
-      throw new Error("Invalid product.");
+
+            /* ---------------------------------------------
+               ACCEPT MULTIPLE FIELD NAMES
+               This fixes old/new script mismatch.
+            --------------------------------------------- */
+
+            const customerName = String(
+                req.body.customerName ||
+                req.body.customer_name ||
+                req.body.name ||
+                req.body.fullName ||
+                ""
+            ).trim();
+
+
+            const phone = String(
+                req.body.phone ||
+                req.body.phoneNumber ||
+                req.body.mobile ||
+                ""
+            ).trim();
+
+
+            const address = String(
+                req.body.address ||
+                req.body.deliveryAddress ||
+                ""
+            ).trim();
+
+
+            const deliveryDate = String(
+                req.body.deliveryDate ||
+                req.body.delivery_date ||
+                ""
+            ).trim();
+
+
+            const items = req.body.items;
+
+
+            /* ---------------------------------------------
+               CUSTOMER VALIDATION
+            --------------------------------------------- */
+
+            if (!customerName) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Customer name is required."
+
+                });
+            }
+
+
+            if (!phone) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Phone number is required."
+
+                });
+            }
+
+
+            if (!address) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Delivery address is required."
+
+                });
+            }
+
+
+            if (!deliveryDate) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Delivery date is required."
+
+                });
+            }
+
+
+            /* ---------------------------------------------
+               ITEMS VALIDATION
+            --------------------------------------------- */
+
+            if (
+                !Array.isArray(items) ||
+                items.length === 0
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Please select at least one product."
+
+                });
+            }
+
+
+            /* ---------------------------------------------
+               CALCULATE TOTAL
+            --------------------------------------------- */
+
+            let total = 0;
+
+            const cleanItems = [];
+
+
+            for (const item of items) {
+
+                const product =
+                    String(
+                        item.product || ""
+                    ).trim();
+
+
+                const size =
+                    String(
+                        item.size || ""
+                    ).trim();
+
+
+                const quantity =
+                    Number(
+                        item.quantity
+                    );
+
+
+                if (!PRODUCT_PRICES[product]) {
+
+                    return res.status(400).json({
+
+                        success: false,
+
+                        message:
+                            `Invalid product: ${product}`
+
+                    });
+                }
+
+
+                if (
+                    PRODUCT_PRICES[product][size]
+                    === undefined
+                ) {
+
+                    return res.status(400).json({
+
+                        success: false,
+
+                        message:
+                            `Invalid size for ${product}.`
+
+                    });
+                }
+
+
+                if (
+                    !Number.isInteger(quantity) ||
+                    quantity <= 0 ||
+                    quantity > 100
+                ) {
+
+                    return res.status(400).json({
+
+                        success: false,
+
+                        message:
+                            "Invalid quantity."
+
+                    });
+                }
+
+
+                const price =
+                    PRODUCT_PRICES[product][size];
+
+
+                const itemTotal =
+                    quantity * price;
+
+
+                total += itemTotal;
+
+
+                cleanItems.push({
+
+                    product:
+                        product,
+
+                    size:
+                        size,
+
+                    quantity:
+                        quantity,
+
+                    price:
+                        price,
+
+                    itemTotal:
+                        itemTotal
+
+                });
+
+            }
+
+
+            /* ---------------------------------------------
+               SAVE ORDER
+            --------------------------------------------- */
+
+            const result =
+                await pool.query(
+
+                    `
+                    INSERT INTO orders
+                    (
+                        customer_name,
+                        phone,
+                        address,
+                        items,
+                        total,
+                        delivery_date,
+                        status,
+                        created_at
+                    )
+
+                    VALUES
+                    (
+                        $1,
+                        $2,
+                        $3,
+                        $4,
+                        $5,
+                        $6,
+                        $7,
+                        CURRENT_TIMESTAMP
+                    )
+
+                    RETURNING
+                        id,
+                        customer_name,
+                        phone,
+                        address,
+                        items,
+                        total,
+                        delivery_date,
+                        status,
+                        created_at
+                    `,
+
+                    [
+                        customerName,
+                        phone,
+                        address,
+                        JSON.stringify(cleanItems),
+                        total,
+                        deliveryDate,
+                        "Pending"
+                    ]
+
+                );
+
+
+            const order =
+                result.rows[0];
+
+
+            /* ---------------------------------------------
+               SUCCESS RESPONSE
+            --------------------------------------------- */
+
+            console.log(
+                "ORDER SAVED:",
+                JSON.stringify(order, null, 2)
+            );
+
+
+            return res.status(201).json({
+
+                success: true,
+
+                orderId:
+                    order.id,
+
+                customerName:
+                    order.customer_name,
+
+                phone:
+                    order.phone,
+
+                address:
+                    order.address,
+
+                items:
+                    order.items,
+
+                total:
+                    Number(order.total),
+
+                deliveryDate:
+                    order.delivery_date,
+
+                status:
+                    order.status,
+
+                createdAt:
+                    order.created_at
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "CREATE ORDER ERROR:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    error.message ||
+                    "Unable to place order."
+
+            });
+
+        }
+
     }
+);
 
-    if (!size) {
-      throw new Error("Invalid product size.");
+
+/* =========================================================
+   GET ALL ORDERS
+========================================================= */
+
+app.get(
+    "/api/orders",
+    async (req, res) => {
+
+        try {
+
+            const result =
+                await pool.query(`
+
+                    SELECT *
+
+                    FROM orders
+
+                    ORDER BY
+                        created_at DESC
+
+                `);
+
+
+            return res.json(
+                result.rows
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "GET ORDERS ERROR:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to load orders."
+
+            });
+        }
     }
+);
 
-    if (!PRODUCT_PRICES[product]) {
-      throw new Error(`Invalid product: ${product}`);
+
+/* =========================================================
+   GET ONE ORDER
+========================================================= */
+
+app.get(
+    "/api/orders/:id",
+    async (req, res) => {
+
+        try {
+
+            const result =
+                await pool.query(
+
+                    `
+                    SELECT *
+
+                    FROM orders
+
+                    WHERE id = $1
+                    `,
+
+                    [req.params.id]
+
+                );
+
+
+            if (
+                result.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    success: false,
+
+                    message:
+                        "Order not found."
+
+                });
+            }
+
+
+            return res.json({
+
+                success: true,
+
+                order:
+                    result.rows[0]
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "GET ONE ORDER ERROR:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to load order."
+
+            });
+        }
     }
+);
 
-    if (!PRODUCT_PRICES[product][size]) {
-      throw new Error(
-        `Invalid size for ${product}: ${size}`
-      );
+
+/* =========================================================
+   UPDATE ORDER STATUS
+========================================================= */
+
+app.put(
+    "/api/orders/:id",
+    async (req, res) => {
+
+        try {
+
+            const status =
+                req.body.status;
+
+
+            if (
+                !ALLOWED_STATUSES.includes(
+                    status
+                )
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid order status."
+
+                });
+            }
+
+
+            const result =
+                await pool.query(
+
+                    `
+                    UPDATE orders
+
+                    SET status = $1
+
+                    WHERE id = $2
+
+                    RETURNING *
+                    `,
+
+                    [
+                        status,
+                        req.params.id
+                    ]
+
+                );
+
+
+            if (
+                result.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    success: false,
+
+                    message:
+                        "Order not found."
+
+                });
+            }
+
+
+            return res.json({
+
+                success: true,
+
+                message:
+                    "Order status updated.",
+
+                order:
+                    result.rows[0]
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "UPDATE STATUS ERROR:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to update order status."
+
+            });
+        }
     }
+);
 
-    if (
-      !Number.isInteger(quantity) ||
-      quantity < 1 ||
-      quantity > 100
-    ) {
-      throw new Error(
-        `Invalid quantity for ${product}.`
-      );
+
+/* =========================================================
+   DELETE ORDER
+========================================================= */
+
+app.delete(
+    "/api/orders/:id",
+    async (req, res) => {
+
+        try {
+
+            const result =
+                await pool.query(
+
+                    `
+                    DELETE FROM orders
+
+                    WHERE id = $1
+
+                    RETURNING id
+                    `,
+
+                    [req.params.id]
+
+                );
+
+
+            if (
+                result.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    success: false,
+
+                    message:
+                        "Order not found."
+
+                });
+            }
+
+
+            return res.json({
+
+                success: true,
+
+                message:
+                    "Order deleted successfully."
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "DELETE ORDER ERROR:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to delete order."
+
+            });
+        }
     }
+);
 
-    // Never trust price from browser.
-    const price = PRODUCT_PRICES[product][size];
 
-    const subtotal = price * quantity;
+/* =========================================================
+   HEALTH CHECK
+========================================================= */
 
-    cleanedItems.push({
-      product,
-      size,
-      quantity,
-      price,
-      subtotal
-    });
-  }
+app.get(
+    "/api/health",
+    async (req, res) => {
 
-  return cleanedItems;
-}
+        try {
 
-// ======================================================
-// CALCULATE TOTAL
-// ======================================================
+            await pool.query(
+                "SELECT 1"
+            );
 
-function calculateTotal(items) {
-  return items.reduce(
-    (total, item) => total + item.subtotal,
-    0
-  );
-}
 
-// ======================================================
-// HEALTH CHECK
-// ======================================================
+            return res.json({
 
-app.get("/api/health", async (req, res) => {
-  try {
-    await pool.query("SELECT 1");
+                success: true,
 
-    res.json({
-      success: true,
-      status: "OK",
-      database: "PostgreSQL",
-      service: "Dhana Foods",
-      time: new Date().toISOString()
-    });
+                database:
+                    "PostgreSQL",
 
-  } catch (error) {
-    console.error("❌ Health check failed:", error);
+                status:
+                    "OK",
 
-    res.status(500).json({
-      success: false,
-      status: "ERROR",
-      database: "PostgreSQL",
-      message: "Database connection failed."
-    });
-  }
-});
+                service:
+                    "Dhana Foods"
 
-// ======================================================
-// CREATE ORDER
-// ======================================================
+            });
 
-app.post("/api/orders", async (req, res) => {
-  try {
-    const {
-      customerName,
-      phone,
-      address,
-      deliveryDate,
-      items
-    } = req.body;
 
-    // --------------------------------------------------
-    // Customer validation
-    // --------------------------------------------------
+        } catch (error) {
 
-    const cleanName =
-      String(customerName || "").trim();
+            return res.status(500).json({
 
-    const cleanPhone =
-      String(phone || "").trim();
+                success: false,
 
-    const cleanAddress =
-      String(address || "").trim();
+                database:
+                    "PostgreSQL",
 
-    const cleanDeliveryDate =
-      String(deliveryDate || "").trim();
+                status:
+                    "ERROR"
 
-    if (!cleanName) {
-      return res.status(400).json({
-        success: false,
-        message: "Please enter your name."
-      });
+            });
+        }
     }
+);
 
-    if (!cleanPhone) {
-      return res.status(400).json({
-        success: false,
-        message: "Please enter your mobile number."
-      });
-    }
 
-    if (!cleanAddress) {
-      return res.status(400).json({
-        success: false,
-        message: "Please enter your delivery address."
-      });
-    }
-
-    if (!cleanDeliveryDate) {
-      return res.status(400).json({
-        success: false,
-        message: "Please select a delivery date."
-      });
-    }
-
-    // --------------------------------------------------
-    // Product validation
-    // --------------------------------------------------
-
-    const cleanOrderItems = cleanItems(items);
-
-    const total = calculateTotal(cleanOrderItems);
-
-    // --------------------------------------------------
-    // Save order
-    // --------------------------------------------------
-
-    const result = await pool.query(
-      `
-      INSERT INTO orders
-      (
-        customer_name,
-        phone,
-        address,
-        items,
-        total,
-        delivery_date,
-        status
-      )
-      VALUES
-      (
-        $1,
-        $2,
-        $3,
-        $4::jsonb,
-        $5,
-        $6,
-        $7
-      )
-      RETURNING
-        id,
-        customer_name,
-        phone,
-        address,
-        items,
-        total,
-        delivery_date,
-        status,
-        created_at
-      `,
-      [
-        cleanName,
-        cleanPhone,
-        cleanAddress,
-        JSON.stringify(cleanOrderItems),
-        total,
-        cleanDeliveryDate,
-        "Pending"
-      ]
-    );
-
-    const order = result.rows[0];
-
-    console.log(
-      `✅ New Order #${order.id} | ${order.customer_name} | ₹${order.total}`
-    );
-
-    res.status(201).json({
-      success: true,
-
-      message: "Order placed successfully.",
-
-      order: {
-        id: order.id,
-        customerName: order.customer_name,
-        phone: order.phone,
-        address: order.address,
-        items: order.items,
-        total: Number(order.total),
-        deliveryDate: order.delivery_date,
-        status: order.status,
-        createdAt: order.created_at
-      }
-    });
-
-  } catch (error) {
-    console.error("❌ Create order failed:");
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      message:
-        error.message ||
-        "Unable to place order."
-    });
-  }
-});
-
-// ======================================================
-// GET ALL ORDERS
-// ======================================================
-
-app.get("/api/orders", async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT
-        id,
-        customer_name,
-        phone,
-        address,
-        items,
-        total,
-        delivery_date,
-        status,
-        created_at
-      FROM orders
-      ORDER BY id DESC
-    `);
-
-    const orders = result.rows.map(order => ({
-      id: order.id,
-
-      customerName:
-        order.customer_name,
-
-      phone:
-        order.phone,
-
-      address:
-        order.address,
-
-      items:
-        order.items,
-
-      total:
-        Number(order.total),
-
-      deliveryDate:
-        order.delivery_date,
-
-      status:
-        order.status,
-
-      createdAt:
-        order.created_at
-    }));
-
-    res.json({
-      success: true,
-      orders
-    });
-
-  } catch (error) {
-    console.error("❌ Get orders failed:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Unable to load orders."
-    });
-  }
-});
-
-// ======================================================
-// GET SINGLE ORDER
-// ======================================================
-
-app.get("/api/orders/:id", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-
-    if (!Number.isInteger(id) || id < 1) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid order ID."
-      });
-    }
-
-    const result = await pool.query(
-      `
-      SELECT
-        id,
-        customer_name,
-        phone,
-        address,
-        items,
-        total,
-        delivery_date,
-        status,
-        created_at
-      FROM orders
-      WHERE id = $1
-      `,
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found."
-      });
-    }
-
-    const order = result.rows[0];
-
-    res.json({
-      success: true,
-
-      order: {
-        id: order.id,
-
-        customerName:
-          order.customer_name,
-
-        phone:
-          order.phone,
-
-        address:
-          order.address,
-
-        items:
-          order.items,
-
-        total:
-          Number(order.total),
-
-        deliveryDate:
-          order.delivery_date,
-
-        status:
-          order.status,
-
-        createdAt:
-          order.created_at
-      }
-    });
-
-  } catch (error) {
-    console.error("❌ Get order failed:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Unable to load order."
-    });
-  }
-});
-
-// ======================================================
-// UPDATE ORDER STATUS
-// ======================================================
-
-app.put("/api/orders/:id", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-
-    const status =
-      String(req.body.status || "").trim();
-
-    if (!Number.isInteger(id) || id < 1) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid order ID."
-      });
-    }
-
-    if (!ALLOWED_STATUSES.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Invalid status. Allowed values: " +
-          ALLOWED_STATUSES.join(", ")
-      });
-    }
-
-    const result = await pool.query(
-      `
-      UPDATE orders
-      SET status = $1
-      WHERE id = $2
-      RETURNING
-        id,
-        customer_name,
-        phone,
-        address,
-        items,
-        total,
-        delivery_date,
-        status,
-        created_at
-      `,
-      [
-        status,
-        id
-      ]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found."
-      });
-    }
-
-    const order = result.rows[0];
-
-    console.log(
-      `🔄 Order #${id} status changed to ${status}`
-    );
-
-    res.json({
-      success: true,
-
-      message:
-        "Order status updated.",
-
-      order: {
-        id: order.id,
-
-        customerName:
-          order.customer_name,
-
-        phone:
-          order.phone,
-
-        address:
-          order.address,
-
-        items:
-          order.items,
-
-        total:
-          Number(order.total),
-
-        deliveryDate:
-          order.delivery_date,
-
-        status:
-          order.status,
-
-        createdAt:
-          order.created_at
-      }
-    });
-
-  } catch (error) {
-    console.error(
-      "❌ Update status failed:",
-      error
-    );
-
-    res.status(500).json({
-      success: false,
-      message:
-        "Unable to update order status."
-    });
-  }
-});
-
-// ======================================================
-// DELETE ORDER
-// ======================================================
-
-app.delete("/api/orders/:id", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-
-    if (!Number.isInteger(id) || id < 1) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid order ID."
-      });
-    }
-
-    const result = await pool.query(
-      `
-      DELETE FROM orders
-      WHERE id = $1
-      RETURNING id
-      `,
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found."
-      });
-    }
-
-    console.log(
-      `🗑️ Order #${id} deleted`
-    );
-
-    res.json({
-      success: true,
-      message:
-        "Order deleted successfully.",
-      id
-    });
-
-  } catch (error) {
-    console.error(
-      "❌ Delete order failed:",
-      error
-    );
-
-    res.status(500).json({
-      success: false,
-      message:
-        "Unable to delete order."
-    });
-  }
-});
-
-// ======================================================
-// FRONTEND
-// ======================================================
-
-app.get("/", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "index.html")
-  );
-});
-
-// ======================================================
-// API 404
-// ======================================================
-
-app.use("/api", (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "API endpoint not found."
-  });
-});
-
-// ======================================================
-// GENERAL ERROR HANDLER
-// ======================================================
-
-app.use((error, req, res, next) => {
-  console.error(
-    "❌ Server error:",
-    error
-  );
-
-  res.status(500).json({
-    success: false,
-    message:
-      "Internal server error."
-  });
-});
-
-// ======================================================
-// START SERVER
-// ======================================================
+/* =========================================================
+   START SERVER
+========================================================= */
 
 async function startServer() {
-  try {
-    await setupDatabase();
 
-    app.listen(
-      PORT,
-      "0.0.0.0",
-      () => {
-        console.log("");
-        console.log(
-          "=========================================="
-        );
-        console.log(
-          "          DHANA FOODS SERVER"
-        );
-        console.log(
-          "=========================================="
-        );
-        console.log(
-          `🌐 Port: ${PORT}`
-        );
-        console.log(
-          "🗄️ Database: PostgreSQL"
-        );
-        console.log(
-          `📦 Products: ${
-            Object.keys(PRODUCT_PRICES).length
-          }`
-        );
-        console.log(
-          "🚚 Door Delivery: Available"
-        );
-        console.log(
-          "=========================================="
-        );
-        console.log("");
-      }
-    );
+    try {
 
-  } catch (error) {
-    console.error("");
-    console.error(
-      "=========================================="
-    );
-    console.error(
-      "❌ SERVER STARTUP FAILED"
-    );
-    console.error(
-      "=========================================="
-    );
-    console.error(error);
+        await initDatabase();
 
-    process.exit(1);
-  }
+
+        app.listen(
+            PORT,
+            "0.0.0.0",
+            () => {
+
+                console.log(
+                    `Dhana Foods running on port ${PORT}`
+                );
+
+            }
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "SERVER STARTUP FAILED:",
+            error
+        );
+
+        process.exit(1);
+    }
 }
+
 
 startServer();
-
-// ======================================================
-// GRACEFUL SHUTDOWN
-// ======================================================
-
-async function shutdown(signal) {
-  console.log(
-    `\n${signal} received. Shutting down...`
-  );
-
-  try {
-    await pool.end();
-
-    console.log(
-      "✅ PostgreSQL connection closed."
-    );
-
-    process.exit(0);
-
-  } catch (error) {
-    console.error(
-      "❌ Shutdown error:",
-      error
-    );
-
-    process.exit(1);
-  }
-}
-
-process.on(
-  "SIGTERM",
-  () => shutdown("SIGTERM")
-);
-
-process.on(
-  "SIGINT",
-  () => shutdown("SIGINT")
-);
