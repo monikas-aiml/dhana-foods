@@ -1,12 +1,12 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
 
     /* =====================================================
-       ELEMENTS
+       DHANA FOODS - CUSTOMER ORDER SCRIPT
     ===================================================== */
 
     const orderForm = document.getElementById("orderForm");
-    const cartItemsBox = document.getElementById("cartItems");
-    const cartTotalBox = document.getElementById("cartTotal");
+    const cartItems = document.getElementById("cartItems");
+    const cartTotal = document.getElementById("cartTotal");
     const submitButton = document.getElementById("submitButton");
 
     const productInputs =
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       SAFE HTML
+       HTML ESCAPE
     ===================================================== */
 
     function escapeHTML(value) {
@@ -29,48 +29,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       GET CART ITEMS
+       GET PRODUCTS FROM CART
     ===================================================== */
 
     function getCartItems() {
 
         const items = [];
 
-        productInputs.forEach(input => {
+        document
+            .querySelectorAll(".product-qty")
+            .forEach(function (input) {
 
-            const quantity =
-                Number(input.value);
+                const quantity =
+                    parseInt(input.value, 10) || 0;
 
-            if (
-                Number.isInteger(quantity) &&
-                quantity > 0
-            ) {
+                if (quantity > 0) {
 
-                items.push({
+                    items.push({
 
-                    product:
-                        String(
-                            input.dataset.product || ""
-                        ).trim(),
+                        product:
+                            (input.dataset.product || "")
+                                .trim(),
 
-                    size:
-                        String(
-                            input.dataset.size || ""
-                        ).trim(),
+                        size:
+                            (input.dataset.size || "")
+                                .trim(),
 
-                    quantity:
-                        quantity,
+                        quantity:
+                            quantity,
 
-                    price:
-                        Number(
-                            input.dataset.price || 0
-                        )
+                        price:
+                            Number(
+                                input.dataset.price || 0
+                            )
 
-                });
+                    });
 
-            }
+                }
 
-        });
+            });
 
         return items;
     }
@@ -82,19 +79,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function calculateTotal(items) {
 
-        return items.reduce(
-            (total, item) => {
+        let total = 0;
 
-                return total +
-                    (
-                        Number(item.quantity) *
-                        Number(item.price)
-                    );
+        items.forEach(function (item) {
 
-            },
-            0
-        );
+            total +=
+                Number(item.quantity) *
+                Number(item.price);
 
+        });
+
+        return total;
     }
 
 
@@ -107,15 +102,21 @@ document.addEventListener("DOMContentLoaded", () => {
         size
     ) {
 
-        return Array.from(
-            productInputs
-        ).find(input =>
+        const inputs =
+            document.querySelectorAll(".product-qty");
 
-            input.dataset.product === product &&
-            input.dataset.size === size
+        for (const input of inputs) {
 
-        );
+            if (
+                input.dataset.product === product &&
+                input.dataset.size === size
+            ) {
+                return input;
+            }
 
+        }
+
+        return null;
     }
 
 
@@ -132,12 +133,17 @@ document.addEventListener("DOMContentLoaded", () => {
             calculateTotal(items);
 
 
+        if (!cartItems || !cartTotal) {
+            return;
+        }
+
+
         if (items.length === 0) {
 
-            cartItemsBox.innerHTML =
+            cartItems.innerHTML =
                 "No products selected.";
 
-            cartTotalBox.textContent =
+            cartTotal.textContent =
                 "Total: ₹0";
 
             return;
@@ -147,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let html = "";
 
 
-        items.forEach(item => {
+        items.forEach(function (item) {
 
             const itemTotal =
                 Number(item.quantity) *
@@ -157,13 +163,12 @@ document.addEventListener("DOMContentLoaded", () => {
             html += `
 
                 <div
-                    class="cart-item"
                     style="
                         display:flex;
                         justify-content:space-between;
                         align-items:center;
                         gap:10px;
-                        padding:10px 0;
+                        padding:12px 0;
                         border-bottom:1px solid #eee;
                     "
                 >
@@ -198,63 +203,32 @@ document.addEventListener("DOMContentLoaded", () => {
                             class="cart-minus"
                             data-product="${escapeHTML(item.product)}"
                             data-size="${escapeHTML(item.size)}"
-                            style="
-                                width:32px;
-                                height:32px;
-                                border:1px solid #ccc;
-                                border-radius:6px;
-                                cursor:pointer;
-                            "
                         >
                             −
                         </button>
 
-
                         <strong>
                             ${item.quantity}
                         </strong>
-
 
                         <button
                             type="button"
                             class="cart-plus"
                             data-product="${escapeHTML(item.product)}"
                             data-size="${escapeHTML(item.size)}"
-                            style="
-                                width:32px;
-                                height:32px;
-                                border:1px solid #ccc;
-                                border-radius:6px;
-                                cursor:pointer;
-                            "
                         >
                             +
                         </button>
 
-
-                        <strong
-                            style="
-                                min-width:70px;
-                                text-align:right;
-                            "
-                        >
+                        <strong>
                             ₹${itemTotal}
                         </strong>
-
 
                         <button
                             type="button"
                             class="cart-remove"
                             data-product="${escapeHTML(item.product)}"
                             data-size="${escapeHTML(item.size)}"
-                            style="
-                                border:none;
-                                background:none;
-                                color:#b42318;
-                                cursor:pointer;
-                                font-size:18px;
-                            "
-                            title="Remove"
                         >
                             ✕
                         </button>
@@ -268,41 +242,41 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
 
-        cartItemsBox.innerHTML =
-            html;
+        cartItems.innerHTML = html;
 
-
-        cartTotalBox.textContent =
+        cartTotal.textContent =
             `Total: ₹${total}`;
     }
 
 
     /* =====================================================
-       PRODUCT INPUT EVENTS
+       PRODUCT INPUT CHANGE
     ===================================================== */
 
-    productInputs.forEach(input => {
+    document
+        .querySelectorAll(".product-qty")
+        .forEach(function (input) {
 
-        input.addEventListener(
-            "input",
-            updateCart
-        );
+            input.addEventListener(
+                "input",
+                updateCart
+            );
 
-        input.addEventListener(
-            "change",
-            updateCart
-        );
+            input.addEventListener(
+                "change",
+                updateCart
+            );
 
-    });
+        });
 
 
     /* =====================================================
-       CART BUTTONS
+       CART PLUS / MINUS / REMOVE
     ===================================================== */
 
     document.addEventListener(
         "click",
-        event => {
+        function (event) {
 
             const button =
                 event.target.closest(
@@ -335,10 +309,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             let quantity =
-                Number(input.value) || 0;
+                parseInt(input.value, 10) || 0;
 
-
-            /* PLUS */
 
             if (
                 button.classList.contains(
@@ -352,8 +324,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             }
 
-
-            /* MINUS */
 
             if (
                 button.classList.contains(
@@ -369,8 +339,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             }
 
-
-            /* REMOVE */
 
             if (
                 button.classList.contains(
@@ -393,53 +361,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       PLACE ORDER
+       ORDER SUBMISSION
     ===================================================== */
 
     if (orderForm) {
 
         orderForm.addEventListener(
             "submit",
-            async event => {
+            async function (event) {
 
                 event.preventDefault();
 
 
                 /* -----------------------------------------
-                   CUSTOMER NAME
+                   GET CUSTOMER NAME
                 ----------------------------------------- */
 
-                const customerNameInput =
+                const customerNameElement =
                     document.getElementById(
                         "customerName"
                     );
 
 
                 /* -----------------------------------------
-                   PHONE
+                   GET PHONE
                 ----------------------------------------- */
 
-                const phoneInput =
+                const phoneElement =
                     document.getElementById(
                         "phone"
                     );
 
 
                 /* -----------------------------------------
-                   ADDRESS
+                   GET ADDRESS
                 ----------------------------------------- */
 
-                const addressInput =
+                const addressElement =
                     document.getElementById(
                         "address"
                     );
 
 
                 /* -----------------------------------------
-                   DELIVERY DATE
+                   GET DELIVERY DATE
                 ----------------------------------------- */
 
-                const deliveryDateInput =
+                const deliveryDateElement =
                     document.getElementById(
                         "deliveryDate"
                     );
@@ -450,83 +418,66 @@ document.addEventListener("DOMContentLoaded", () => {
                 ----------------------------------------- */
 
                 const customerName =
-                    customerNameInput
-                        ? customerNameInput.value.trim()
+                    customerNameElement
+                        ? customerNameElement.value.trim()
                         : "";
 
 
                 const phone =
-                    phoneInput
-                        ? phoneInput.value.trim()
+                    phoneElement
+                        ? phoneElement.value.trim()
                         : "";
 
 
                 const address =
-                    addressInput
-                        ? addressInput.value.trim()
+                    addressElement
+                        ? addressElement.value.trim()
                         : "";
 
 
                 const deliveryDate =
-                    deliveryDateInput
-                        ? deliveryDateInput.value
+                    deliveryDateElement
+                        ? deliveryDateElement.value.trim()
                         : "";
 
 
                 /* -----------------------------------------
-                   VALIDATION
+                   DEBUG
+                ----------------------------------------- */
+
+                console.log(
+                    "CUSTOMER NAME:",
+                    customerName
+                );
+
+                console.log(
+                    "PHONE:",
+                    phone
+                );
+
+                console.log(
+                    "ADDRESS:",
+                    address
+                );
+
+                console.log(
+                    "DELIVERY DATE:",
+                    deliveryDate
+                );
+
+
+                /* -----------------------------------------
+                   VALIDATE CUSTOMER NAME
                 ----------------------------------------- */
 
                 if (!customerName) {
 
                     alert(
-                        "Please enter your name."
+                        "Please enter your Customer Name."
                     );
 
-                    if (customerNameInput) {
-                        customerNameInput.focus();
-                    }
-
-                    return;
-                }
-
-
-                if (!phone) {
-
-                    alert(
-                        "Please enter your phone number."
-                    );
-
-                    if (phoneInput) {
-                        phoneInput.focus();
-                    }
-
-                    return;
-                }
-
-
-                if (!address) {
-
-                    alert(
-                        "Please enter your delivery address."
-                    );
-
-                    if (addressInput) {
-                        addressInput.focus();
-                    }
-
-                    return;
-                }
-
-
-                if (!deliveryDate) {
-
-                    alert(
-                        "Please select delivery date."
-                    );
-
-                    if (deliveryDateInput) {
-                        deliveryDateInput.focus();
+                    if (customerNameElement) {
+                        customerNameElement.focus();
                     }
 
                     return;
@@ -534,7 +485,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                 /* -----------------------------------------
-                   CART
+                   VALIDATE PHONE
+                ----------------------------------------- */
+
+                if (!phone) {
+
+                    alert(
+                        "Please enter your Phone Number."
+                    );
+
+                    if (phoneElement) {
+                        phoneElement.focus();
+                    }
+
+                    return;
+                }
+
+
+                /* -----------------------------------------
+                   VALIDATE ADDRESS
+                ----------------------------------------- */
+
+                if (!address) {
+
+                    alert(
+                        "Please enter your Delivery Address."
+                    );
+
+                    if (addressElement) {
+                        addressElement.focus();
+                    }
+
+                    return;
+                }
+
+
+                /* -----------------------------------------
+                   VALIDATE DELIVERY DATE
+                ----------------------------------------- */
+
+                if (!deliveryDate) {
+
+                    alert(
+                        "Please select your Delivery Date."
+                    );
+
+                    if (deliveryDateElement) {
+                        deliveryDateElement.focus();
+                    }
+
+                    return;
+                }
+
+
+                /* -----------------------------------------
+                   GET CART
                 ----------------------------------------- */
 
                 const items =
@@ -552,6 +557,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                 /* -----------------------------------------
+                   PREPARE ORDER DATA
+                ----------------------------------------- */
+
+                const orderData = {
+
+                    customerName:
+                        customerName,
+
+                    phone:
+                        phone,
+
+                    address:
+                        address,
+
+                    items:
+                        items,
+
+                    deliveryDate:
+                        deliveryDate
+
+                };
+
+
+                console.log(
+                    "ORDER DATA SENT TO SERVER:",
+                    orderData
+                );
+
+
+                /* -----------------------------------------
                    DISABLE BUTTON
                 ----------------------------------------- */
 
@@ -562,44 +597,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     submitButton.textContent =
                         "Placing Order...";
+
                 }
 
 
                 try {
 
                     /* -------------------------------------
-                       IMPORTANT:
-                       CUSTOMER NAME IS EXPLICITLY SENT
-                    ------------------------------------- */
-
-                    const orderData = {
-
-                        customerName:
-                            customerName,
-
-                        phone:
-                            phone,
-
-                        address:
-                            address,
-
-                        items:
-                            items,
-
-                        deliveryDate:
-                            deliveryDate
-
-                    };
-
-
-                    console.log(
-                        "Sending order:",
-                        orderData
-                    );
-
-
-                    /* -------------------------------------
-                       SEND TO SERVER
+                       SEND ORDER
                     ------------------------------------- */
 
                     const response =
@@ -610,11 +615,13 @@ document.addEventListener("DOMContentLoaded", () => {
                                 method: "POST",
 
                                 headers: {
+
                                     "Content-Type":
                                         "application/json",
 
                                     "Accept":
                                         "application/json"
+
                                 },
 
                                 body:
@@ -626,35 +633,55 @@ document.addEventListener("DOMContentLoaded", () => {
                         );
 
 
-                    const rawText =
+                    const responseText =
                         await response.text();
 
 
-                    let data;
+                    console.log(
+                        "SERVER RESPONSE:",
+                        responseText
+                    );
+
+
+                    let result;
+
 
                     try {
 
-                        data =
+                        result =
                             JSON.parse(
-                                rawText
+                                responseText
                             );
 
-                    } catch (jsonError) {
+                    } catch (error) {
 
                         throw new Error(
-                            "Server returned invalid response."
+                            "Server returned an invalid response."
+                        );
+
+                    }
+
+
+                    /* -------------------------------------
+                       SERVER ERROR
+                    ------------------------------------- */
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            result.message ||
+                            "Unable to place order."
                         );
 
                     }
 
 
                     if (
-                        !response.ok ||
-                        data.success === false
+                        result.success === false
                     ) {
 
                         throw new Error(
-                            data.message ||
+                            result.message ||
                             "Unable to place order."
                         );
 
@@ -662,7 +689,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                     /* -------------------------------------
-                       SUCCESS
+                       SHOW SUCCESS
                     ------------------------------------- */
 
                     const successMessage =
@@ -692,7 +719,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (successOrderId) {
 
                         successOrderId.textContent =
-                            data.orderId || "-";
+                            result.orderId || "-";
 
                     }
 
@@ -700,9 +727,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (successTotal) {
 
                         successTotal.textContent =
-                            `₹${Number(
-                                data.total || 0
-                            ).toFixed(2)}`;
+                            "₹" +
+                            Number(
+                                result.total || 0
+                            ).toFixed(2);
 
                     }
 
@@ -710,7 +738,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (successDeliveryDate) {
 
                         successDeliveryDate.textContent =
-                            data.deliveryDate ||
+                            result.deliveryDate ||
                             deliveryDate;
 
                     }
@@ -730,16 +758,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                     /* -------------------------------------
-                       CLEAR PRODUCT QUANTITIES
+                       CLEAR PRODUCTS
                     ------------------------------------- */
 
-                    productInputs.forEach(
-                        input => {
+                    document
+                        .querySelectorAll(".product-qty")
+                        .forEach(function (input) {
 
-                            input.value = 0;
+                            input.value = "0";
 
-                        }
-                    );
+                        });
 
 
                     updateCart();
@@ -749,33 +777,33 @@ document.addEventListener("DOMContentLoaded", () => {
                        CLEAR CUSTOMER FORM
                     ------------------------------------- */
 
-                    if (customerNameInput) {
-                        customerNameInput.value = "";
+                    if (customerNameElement) {
+                        customerNameElement.value = "";
                     }
 
-                    if (phoneInput) {
-                        phoneInput.value = "";
+                    if (phoneElement) {
+                        phoneElement.value = "";
                     }
 
-                    if (addressInput) {
-                        addressInput.value = "";
+                    if (addressElement) {
+                        addressElement.value = "";
                     }
 
-                    if (deliveryDateInput) {
-                        deliveryDateInput.value = "";
+                    if (deliveryDateElement) {
+                        deliveryDateElement.value = "";
                     }
 
 
                     console.log(
-                        "Order placed successfully:",
-                        data
+                        "ORDER SUCCESS:",
+                        result
                     );
 
 
                 } catch (error) {
 
                     console.error(
-                        "Order error:",
+                        "ORDER SUBMISSION ERROR:",
                         error
                     );
 
