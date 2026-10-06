@@ -1,12 +1,19 @@
 require("dotenv").config();
 
 const express = require("express");
-const path = require("path");
 const { Pool } = require("pg");
+const path = require("path");
+
 
 const app = express();
 
-const PORT = Number(process.env.PORT) || 10000;
+
+/* =========================================================
+   PORT
+========================================================= */
+
+const PORT =
+    process.env.PORT || 10000;
 
 
 /* =========================================================
@@ -14,17 +21,26 @@ const PORT = Number(process.env.PORT) || 10000;
 ========================================================= */
 
 if (!process.env.DATABASE_URL) {
-    console.error("DATABASE_URL is missing.");
+
+    console.error(
+        "ERROR: DATABASE_URL is not configured."
+    );
+
 }
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
 
-    ssl: process.env.DATABASE_URL
-        ? {
-            rejectUnauthorized: false
-        }
-        : false
+const pool = new Pool({
+
+    connectionString:
+        process.env.DATABASE_URL,
+
+    ssl:
+        process.env.DATABASE_URL
+            ? {
+                rejectUnauthorized: false
+            }
+            : false
+
 });
 
 
@@ -32,13 +48,22 @@ const pool = new Pool({
    MIDDLEWARE
 ========================================================= */
 
-app.use(express.json());
+app.use(
+    express.json()
+);
+
 
 app.use(
     express.urlencoded({
         extended: true
     })
 );
+
+
+/*
+   Serve all website files
+   from the same folder.
+*/
 
 app.use(
     express.static(
@@ -48,89 +73,262 @@ app.use(
 
 
 /* =========================================================
-   DHANA FOODS OFFICIAL PRICES
+   DHANA FOODS PRODUCT PRICES
 ========================================================= */
 
 const PRODUCT_PRICES = {
 
     "Idli Batter": {
-        "500g": 25,
-        "1kg": 45
+
+        "500g": 20,
+
+        "1kg": 40
+
     },
+
 
     "Dosa Batter": {
-        "500g": 25,
-        "1kg": 45
+
+        "500g": 20,
+
+        "1kg": 40
+
     },
+
 
     "Adai Batter": {
-        "500g": 30,
-        "1kg": 60
+
+        "500g": 40,
+
+        "1kg": 80
+
     },
 
-    "Mappilai Samba": {
-        "500g": 40,
-        "1kg": 80
+
+    "Mappilai Samba Batter": {
+
+        "500g": 60,
+
+        "1kg": 120
+
     },
+
 
     "Appam Batter": {
+
         "500g": 30,
+
         "1kg": 60
+
     },
+
 
     "Millet Batter": {
+
         "500g": 40,
+
         "1kg": 80
+
     },
 
-    "Poongar": {
+
+    "Poonghar Batter": {
+
         "500g": 40,
+
         "1kg": 80
+
     },
 
-    "Karuppu Kavuni": {
+
+    "Karuppu Kavuni Batter": {
+
         "500g": 40,
+
         "1kg": 80
+
     },
+
 
     "Keerai Batter": {
+
         "500g": 40,
+
         "1kg": 80
+
     },
 
-    "Kambu Yasnam": {
+
+    "Kambu Yasnam Batter": {
+
         "500g": 40,
+
         "1kg": 80
+
     },
+
 
     "Ragi Batter": {
+
         "500g": 40,
+
         "1kg": 80
+
     },
 
-    "Karinagaruvai": {
+
+    "Karunguruvai Batter": {
+
         "500g": 40,
+
         "1kg": 80
+
     },
 
-    "Pachai Payiru": {
+
+    "Pachai Payiru Batter": {
+
         "500g": 40,
+
         "1kg": 80
+
     }
 
 };
 
 
 /* =========================================================
-   ALLOWED STATUS
+   PRODUCT NAME ALIASES
+========================================================= */
+
+const PRODUCT_ALIASES = {
+
+    "idli batter":
+        "Idli Batter",
+
+    "dosa batter":
+        "Dosa Batter",
+
+    "adai batter":
+        "Adai Batter",
+
+    "mappilai samba":
+        "Mappilai Samba Batter",
+
+    "mappilai samba batter":
+        "Mappilai Samba Batter",
+
+    "appam batter":
+        "Appam Batter",
+
+    "millet batter":
+        "Millet Batter",
+
+    "poongar":
+        "Poonghar Batter",
+
+    "poongar batter":
+        "Poonghar Batter",
+
+    "poonghar":
+        "Poonghar Batter",
+
+    "poonghar batter":
+        "Poonghar Batter",
+
+    "karupu kavuni":
+        "Karuppu Kavuni Batter",
+
+    "karupu kavuni batter":
+        "Karuppu Kavuni Batter",
+
+    "karuppu kavuni":
+        "Karuppu Kavuni Batter",
+
+    "karuppu kavuni batter":
+        "Karuppu Kavuni Batter",
+
+    "keerai batter":
+        "Keerai Batter",
+
+    "kambu yasnam":
+        "Kambu Yasnam Batter",
+
+    "kambu yasnam batter":
+        "Kambu Yasnam Batter",
+
+    "ragi batter":
+        "Ragi Batter",
+
+    "karinagaruvai":
+        "Karunguruvai Batter",
+
+    "karinagaruvai batter":
+        "Karunguruvai Batter",
+
+    "karunaguvrai":
+        "Karunguruvai Batter",
+
+    "karunaguvrai batter":
+        "Karunguruvai Batter",
+
+    "karunguruvai":
+        "Karunguruvai Batter",
+
+    "karunguruvai batter":
+        "Karunguruvai Batter",
+
+    "pachai payiru":
+        "Pachai Payiru Batter",
+
+    "pachai payiru batter":
+        "Pachai Payiru Batter"
+
+};
+
+
+/* =========================================================
+   NORMALIZE PRODUCT NAME
+========================================================= */
+
+function normalizeProductName(
+    product
+) {
+
+    const original =
+        String(
+            product || ""
+        ).trim();
+
+
+    const key =
+        original.toLowerCase();
+
+
+    return (
+        PRODUCT_ALIASES[key] ||
+        original
+    );
+
+}
+
+
+/* =========================================================
+   ALLOWED ORDER STATUS
 ========================================================= */
 
 const ALLOWED_STATUSES = [
+
     "Pending",
+
     "Preparing",
+
     "Out for Delivery",
+
     "Delivered",
+
     "Cancelled"
+
 ];
 
 
@@ -142,14 +340,17 @@ async function initDatabase() {
 
     try {
 
-        console.log("Checking PostgreSQL database...");
+        console.log(
+            "Checking PostgreSQL database..."
+        );
 
 
-        /* -----------------------------------------------
+        /* =====================================================
            CREATE ORDERS TABLE
-        ----------------------------------------------- */
+        ===================================================== */
 
         await pool.query(`
+
             CREATE TABLE IF NOT EXISTS orders (
 
                 id SERIAL PRIMARY KEY,
@@ -162,7 +363,7 @@ async function initDatabase() {
 
                 items JSONB,
 
-                total NUMERIC(10,2),
+                total NUMERIC,
 
                 delivery_date DATE,
 
@@ -172,125 +373,247 @@ async function initDatabase() {
                     DEFAULT CURRENT_TIMESTAMP
 
             )
+
         `);
 
 
-        /* -----------------------------------------------
-           ADD COLUMNS IF OLD TABLE EXISTS
-        ----------------------------------------------- */
+        /* =====================================================
+           ADD REQUIRED COLUMNS IF OLD TABLE IS BEING USED
+        ===================================================== */
 
         await pool.query(`
+
             ALTER TABLE orders
-            ADD COLUMN IF NOT EXISTS customer_name TEXT
+
+            ADD COLUMN IF NOT EXISTS
+                customer_name TEXT
+
         `);
 
+
         await pool.query(`
+
             ALTER TABLE orders
-            ADD COLUMN IF NOT EXISTS phone TEXT
+
+            ADD COLUMN IF NOT EXISTS
+                phone TEXT
+
         `);
 
+
         await pool.query(`
+
             ALTER TABLE orders
-            ADD COLUMN IF NOT EXISTS address TEXT
+
+            ADD COLUMN IF NOT EXISTS
+                address TEXT
+
         `);
 
+
         await pool.query(`
+
             ALTER TABLE orders
-            ADD COLUMN IF NOT EXISTS items JSONB
+
+            ADD COLUMN IF NOT EXISTS
+                items JSONB
+
         `);
 
+
         await pool.query(`
+
             ALTER TABLE orders
-            ADD COLUMN IF NOT EXISTS total NUMERIC(10,2)
+
+            ADD COLUMN IF NOT EXISTS
+                total NUMERIC
+
         `);
 
+
         await pool.query(`
+
             ALTER TABLE orders
-            ADD COLUMN IF NOT EXISTS delivery_date DATE
+
+            ADD COLUMN IF NOT EXISTS
+                delivery_date DATE
+
         `);
 
+
         await pool.query(`
+
             ALTER TABLE orders
-            ADD COLUMN IF NOT EXISTS status TEXT
+
+            ADD COLUMN IF NOT EXISTS
+                status TEXT
+
         `);
 
+
         await pool.query(`
+
             ALTER TABLE orders
-            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP
+
+            ADD COLUMN IF NOT EXISTS
+                created_at TIMESTAMP
+
         `);
 
 
-        /* -----------------------------------------------
-           OLD LEGACY COLUMNS
-        ----------------------------------------------- */
+        /* =====================================================
+           MAKE LEGACY COLUMNS OPTIONAL
+
+           Older database versions may contain:
+
+           product
+           size
+           quantity
+           price
+
+           They are kept for old orders but are not required
+           for the new order system.
+        ===================================================== */
 
         await pool.query(`
+
             DO $$
+
             BEGIN
 
                 IF EXISTS (
+
                     SELECT 1
+
                     FROM information_schema.columns
+
                     WHERE table_schema = 'public'
+
                     AND table_name = 'orders'
+
                     AND column_name = 'product'
+
                 ) THEN
+
                     ALTER TABLE orders
-                    ALTER COLUMN product DROP NOT NULL;
+
+                    ALTER COLUMN product
+                    DROP NOT NULL;
+
                 END IF;
 
 
                 IF EXISTS (
+
                     SELECT 1
+
                     FROM information_schema.columns
+
                     WHERE table_schema = 'public'
+
                     AND table_name = 'orders'
+
                     AND column_name = 'size'
+
                 ) THEN
+
                     ALTER TABLE orders
-                    ALTER COLUMN size DROP NOT NULL;
+
+                    ALTER COLUMN size
+                    DROP NOT NULL;
+
                 END IF;
 
 
                 IF EXISTS (
+
                     SELECT 1
+
                     FROM information_schema.columns
+
                     WHERE table_schema = 'public'
+
                     AND table_name = 'orders'
+
                     AND column_name = 'quantity'
+
                 ) THEN
+
                     ALTER TABLE orders
-                    ALTER COLUMN quantity DROP NOT NULL;
+
+                    ALTER COLUMN quantity
+                    DROP NOT NULL;
+
                 END IF;
 
 
                 IF EXISTS (
+
                     SELECT 1
+
                     FROM information_schema.columns
+
                     WHERE table_schema = 'public'
+
                     AND table_name = 'orders'
+
                     AND column_name = 'price'
+
                 ) THEN
+
                     ALTER TABLE orders
-                    ALTER COLUMN price DROP NOT NULL;
+
+                    ALTER COLUMN price
+                    DROP NOT NULL;
+
                 END IF;
+
 
             END $$;
+
         `);
 
 
-        /* -----------------------------------------------
-           FIX OLD NULL STATUS
-        ----------------------------------------------- */
+        /* =====================================================
+           FIX NULL STATUS
+        ===================================================== */
 
         await pool.query(`
+
             UPDATE orders
+
             SET status = 'Pending'
+
             WHERE status IS NULL
+
         `);
 
 
-        console.log("PostgreSQL database ready.");
+        /* =====================================================
+           FIX NULL CREATED DATE
+        ===================================================== */
+
+        await pool.query(`
+
+            UPDATE orders
+
+            SET created_at =
+                CURRENT_TIMESTAMP
+
+            WHERE created_at IS NULL
+
+        `);
+
+
+        console.log(
+            "PostgreSQL database ready."
+        );
+
+
+        console.log(
+            "Orders table ready."
+        );
+
 
     } catch (error) {
 
@@ -300,7 +623,9 @@ async function initDatabase() {
         );
 
         throw error;
+
     }
+
 }
 
 
@@ -315,55 +640,47 @@ app.post(
         try {
 
             console.log(
-                "ORDER REQUEST RECEIVED:",
-                JSON.stringify(req.body, null, 2)
+                "New order received:"
             );
 
 
-            /* ---------------------------------------------
-               ACCEPT MULTIPLE FIELD NAMES
-               This fixes old/new script mismatch.
-            --------------------------------------------- */
-
-            const customerName = String(
-                req.body.customerName ||
-                req.body.customer_name ||
-                req.body.name ||
-                req.body.fullName ||
-                ""
-            ).trim();
+            console.log(
+                JSON.stringify(
+                    req.body,
+                    null,
+                    2
+                )
+            );
 
 
-            const phone = String(
-                req.body.phone ||
-                req.body.phoneNumber ||
-                req.body.mobile ||
-                ""
-            ).trim();
+            const {
+
+                customerName,
+
+                phone,
+
+                address,
+
+                items,
+
+                deliveryDate
+
+            } = req.body;
 
 
-            const address = String(
-                req.body.address ||
-                req.body.deliveryAddress ||
-                ""
-            ).trim();
+            /* =================================================
+               CUSTOMER NAME
+            ================================================= */
+
+            const cleanCustomerName =
+                String(
+                    customerName || ""
+                ).trim();
 
 
-            const deliveryDate = String(
-                req.body.deliveryDate ||
-                req.body.delivery_date ||
-                ""
-            ).trim();
-
-
-            const items = req.body.items;
-
-
-            /* ---------------------------------------------
-               CUSTOMER VALIDATION
-            --------------------------------------------- */
-
-            if (!customerName) {
+            if (
+                !cleanCustomerName
+            ) {
 
                 return res.status(400).json({
 
@@ -373,10 +690,23 @@ app.post(
                         "Customer name is required."
 
                 });
+
             }
 
 
-            if (!phone) {
+            /* =================================================
+               PHONE
+            ================================================= */
+
+            const cleanPhone =
+                String(
+                    phone || ""
+                ).trim();
+
+
+            if (
+                !cleanPhone
+            ) {
 
                 return res.status(400).json({
 
@@ -386,10 +716,23 @@ app.post(
                         "Phone number is required."
 
                 });
+
             }
 
 
-            if (!address) {
+            /* =================================================
+               ADDRESS
+            ================================================= */
+
+            const cleanAddress =
+                String(
+                    address || ""
+                ).trim();
+
+
+            if (
+                !cleanAddress
+            ) {
 
                 return res.status(400).json({
 
@@ -399,10 +742,23 @@ app.post(
                         "Delivery address is required."
 
                 });
+
             }
 
 
-            if (!deliveryDate) {
+            /* =================================================
+               DELIVERY DATE
+            ================================================= */
+
+            const cleanDeliveryDate =
+                String(
+                    deliveryDate || ""
+                ).trim();
+
+
+            if (
+                !cleanDeliveryDate
+            ) {
 
                 return res.status(400).json({
 
@@ -412,12 +768,39 @@ app.post(
                         "Delivery date is required."
 
                 });
+
             }
 
 
-            /* ---------------------------------------------
-               ITEMS VALIDATION
-            --------------------------------------------- */
+            /* =================================================
+               CHECK DATE FORMAT
+            ================================================= */
+
+            const datePattern =
+                /^\d{4}-\d{2}-\d{2}$/;
+
+
+            if (
+                !datePattern.test(
+                    cleanDeliveryDate
+                )
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid delivery date."
+
+                });
+
+            }
+
+
+            /* =================================================
+               ITEMS
+            ================================================= */
 
             if (
                 !Array.isArray(items) ||
@@ -432,25 +815,38 @@ app.post(
                         "Please select at least one product."
 
                 });
+
             }
 
 
-            /* ---------------------------------------------
+            /* =================================================
                CALCULATE TOTAL
-            --------------------------------------------- */
+            ================================================= */
 
             let total = 0;
+
 
             const cleanItems = [];
 
 
-            for (const item of items) {
+            for (
+                const item of items
+            ) {
+
+
+                /* =============================================
+                   PRODUCT
+                ============================================= */
 
                 const product =
-                    String(
-                        item.product || ""
-                    ).trim();
+                    normalizeProductName(
+                        item.product
+                    );
 
+
+                /* =============================================
+                   SIZE
+                ============================================= */
 
                 const size =
                     String(
@@ -458,13 +854,25 @@ app.post(
                     ).trim();
 
 
+                /* =============================================
+                   QUANTITY
+                ============================================= */
+
                 const quantity =
                     Number(
                         item.quantity
                     );
 
 
-                if (!PRODUCT_PRICES[product]) {
+                /* =============================================
+                   CHECK PRODUCT
+                ============================================= */
+
+                if (
+                    !PRODUCT_PRICES[
+                        product
+                    ]
+                ) {
 
                     return res.status(400).json({
 
@@ -474,12 +882,18 @@ app.post(
                             `Invalid product: ${product}`
 
                     });
+
                 }
 
 
+                /* =============================================
+                   CHECK SIZE
+                ============================================= */
+
                 if (
-                    PRODUCT_PRICES[product][size]
-                    === undefined
+                    PRODUCT_PRICES[
+                        product
+                    ][size] === undefined
                 ) {
 
                     return res.status(400).json({
@@ -490,11 +904,18 @@ app.post(
                             `Invalid size for ${product}.`
 
                     });
+
                 }
 
 
+                /* =============================================
+                   CHECK QUANTITY
+                ============================================= */
+
                 if (
-                    !Number.isInteger(quantity) ||
+                    !Number.isInteger(
+                        quantity
+                    ) ||
                     quantity <= 0 ||
                     quantity > 100
                 ) {
@@ -507,19 +928,42 @@ app.post(
                             "Invalid quantity."
 
                     });
+
                 }
 
 
-                const price =
-                    PRODUCT_PRICES[product][size];
+                /* =============================================
+                   OFFICIAL PRICE
 
+                   IMPORTANT:
+
+                   Price comes from the server,
+                   not from the browser.
+
+                   This prevents incorrect prices.
+                ============================================= */
+
+                const price =
+                    PRODUCT_PRICES[
+                        product
+                    ][size];
+
+
+                /* =============================================
+                   ITEM TOTAL
+                ============================================= */
 
                 const itemTotal =
                     quantity * price;
 
 
-                total += itemTotal;
+                total +=
+                    itemTotal;
 
+
+                /* =============================================
+                   SAVE CLEAN ITEM
+                ============================================= */
 
                 cleanItems.push({
 
@@ -543,107 +987,159 @@ app.post(
             }
 
 
-            /* ---------------------------------------------
-               SAVE ORDER
-            --------------------------------------------- */
+            /* =================================================
+               INSERT INTO POSTGRESQL
+            ================================================= */
 
             const result =
                 await pool.query(
 
                     `
+
                     INSERT INTO orders
+
                     (
+
                         customer_name,
+
                         phone,
+
                         address,
+
                         items,
+
                         total,
+
                         delivery_date,
+
                         status,
+
                         created_at
+
                     )
 
                     VALUES
+
                     (
+
                         $1,
+
                         $2,
+
                         $3,
+
                         $4,
+
                         $5,
+
                         $6,
+
                         $7,
+
                         CURRENT_TIMESTAMP
+
                     )
 
                     RETURNING
+
                         id,
+
                         customer_name,
+
                         phone,
+
                         address,
+
                         items,
+
                         total,
+
                         delivery_date,
+
                         status,
+
                         created_at
+
                     `,
 
                     [
-                        customerName,
-                        phone,
-                        address,
-                        JSON.stringify(cleanItems),
+
+                        cleanCustomerName,
+
+                        cleanPhone,
+
+                        cleanAddress,
+
+                        JSON.stringify(
+                            cleanItems
+                        ),
+
                         total,
-                        deliveryDate,
+
+                        cleanDeliveryDate,
+
                         "Pending"
+
                     ]
 
                 );
 
 
-            const order =
+            /* =================================================
+               GET SAVED ORDER
+            ================================================= */
+
+            const savedOrder =
                 result.rows[0];
 
 
-            /* ---------------------------------------------
-               SUCCESS RESPONSE
-            --------------------------------------------- */
-
             console.log(
-                "ORDER SAVED:",
-                JSON.stringify(order, null, 2)
+                "Order saved successfully."
             );
 
 
-            return res.status(201).json({
+            console.log(
+                "Order ID:",
+                savedOrder.id
+            );
+
+
+            console.log(
+                "Customer:",
+                savedOrder.customer_name
+            );
+
+
+            console.log(
+                "Delivery Date:",
+                savedOrder.delivery_date
+            );
+
+
+            /* =================================================
+               RESPONSE
+            ================================================= */
+
+            return res.json({
 
                 success: true,
 
                 orderId:
-                    order.id,
-
-                customerName:
-                    order.customer_name,
-
-                phone:
-                    order.phone,
-
-                address:
-                    order.address,
-
-                items:
-                    order.items,
+                    savedOrder.id,
 
                 total:
-                    Number(order.total),
+                    Number(
+                        savedOrder.total
+                    ),
 
                 deliveryDate:
-                    order.delivery_date,
+                    savedOrder.delivery_date,
 
                 status:
-                    order.status,
+                    savedOrder.status,
 
                 createdAt:
-                    order.created_at
+                    savedOrder.created_at
 
             });
 
@@ -651,7 +1147,7 @@ app.post(
         } catch (error) {
 
             console.error(
-                "CREATE ORDER ERROR:",
+                "Create order error:",
                 error
             );
 
@@ -661,7 +1157,6 @@ app.post(
                 success: false,
 
                 message:
-                    error.message ||
                     "Unable to place order."
 
             });
@@ -703,7 +1198,7 @@ app.get(
         } catch (error) {
 
             console.error(
-                "GET ORDERS ERROR:",
+                "Get orders error:",
                 error
             );
 
@@ -716,7 +1211,9 @@ app.get(
                     "Unable to load orders."
 
             });
+
         }
+
     }
 );
 
@@ -731,18 +1228,25 @@ app.get(
 
         try {
 
+            const {
+                id
+            } = req.params;
+
+
             const result =
                 await pool.query(
 
                     `
+
                     SELECT *
 
                     FROM orders
 
                     WHERE id = $1
+
                     `,
 
-                    [req.params.id]
+                    [id]
 
                 );
 
@@ -759,6 +1263,7 @@ app.get(
                         "Order not found."
 
                 });
+
             }
 
 
@@ -775,7 +1280,7 @@ app.get(
         } catch (error) {
 
             console.error(
-                "GET ONE ORDER ERROR:",
+                "Get order error:",
                 error
             );
 
@@ -788,7 +1293,9 @@ app.get(
                     "Unable to load order."
 
             });
+
         }
+
     }
 );
 
@@ -803,9 +1310,19 @@ app.put(
 
         try {
 
-            const status =
-                req.body.status;
+            const {
+                id
+            } = req.params;
 
+
+            const {
+                status
+            } = req.body;
+
+
+            /* =================================================
+               CHECK STATUS
+            ================================================= */
 
             if (
                 !ALLOWED_STATUSES.includes(
@@ -821,13 +1338,19 @@ app.put(
                         "Invalid order status."
 
                 });
+
             }
 
+
+            /* =================================================
+               UPDATE
+            ================================================= */
 
             const result =
                 await pool.query(
 
                     `
+
                     UPDATE orders
 
                     SET status = $1
@@ -835,11 +1358,15 @@ app.put(
                     WHERE id = $2
 
                     RETURNING *
+
                     `,
 
                     [
+
                         status,
-                        req.params.id
+
+                        id
+
                     ]
 
                 );
@@ -857,6 +1384,7 @@ app.put(
                         "Order not found."
 
                 });
+
             }
 
 
@@ -876,7 +1404,7 @@ app.put(
         } catch (error) {
 
             console.error(
-                "UPDATE STATUS ERROR:",
+                "Status update error:",
                 error
             );
 
@@ -889,7 +1417,9 @@ app.put(
                     "Unable to update order status."
 
             });
+
         }
+
     }
 );
 
@@ -904,18 +1434,25 @@ app.delete(
 
         try {
 
+            const {
+                id
+            } = req.params;
+
+
             const result =
                 await pool.query(
 
                     `
+
                     DELETE FROM orders
 
                     WHERE id = $1
 
                     RETURNING id
+
                     `,
 
-                    [req.params.id]
+                    [id]
 
                 );
 
@@ -932,6 +1469,7 @@ app.delete(
                         "Order not found."
 
                 });
+
             }
 
 
@@ -948,7 +1486,7 @@ app.delete(
         } catch (error) {
 
             console.error(
-                "DELETE ORDER ERROR:",
+                "Delete order error:",
                 error
             );
 
@@ -961,7 +1499,9 @@ app.delete(
                     "Unable to delete order."
 
             });
+
         }
+
     }
 );
 
@@ -986,31 +1526,36 @@ app.get(
                 success: true,
 
                 database:
-                    "PostgreSQL",
+                    "connected",
 
-                status:
-                    "OK",
-
-                service:
-                    "Dhana Foods"
+                server:
+                    "running"
 
             });
 
 
         } catch (error) {
 
+            console.error(
+                "Health check error:",
+                error
+            );
+
+
             return res.status(500).json({
 
                 success: false,
 
                 database:
-                    "PostgreSQL",
+                    "disconnected",
 
-                status:
-                    "ERROR"
+                server:
+                    "running"
 
             });
+
         }
+
     }
 );
 
@@ -1027,28 +1572,93 @@ async function startServer() {
 
 
         app.listen(
+
             PORT,
+
             "0.0.0.0",
+
             () => {
 
                 console.log(
                     `Dhana Foods running on port ${PORT}`
                 );
 
+
+                console.log(
+                    `Website: http://localhost:${PORT}`
+                );
+
+
+                console.log(
+                    `Admin: http://localhost:${PORT}/admin.html`
+                );
+
             }
+
         );
 
 
     } catch (error) {
 
         console.error(
-            "SERVER STARTUP FAILED:",
+            "Server startup failed:",
             error
         );
 
+
         process.exit(1);
+
     }
+
 }
 
+
+/* =========================================================
+   SHUTDOWN - SIGINT
+========================================================= */
+
+process.on(
+    "SIGINT",
+    async () => {
+
+        console.log(
+            "Shutting down server..."
+        );
+
+
+        await pool.end();
+
+
+        process.exit(0);
+
+    }
+);
+
+
+/* =========================================================
+   SHUTDOWN - SIGTERM
+========================================================= */
+
+process.on(
+    "SIGTERM",
+    async () => {
+
+        console.log(
+            "Shutting down server..."
+        );
+
+
+        await pool.end();
+
+
+        process.exit(0);
+
+    }
+);
+
+
+/* =========================================================
+   START
+========================================================= */
 
 startServer();
