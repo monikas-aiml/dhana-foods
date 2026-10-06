@@ -1,12 +1,16 @@
 {
   "name": "dhana-foods",
   "version": "1.0.0",
-  "description": "",
-  "main": "script.js",
+  "description": "Dhana Foods batter ordering website",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": [],
+  "keywords": [
+    "dhana-foods",
+    "food-ordering",
+    "batter"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",

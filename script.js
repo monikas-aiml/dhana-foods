@@ -1,1316 +1,1389 @@
 /* =========================================================
-   DHANA FOODS - CUSTOMER ORDER SCRIPT
-========================================================= */
+   DHANA FOODS - CUSTOMER SCRIPT
+   Version 14
+   ========================================================= */
+
+console.log("Dhana Foods customer script v14 loaded.");
+
+/* =========================================================
+   OFFICIAL PRODUCT PRICES
+   ========================================================= */
+
+const PRODUCTS = {
+  "Idli Batter": {
+    "500g": 25,
+    "1kg": 45
+  },
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+  "Dosa Batter": {
+    "500g": 25,
+    "1kg": 45
+  },
 
+  "Adai Batter": {
+    "500g": 40,
+    "1kg": 80
+  },
 
-        /* =====================================================
-           ELEMENTS
-        ===================================================== */
+  "Mappilai Samba Batter": {
+    "500g": 40,
+    "1kg": 80
+  },
 
-        const orderForm =
-            document.getElementById(
-                "orderForm"
-            );
+  "Appam Batter": {
+    "500g": 30,
+    "1kg": 60
+  },
 
+  "Millet Batter": {
+    "500g": 40,
+    "1kg": 80
+  },
 
-        const customerNameInput =
-            document.getElementById(
-                "customerName"
-            );
+  "Poonghar Batter": {
+    "500g": 40,
+    "1kg": 80
+  },
 
+  "Karuppu Kavuni Batter": {
+    "500g": 40,
+    "1kg": 80
+  },
 
-        const phoneInput =
-            document.getElementById(
-                "phone"
-            );
+  "Keerai Batter": {
+    "500g": 40,
+    "1kg": 80
+  },
 
+  "Kambu Yasnam Batter": {
+    "500g": 40,
+    "1kg": 80
+  },
 
-        const addressInput =
-            document.getElementById(
-                "address"
-            );
+  "Ragi Batter": {
+    "500g": 40,
+    "1kg": 80
+  },
 
+  "Karunguruvai Batter": {
+    "500g": 40,
+    "1kg": 80
+  },
 
-        const deliveryDateInput =
-            document.getElementById(
-                "deliveryDate"
-            );
+  "Pachai Payiru Batter": {
+    "500g": 40,
+    "1kg": 80
+  }
+};
 
 
-        const cartItemsElement =
-            document.getElementById(
-                "cartItems"
-            );
+/* =========================================================
+   PRODUCT ALIASES
+   Allows old/alternate spellings to work
+   ========================================================= */
 
+const PRODUCT_ALIASES = {
 
-        const cartTotalElement =
-            document.getElementById(
-                "cartTotal"
-            );
+  "idli": "Idli Batter",
+  "idli batter": "Idli Batter",
 
+  "dosa": "Dosa Batter",
+  "dosa batter": "Dosa Batter",
 
-        const submitButton =
-            document.getElementById(
-                "submitButton"
-            );
+  "adai": "Adai Batter",
+  "adai batter": "Adai Batter",
 
+  "mappilai samba": "Mappilai Samba Batter",
+  "mappilai samba batter": "Mappilai Samba Batter",
 
-        const successMessage =
-            document.getElementById(
-                "successMessage"
-            );
+  "mapillai samba": "Mappilai Samba Batter",
+  "mapillai samba batter": "Mappilai Samba Batter",
 
+  "appam": "Appam Batter",
+  "appam batter": "Appam Batter",
 
-        const successOrderId =
-            document.getElementById(
-                "successOrderId"
-            );
+  "millet": "Millet Batter",
+  "millet batter": "Millet Batter",
 
+  "poonghar": "Poonghar Batter",
+  "poonghar batter": "Poonghar Batter",
 
-        const successTotal =
-            document.getElementById(
-                "successTotal"
-            );
+  "poongar": "Poonghar Batter",
+  "poongar batter": "Poonghar Batter",
 
+  "poongaar": "Poonghar Batter",
+  "poongaar batter": "Poonghar Batter",
 
-        const successDeliveryDate =
-            document.getElementById(
-                "successDeliveryDate"
-            );
+  "karuppu kavuni": "Karuppu Kavuni Batter",
+  "karuppu kavuni batter": "Karuppu Kavuni Batter",
 
+  "karupu kavuni": "Karuppu Kavuni Batter",
+  "karupu kavuni batter": "Karuppu Kavuni Batter",
 
-        /* =====================================================
-           CART
-        ===================================================== */
+  "keerai": "Keerai Batter",
+  "keerai batter": "Keerai Batter",
 
-        let cart = [];
+  "kambu yasnam": "Kambu Yasnam Batter",
+  "kambu yasnam batter": "Kambu Yasnam Batter",
 
+  "ragi": "Ragi Batter",
+  "ragi batter": "Ragi Batter",
 
-        /* =====================================================
-           PRODUCT PRICE LIST
+  "karunguruvai": "Karunguruvai Batter",
+  "karunguruvai batter": "Karunguruvai Batter",
 
-           These prices must match server.js
-        ===================================================== */
+  "karinagaruvai": "Karunguruvai Batter",
+  "karinagaruvai batter": "Karunguruvai Batter",
 
-        const PRODUCT_PRICES = {
+  "karunaguvrai": "Karunguruvai Batter",
+  "karunaguvrai batter": "Karunguruvai Batter",
 
-            "Idli Batter": {
-                "500g": 20,
-                "1kg": 40
-            },
+  "karumburuvai": "Karunguruvai Batter",
+  "karumburuvai batter": "Karunguruvai Batter",
 
-            "Dosa Batter": {
-                "500g": 20,
-                "1kg": 40
-            },
+  "pachai payiru": "Pachai Payiru Batter",
+  "pachai payiru batter": "Pachai Payiru Batter",
 
-            "Adai Batter": {
-                "500g": 40,
-                "1kg": 80
-            },
+  "pachai payir": "Pachai Payiru Batter",
+  "pachai payir batter": "Pachai Payiru Batter"
+};
 
-            "Mappilai Samba Batter": {
-                "500g": 60,
-                "1kg": 120
-            },
 
-            "Appam Batter": {
-                "500g": 30,
-                "1kg": 60
-            },
+/* =========================================================
+   NORMALIZATION
+   ========================================================= */
 
-            "Millet Batter": {
-                "500g": 40,
-                "1kg": 80
-            },
+function normalizeProductKey(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, " ");
+}
 
-            "Poonghar Batter": {
-                "500g": 40,
-                "1kg": 80
-            },
 
-            "Karuppu Kavuni Batter": {
-                "500g": 40,
-                "1kg": 80
-            },
+function normalizeProductName(value) {
+  const original = String(value || "").trim();
 
-            "Keerai Batter": {
-                "500g": 40,
-                "1kg": 80
-            },
+  if (!original) {
+    return "";
+  }
 
-            "Kambu Yasnam Batter": {
-                "500g": 40,
-                "1kg": 80
-            },
+  const key = normalizeProductKey(original);
 
-            "Ragi Batter": {
-                "500g": 40,
-                "1kg": 80
-            },
+  return PRODUCT_ALIASES[key] || original;
+}
 
-            "Karunguruvai Batter": {
-                "500g": 40,
-                "1kg": 80
-            },
 
-            "Pachai Payiru Batter": {
-                "500g": 40,
-                "1kg": 80
-            }
+/* =========================================================
+   CART
+   ========================================================= */
 
-        };
+let cart = [];
 
 
-        /* =====================================================
-           PRODUCT NAME ALIASES
-        ===================================================== */
+/* =========================================================
+   GET ELEMENT
+   ========================================================= */
 
-        const PRODUCT_ALIASES = {
+function getElement(id) {
+  return document.getElementById(id);
+}
 
-            "idli batter":
-                "Idli Batter",
 
-            "dosa batter":
-                "Dosa Batter",
+/* =========================================================
+   FORMAT RUPEES
+   ========================================================= */
 
-            "adai batter":
-                "Adai Batter",
+function formatPrice(value) {
+  return `₹${Number(value || 0).toFixed(0)}`;
+}
 
-            "mappilai samba":
-                "Mappilai Samba Batter",
 
-            "mappilai samba batter":
-                "Mappilai Samba Batter",
+/* =========================================================
+   GET PRICE
+   ========================================================= */
 
-            "appam batter":
-                "Appam Batter",
+function getProductPrice(productName, size) {
 
-            "millet batter":
-                "Millet Batter",
+  const canonicalName = normalizeProductName(productName);
 
-            "poongar":
-                "Poonghar Batter",
+  if (
+    !PRODUCTS[canonicalName] ||
+    !PRODUCTS[canonicalName][size]
+  ) {
+    return null;
+  }
 
-            "poongar batter":
-                "Poonghar Batter",
+  return PRODUCTS[canonicalName][size];
+}
 
-            "poonghar":
-                "Poonghar Batter",
 
-            "poonghar batter":
-                "Poonghar Batter",
+/* =========================================================
+   ADD PRODUCT TO CART
+   ========================================================= */
 
-            "karupu kavuni":
-                "Karuppu Kavuni Batter",
+function addToCart(productName, size, quantity) {
 
-            "karupu kavuni batter":
-                "Karuppu Kavuni Batter",
+  const canonicalName = normalizeProductName(productName);
 
-            "karuppu kavuni":
-                "Karuppu Kavuni Batter",
+  const qty = Number(quantity);
 
-            "karuppu kavuni batter":
-                "Karuppu Kavuni Batter",
+  if (!canonicalName || !size || !qty || qty < 1) {
+    return;
+  }
 
-            "keerai batter":
-                "Keerai Batter",
+  const price = getProductPrice(canonicalName, size);
 
-            "kambu yasnam":
-                "Kambu Yasnam Batter",
+  if (price === null) {
+    alert("Invalid product or size.");
+    return;
+  }
 
-            "kambu yasnam batter":
-                "Kambu Yasnam Batter",
+  const existing = cart.find(
+    item =>
+      item.productName === canonicalName &&
+      item.size === size
+  );
 
-            "ragi batter":
-                "Ragi Batter",
+  if (existing) {
 
-            "karinagaruvai":
-                "Karunguruvai Batter",
+    existing.quantity += qty;
 
-            "karinagaruvai batter":
-                "Karunguruvai Batter",
+  } else {
 
-            "karunaguvrai":
-                "Karunguruvai Batter",
+    cart.push({
+      productName: canonicalName,
+      size: size,
+      quantity: qty,
+      price: price
+    });
 
-            "karunaguvrai batter":
-                "Karunguruvai Batter",
+  }
 
-            "karunguruvai":
-                "Karunguruvai Batter",
+  renderCart();
+}
 
-            "karunguruvai batter":
-                "Karunguruvai Batter",
 
-            "pachai payiru":
-                "Pachai Payiru Batter",
+/* =========================================================
+   REMOVE CART ITEM
+   ========================================================= */
 
-            "pachai payiru batter":
-                "Pachai Payiru Batter"
+function removeFromCart(index) {
 
-        };
+  if (index < 0 || index >= cart.length) {
+    return;
+  }
 
+  cart.splice(index, 1);
 
-        /* =====================================================
-           NORMALIZE PRODUCT NAME
-        ===================================================== */
+  renderCart();
+}
 
-        function normalizeProductName(
-            product
-        ) {
 
-            const original =
-                String(
-                    product || ""
-                ).trim();
+/* =========================================================
+   CHANGE QUANTITY
+   ========================================================= */
 
+function changeCartQuantity(index, change) {
 
-            const key =
-                original.toLowerCase();
+  if (!cart[index]) {
+    return;
+  }
 
+  cart[index].quantity += change;
 
-            return (
-                PRODUCT_ALIASES[key] ||
-                original
-            );
+  if (cart[index].quantity <= 0) {
+    cart.splice(index, 1);
+  }
 
-        }
+  renderCart();
+}
 
 
-        /* =====================================================
-           ESCAPE HTML
-        ===================================================== */
+/* =========================================================
+   CALCULATE CART TOTAL
+   ========================================================= */
 
-        function escapeHtml(
-            value
-        ) {
+function calculateCartTotal() {
 
-            return String(
-                value ?? ""
-            )
-                .replace(
-                    /&/g,
-                    "&amp;"
-                )
-                .replace(
-                    /</g,
-                    "&lt;"
-                )
-                .replace(
-                    />/g,
-                    "&gt;"
-                )
-                .replace(
-                    /"/g,
-                    "&quot;"
-                )
-                .replace(
-                    /'/g,
-                    "&#039;"
-                );
+  return cart.reduce(
+    (total, item) =>
+      total + (Number(item.price) * Number(item.quantity)),
+    0
+  );
+}
 
-        }
 
+/* =========================================================
+   RENDER CART
+   ========================================================= */
 
-        /* =====================================================
-           FIND PRODUCT BUTTONS
-        ===================================================== */
+function renderCart() {
 
-        const productButtons =
-            document.querySelectorAll(
-                ".add-to-cart"
-            );
+  const cartContainer =
+    getElement("cartItems") ||
+    getElement("cart");
 
+  const cartTotal =
+    getElement("cartTotal");
 
-        productButtons.forEach(
-            function (button) {
+  const cartCount =
+    getElement("cartCount");
 
-                button.addEventListener(
-                    "click",
-                    function (event) {
+  if (!cartContainer) {
+    return;
+  }
 
-                        event.preventDefault();
+  if (cart.length === 0) {
 
+    cartContainer.innerHTML = `
+      <div class="empty-cart">
+        🛒 Your cart is empty.
+      </div>
+    `;
 
-                        const product =
-                            normalizeProductName(
-                                button.dataset.product ||
-                                button.getAttribute(
-                                    "data-product"
-                                ) ||
-                                ""
-                            );
+    if (cartTotal) {
+      cartTotal.textContent = "₹0";
+    }
 
+    if (cartCount) {
+      cartCount.textContent = "0";
+    }
 
-                        const size =
-                            button.dataset.size ||
-                            button.getAttribute(
-                                "data-size"
-                            ) ||
-                            "";
+    return;
+  }
 
 
-                        let price =
-                            Number(
-                                button.dataset.price ||
-                                button.getAttribute(
-                                    "data-price"
-                                )
-                            );
+  let html = "";
 
+  cart.forEach((item, index) => {
 
-                        /*
-                           If button doesn't have
-                           a price, get official price
-                           from PRODUCT_PRICES.
-                        */
+    const itemTotal =
+      Number(item.price) * Number(item.quantity);
 
-                        if (
-                            !Number.isFinite(
-                                price
-                            ) ||
-                            price <= 0
-                        ) {
+    html += `
+      <div class="cart-item">
 
-                            if (
-                                PRODUCT_PRICES[
-                                    product
-                                ] &&
-                                PRODUCT_PRICES[
-                                    product
-                                ][size] !== undefined
-                            ) {
+        <div class="cart-item-info">
+          <strong>${escapeHtml(item.productName)}</strong>
+          <span>${escapeHtml(item.size)}</span>
+        </div>
 
-                                price =
-                                    PRODUCT_PRICES[
-                                        product
-                                    ][size];
+        <div class="cart-item-price">
+          ${formatPrice(item.price)}
+        </div>
 
-                            }
+        <div class="cart-quantity">
 
-                        }
+          <button
+            type="button"
+            onclick="changeCartQuantity(${index}, -1)"
+          >
+            −
+          </button>
 
+          <span>${item.quantity}</span>
 
-                        if (
-                            !product ||
-                            !size
-                        ) {
+          <button
+            type="button"
+            onclick="changeCartQuantity(${index}, 1)"
+          >
+            +
+          </button>
 
-                            alert(
-                                "Please select a product and size."
-                            );
+        </div>
 
-                            return;
+        <div class="cart-item-total">
+          ${formatPrice(itemTotal)}
+        </div>
 
-                        }
+        <button
+          type="button"
+          class="remove-cart-item"
+          onclick="removeFromCart(${index})"
+        >
+          ✕
+        </button>
 
+      </div>
+    `;
+  });
 
-                        if (
-                            !Number.isFinite(
-                                price
-                            ) ||
-                            price <= 0
-                        ) {
 
-                            alert(
-                                "Unable to find the product price."
-                            );
+  cartContainer.innerHTML = html;
 
-                            return;
 
-                        }
+  const total = calculateCartTotal();
 
+  if (cartTotal) {
+    cartTotal.textContent = formatPrice(total);
+  }
 
-                        addToCart(
-                            product,
-                            size,
-                            price
-                        );
 
-                    }
-                );
+  if (cartCount) {
 
-            }
-        );
+    const count = cart.reduce(
+      (sum, item) => sum + Number(item.quantity),
+      0
+    );
 
+    cartCount.textContent = String(count);
+  }
+}
 
-        /* =====================================================
-           ADD TO CART
-        ===================================================== */
 
-        function addToCart(
-            product,
-            size,
-            price
-        ) {
+/* =========================================================
+   READ PRODUCT QUANTITY INPUTS
+   ========================================================= */
 
-            const existingItem =
-                cart.find(
-                    function (item) {
+function readProductInputs() {
 
-                        return (
-                            item.product === product &&
-                            item.size === size
-                        );
+  const inputs =
+    document.querySelectorAll(".product-qty");
 
-                    }
-                );
+  inputs.forEach(input => {
 
+    const quantity = Number(input.value || 0);
 
-            if (existingItem) {
+    if (!quantity || quantity < 1) {
+      return;
+    }
 
-                existingItem.quantity += 1;
+    const productName =
+      normalizeProductName(
+        input.dataset.product ||
+        input.dataset.name ||
+        input.getAttribute("data-product") ||
+        ""
+      );
 
-            } else {
+    const size =
+      input.dataset.size ||
+      input.getAttribute("data-size") ||
+      "";
 
-                cart.push({
+    if (!productName || !size) {
+      return;
+    }
 
-                    product:
-                        product,
+    const price =
+      getProductPrice(productName, size);
 
-                    size:
-                        size,
+    if (price === null) {
+      console.warn(
+        "Invalid product input:",
+        productName,
+        size
+      );
+      return;
+    }
 
-                    price:
-                        price,
+    const existing = cart.find(
+      item =>
+        item.productName === productName &&
+        item.size === size
+    );
 
-                    quantity:
-                        1
+    if (existing) {
 
-                });
+      existing.quantity += quantity;
 
-            }
+    } else {
 
-
-            updateCart();
-
-        }
-
-
-        /* =====================================================
-           REMOVE FROM CART
-        ===================================================== */
-
-        function removeFromCart(
-            index
-        ) {
-
-            if (
-                index < 0 ||
-                index >= cart.length
-            ) {
-
-                return;
-
-            }
-
-
-            cart.splice(
-                index,
-                1
-            );
-
-
-            updateCart();
-
-        }
-
-
-        /* =====================================================
-           CHANGE QUANTITY
-        ===================================================== */
-
-        function changeQuantity(
-            index,
-            change
-        ) {
-
-            if (
-                !cart[index]
-            ) {
-
-                return;
-
-            }
-
-
-            cart[index].quantity +=
-                change;
-
-
-            if (
-                cart[index].quantity <= 0
-            ) {
-
-                cart.splice(
-                    index,
-                    1
-                );
-
-            }
-
-
-            updateCart();
-
-        }
-
-
-        /* =====================================================
-           UPDATE CART
-        ===================================================== */
-
-        function updateCart() {
-
-            if (
-                !cartItemsElement ||
-                !cartTotalElement
-            ) {
-
-                return;
-
-            }
-
-
-            if (
-                cart.length === 0
-            ) {
-
-                cartItemsElement.innerHTML =
-                    "No products selected.";
-
-
-                cartTotalElement.textContent =
-                    "Total: ₹0";
-
-
-                return;
-
-            }
-
-
-            let total = 0;
-
-
-            let html = "";
-
-
-            cart.forEach(
-                function (
-                    item,
-                    index
-                ) {
-
-                    const itemTotal =
-                        item.price *
-                        item.quantity;
-
-
-                    total +=
-                        itemTotal;
-
-
-                    html += `
-
-                        <div class="cart-item">
-
-                            <div class="cart-item-info">
-
-                                <strong>
-                                    ${escapeHtml(
-                                        item.product
-                                    )}
-                                </strong>
-
-                                <span>
-                                    ${escapeHtml(
-                                        item.size
-                                    )}
-                                </span>
-
-                                <span>
-                                    ₹${item.price}
-                                    ×
-                                    ${item.quantity}
-                                </span>
-
-                            </div>
-
-
-                            <div class="cart-item-actions">
-
-                                <button
-                                    type="button"
-                                    onclick="changeCartQuantity(
-                                        ${index},
-                                        -1
-                                    )"
-                                >
-                                    −
-                                </button>
-
-
-                                <span>
-                                    ${item.quantity}
-                                </span>
-
-
-                                <button
-                                    type="button"
-                                    onclick="changeCartQuantity(
-                                        ${index},
-                                        1
-                                    )"
-                                >
-                                    +
-                                </button>
-
-
-                                <button
-                                    type="button"
-                                    onclick="removeCartItem(
-                                        ${index}
-                                    )"
-                                >
-                                    ✕
-                                </button>
-
-                            </div>
-
-
-                            <div class="cart-item-total">
-
-                                ₹${itemTotal}
-
-                            </div>
-
-                        </div>
-
-                    `;
-
-                }
-            );
-
-
-            cartItemsElement.innerHTML =
-                html;
-
-
-            cartTotalElement.textContent =
-                `Total: ₹${total}`;
-
-        }
-
-
-        /* =====================================================
-           GLOBAL CART FUNCTIONS
-
-           Needed because cart buttons use onclick.
-        ===================================================== */
-
-        window.changeCartQuantity =
-            function (
-                index,
-                change
-            ) {
-
-                changeQuantity(
-                    index,
-                    change
-                );
-
-            };
-
-
-        window.removeCartItem =
-            function (
-                index
-            ) {
-
-                removeFromCart(
-                    index
-                );
-
-            };
-
-
-        /* =====================================================
-           CALCULATE CART TOTAL
-        ===================================================== */
-
-        function calculateCartTotal() {
-
-            return cart.reduce(
-                function (
-                    total,
-                    item
-                ) {
-
-                    return (
-                        total +
-                        (
-                            Number(
-                                item.price
-                            ) *
-                            Number(
-                                item.quantity
-                            )
-                        )
-                    );
-
-                },
-                0
-            );
-
-        }
-
-
-        /* =====================================================
-           FORM SUBMIT
-        ===================================================== */
-
-        if (
-            orderForm
-        ) {
-
-            orderForm.addEventListener(
-                "submit",
-                async function (event) {
-
-                    event.preventDefault();
-
-
-                    /* =========================================
-                       READ CUSTOMER DETAILS AT SUBMIT TIME
-
-                       IMPORTANT:
-                       We read the current values here,
-                       not when the page loads.
-                    ========================================= */
-
-                    const customerName =
-                        customerNameInput
-                            ? customerNameInput.value.trim()
-                            : "";
-
-
-                    const phone =
-                        phoneInput
-                            ? phoneInput.value.trim()
-                            : "";
-
-
-                    const address =
-                        addressInput
-                            ? addressInput.value.trim()
-                            : "";
-
-
-                    const deliveryDate =
-                        deliveryDateInput
-                            ? deliveryDateInput.value
-                            : "";
-
-
-                    /* =========================================
-                       VALIDATE CUSTOMER NAME
-                    ========================================= */
-
-                    if (
-                        !customerName
-                    ) {
-
-                        alert(
-                            "Please enter your name."
-                        );
-
-
-                        if (
-                            customerNameInput
-                        ) {
-
-                            customerNameInput.focus();
-
-                        }
-
-
-                        return;
-
-                    }
-
-
-                    /* =========================================
-                       VALIDATE PHONE
-                    ========================================= */
-
-                    if (
-                        !phone
-                    ) {
-
-                        alert(
-                            "Please enter your phone number."
-                        );
-
-
-                        if (
-                            phoneInput
-                        ) {
-
-                            phoneInput.focus();
-
-                        }
-
-
-                        return;
-
-                    }
-
-
-                    /* =========================================
-                       VALIDATE ADDRESS
-                    ========================================= */
-
-                    if (
-                        !address
-                    ) {
-
-                        alert(
-                            "Please enter your delivery address."
-                        );
-
-
-                        if (
-                            addressInput
-                        ) {
-
-                            addressInput.focus();
-
-                        }
-
-
-                        return;
-
-                    }
-
-
-                    /* =========================================
-                       VALIDATE DELIVERY DATE
-                    ========================================= */
-
-                    if (
-                        !deliveryDate
-                    ) {
-
-                        alert(
-                            "Please select a delivery date."
-                        );
-
-
-                        if (
-                            deliveryDateInput
-                        ) {
-
-                            deliveryDateInput.focus();
-
-                        }
-
-
-                        return;
-
-                    }
-
-
-                    /* =========================================
-                       VALIDATE CART
-                    ========================================= */
-
-                    if (
-                        cart.length === 0
-                    ) {
-
-                        alert(
-                            "Please select at least one product."
-                        );
-
-
-                        return;
-
-                    }
-
-
-                    /* =========================================
-                       CREATE CLEAN ORDER ITEMS
-                    ========================================= */
-
-                    const items =
-                        cart.map(
-                            function (
-                                item
-                            ) {
-
-                                return {
-
-                                    product:
-                                        normalizeProductName(
-                                            item.product
-                                        ),
-
-                                    size:
-                                        item.size,
-
-                                    quantity:
-                                        Number(
-                                            item.quantity
-                                        ),
-
-                                    price:
-                                        Number(
-                                            item.price
-                                        )
-
-                                };
-
-                            }
-                        );
-
-
-                    /* =========================================
-                       FINAL TOTAL
-
-                       This is only displayed locally.
-                       Server calculates the official total.
-                    ========================================= */
-
-                    const localTotal =
-                        calculateCartTotal();
-
-
-                    /* =========================================
-                       ORDER DATA
-
-                       THIS IS THE IMPORTANT FIX.
-
-                       Customer name and delivery date
-                       are explicitly included here.
-                    ========================================= */
-
-                    const orderData = {
-
-                        customerName:
-                            customerName,
-
-                        phone:
-                            phone,
-
-                        address:
-                            address,
-
-                        items:
-                            items,
-
-                        deliveryDate:
-                            deliveryDate
-
-                    };
-
-
-                    console.log(
-                        "Sending order:",
-                        orderData
-                    );
-
-
-                    /* =========================================
-                       DISABLE BUTTON
-                    ========================================= */
-
-                    if (
-                        submitButton
-                    ) {
-
-                        submitButton.disabled =
-                            true;
-
-
-                        submitButton.textContent =
-                            "Placing Order...";
-
-                    }
-
-
-                    try {
-
-                        /* =====================================
-                           SEND TO SERVER
-                        ===================================== */
-
-                        const response =
-                            await fetch(
-                                "/api/orders",
-                                {
-
-                                    method:
-                                        "POST",
-
-                                    headers: {
-
-                                        "Content-Type":
-                                            "application/json"
-
-                                    },
-
-                                    body:
-                                        JSON.stringify(
-                                            orderData
-                                        )
-
-                                }
-                            );
-
-
-                        /* =====================================
-                           READ SERVER RESPONSE
-                        ===================================== */
-
-                        const data =
-                            await response.json();
-
-
-                        console.log(
-                            "Server response:",
-                            data
-                        );
-
-
-                        /* =====================================
-                           CHECK RESPONSE
-                        ===================================== */
-
-                        if (
-                            !response.ok ||
-                            !data.success
-                        ) {
-
-                            throw new Error(
-
-                                data.message ||
-                                "Unable to place order."
-
-                            );
-
-                        }
-
-
-                        /* =====================================
-                           SUCCESS VALUES
-                        ===================================== */
-
-                        const orderId =
-                            data.orderId;
-
-
-                        const serverTotal =
-                            Number(
-                                data.total
-                            );
-
-
-                        const finalTotal =
-                            Number.isFinite(
-                                serverTotal
-                            )
-                                ? serverTotal
-                                : localTotal;
-
-
-                        const serverDeliveryDate =
-                            data.deliveryDate ||
-                            deliveryDate;
-
-
-                        /* =====================================
-                           SHOW SUCCESS INFORMATION
-                        ===================================== */
-
-                        if (
-                            successOrderId
-                        ) {
-
-                            successOrderId.textContent =
-                                orderId;
-
-                        }
-
-
-                        if (
-                            successTotal
-                        ) {
-
-                            successTotal.textContent =
-                                `₹${finalTotal}`;
-
-                        }
-
-
-                        if (
-                            successDeliveryDate
-                        ) {
-
-                            successDeliveryDate.textContent =
-                                serverDeliveryDate;
-
-                        }
-
-
-                        if (
-                            successMessage
-                        ) {
-
-                            successMessage.style.display =
-                                "block";
-
-                        }
-
-
-                        /* =====================================
-                           RESET CART
-                        ===================================== */
-
-                        cart = [];
-
-
-                        updateCart();
-
-
-                        /* =====================================
-                           RESET FORM
-                        ===================================== */
-
-                        orderForm.reset();
-
-
-                        /* =====================================
-                           SCROLL TO SUCCESS MESSAGE
-                        ===================================== */
-
-                        if (
-                            successMessage
-                        ) {
-
-                            successMessage.scrollIntoView({
-
-                                behavior:
-                                    "smooth",
-
-                                block:
-                                    "center"
-
-                            });
-
-                        }
-
-
-                    } catch (
-                        error
-                    ) {
-
-                        console.error(
-                            "Order error:",
-                            error
-                        );
-
-
-                        alert(
-                            error.message ||
-                            "Unable to place order. Please try again."
-                        );
-
-
-                    } finally {
-
-                        /* =====================================
-                           ENABLE BUTTON AGAIN
-                        ===================================== */
-
-                        if (
-                            submitButton
-                        ) {
-
-                            submitButton.disabled =
-                                false;
-
-
-                            submitButton.textContent =
-                                "Place Order";
-
-                        }
-
-                    }
-
-                }
-            );
-
-        }
-
-
-        /* =====================================================
-           INITIAL CART
-        ===================================================== */
-
-        updateCart();
-
-
-        /* =====================================================
-           MINIMUM DELIVERY DATE
-        ===================================================== */
-
-        if (
-            deliveryDateInput
-        ) {
-
-            /*
-               Prevent selecting a past date.
-            */
-
-            const today =
-                new Date();
-
-
-            const year =
-                today.getFullYear();
-
-
-            const month =
-                String(
-                    today.getMonth() + 1
-                ).padStart(
-                    2,
-                    "0"
-                );
-
-
-            const day =
-                String(
-                    today.getDate()
-                ).padStart(
-                    2,
-                    "0"
-                );
-
-
-            const todayString =
-                `${year}-${month}-${day}`;
-
-
-            deliveryDateInput.min =
-                todayString;
-
-        }
-
+      cart.push({
+        productName,
+        size,
+        quantity,
+        price
+      });
 
     }
+
+    input.value = "";
+  });
+
+
+  renderCart();
+}
+
+
+/* =========================================================
+   CUSTOMER FORM VALUES
+   ========================================================= */
+
+function getCustomerDetails() {
+
+  const customerNameInput =
+    getElement("customerName");
+
+  const phoneInput =
+    getElement("phone");
+
+  const addressInput =
+    getElement("address");
+
+  const deliveryDateInput =
+    getElement("deliveryDate");
+
+
+  const customerName =
+    customerNameInput
+      ? customerNameInput.value.trim()
+      : "";
+
+
+  const phone =
+    phoneInput
+      ? phoneInput.value.trim()
+      : "";
+
+
+  const address =
+    addressInput
+      ? addressInput.value.trim()
+      : "";
+
+
+  const deliveryDate =
+    deliveryDateInput
+      ? deliveryDateInput.value
+      : "";
+
+
+  return {
+    customerName,
+    phone,
+    address,
+    deliveryDate
+  };
+}
+
+
+/* =========================================================
+   VALIDATE CUSTOMER DETAILS
+   ========================================================= */
+
+function validateCustomerDetails(details) {
+
+  if (!details.customerName) {
+
+    alert("Please enter your name.");
+
+    const input = getElement("customerName");
+
+    if (input) {
+      input.focus();
+    }
+
+    return false;
+  }
+
+
+  if (!details.phone) {
+
+    alert("Please enter your phone number.");
+
+    const input = getElement("phone");
+
+    if (input) {
+      input.focus();
+    }
+
+    return false;
+  }
+
+
+  const phoneDigits =
+    details.phone.replace(/\D/g, "");
+
+  if (phoneDigits.length < 10) {
+
+    alert("Please enter a valid phone number.");
+
+    const input = getElement("phone");
+
+    if (input) {
+      input.focus();
+    }
+
+    return false;
+  }
+
+
+  if (!details.address) {
+
+    alert("Please enter your delivery address.");
+
+    const input = getElement("address");
+
+    if (input) {
+      input.focus();
+    }
+
+    return false;
+  }
+
+
+  if (!details.deliveryDate) {
+
+    alert("Please select a delivery date.");
+
+    const input = getElement("deliveryDate");
+
+    if (input) {
+      input.focus();
+    }
+
+    return false;
+  }
+
+
+  return true;
+}
+
+
+/* =========================================================
+   CREATE ORDER
+   ========================================================= */
+
+async function placeOrder(event) {
+
+  if (event) {
+    event.preventDefault();
+  }
+
+
+  /*
+     First read products from the quantity boxes.
+  */
+  readProductInputs();
+
+
+  /*
+     Customer details are read AT SUBMIT TIME.
+     This prevents old/empty values being sent.
+  */
+  const details =
+    getCustomerDetails();
+
+
+  if (!validateCustomerDetails(details)) {
+    return;
+  }
+
+
+  if (cart.length === 0) {
+
+    alert(
+      "Please add at least one product to your cart."
+    );
+
+    return;
+  }
+
+
+  /*
+     Build clean order items.
+     Prices are always taken from the official
+     client-side price table.
+  */
+
+  const items = cart.map(item => {
+
+    const productName =
+      normalizeProductName(item.productName);
+
+    const size =
+      item.size;
+
+    const quantity =
+      Number(item.quantity);
+
+    const price =
+      getProductPrice(productName, size);
+
+
+    return {
+      productName,
+      size,
+      quantity,
+      price
+    };
+
+  });
+
+
+  /*
+     Final safety check.
+  */
+
+  for (const item of items) {
+
+    if (!PRODUCTS[item.productName]) {
+
+      alert(
+        `Invalid product: ${item.productName}`
+      );
+
+      return;
+    }
+
+
+    if (
+      item.size !== "500g" &&
+      item.size !== "1kg"
+    ) {
+
+      alert(
+        `Invalid size for ${item.productName}.`
+      );
+
+      return;
+    }
+
+
+    if (
+      !Number.isInteger(item.quantity) ||
+      item.quantity < 1
+    ) {
+
+      alert(
+        `Invalid quantity for ${item.productName}.`
+      );
+
+      return;
+    }
+
+  }
+
+
+  /*
+     IMPORTANT:
+     No payment information is included.
+     No UPI.
+     No QR.
+     No COD.
+     No payment screenshot.
+  */
+
+  const orderData = {
+
+    customerName:
+      details.customerName,
+
+    phone:
+      details.phone,
+
+    address:
+      details.address,
+
+    items:
+      items,
+
+    deliveryDate:
+      details.deliveryDate
+
+  };
+
+
+  console.log(
+    "Sending order to server:",
+    orderData
+  );
+
+
+  const submitButton =
+    document.querySelector(
+      'button[type="submit"], #placeOrderBtn'
+    );
+
+
+  const originalButtonText =
+    submitButton
+      ? submitButton.textContent
+      : "";
+
+
+  try {
+
+    if (submitButton) {
+
+      submitButton.disabled = true;
+
+      submitButton.textContent =
+        "Placing Order...";
+    }
+
+
+    const response =
+      await fetch("/api/orders", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(orderData)
+
+      });
+
+
+    let result = null;
+
+    try {
+
+      result =
+        await response.json();
+
+    } catch (jsonError) {
+
+      result = null;
+
+    }
+
+
+    console.log(
+      "Server response:",
+      result
+    );
+
+
+    if (!response.ok) {
+
+      const errorMessage =
+        result?.error ||
+        result?.message ||
+        "Unable to place order.";
+
+      throw new Error(errorMessage);
+    }
+
+
+    if (
+      result &&
+      result.success === false
+    ) {
+
+      throw new Error(
+        result.error ||
+        result.message ||
+        "Unable to place order."
+      );
+    }
+
+
+    /*
+       Support different successful response formats.
+    */
+
+    const orderId =
+      result?.order?.id ||
+      result?.id ||
+      result?.orderId ||
+      result?.data?.id ||
+      "Success";
+
+
+    const serverTotal =
+      result?.order?.total ||
+      result?.total ||
+      calculateCartTotal();
+
+
+    showOrderSuccess(
+      orderId,
+      serverTotal,
+      details.deliveryDate
+    );
+
+
+    /*
+       Clear cart after successful order.
+    */
+
+    cart = [];
+
+    renderCart();
+
+
+    /*
+       Clear customer form.
+    */
+
+    clearCustomerForm();
+
+
+  } catch (error) {
+
+    console.error(
+      "Order placement error:",
+      error
+    );
+
+
+    alert(
+      error.message ||
+      "Something went wrong while placing your order."
+    );
+
+
+  } finally {
+
+    if (submitButton) {
+
+      submitButton.disabled = false;
+
+      submitButton.textContent =
+        originalButtonText ||
+        "Place Order";
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   SUCCESS MESSAGE
+   ========================================================= */
+
+function showOrderSuccess(
+  orderId,
+  total,
+  deliveryDate
+) {
+
+  const successBox =
+    getElement("orderSuccess") ||
+    getElement("successMessage") ||
+    getElement("success");
+
+  const formattedDate =
+    formatDeliveryDate(deliveryDate);
+
+
+  const message = `
+    <div class="success-content">
+
+      <div class="success-icon">
+        ✅
+      </div>
+
+      <h2>Order Placed Successfully!</h2>
+
+      <p>
+        Thank you for ordering from
+        <strong>DHANA FOODS</strong>.
+      </p>
+
+      <p>
+        <strong>Order ID:</strong>
+        #${escapeHtml(String(orderId))}
+      </p>
+
+      <p>
+        <strong>Total:</strong>
+        ${formatPrice(total)}
+      </p>
+
+      <p>
+        <strong>Delivery Date:</strong>
+        ${escapeHtml(formattedDate)}
+      </p>
+
+      <p>
+        Our team will prepare your fresh batter.
+      </p>
+
+    </div>
+  `;
+
+
+  if (successBox) {
+
+    successBox.innerHTML = message;
+
+    successBox.style.display = "block";
+
+    successBox.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+
+  } else {
+
+    alert(
+      `Order placed successfully!\n\n` +
+      `Order ID: #${orderId}\n` +
+      `Total: ${formatPrice(total)}\n` +
+      `Delivery Date: ${formattedDate}`
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   FORMAT DELIVERY DATE
+   ========================================================= */
+
+function formatDeliveryDate(dateValue) {
+
+  if (!dateValue) {
+    return "-";
+  }
+
+
+  const date =
+    new Date(`${dateValue}T00:00:00`);
+
+
+  if (Number.isNaN(date.getTime())) {
+    return dateValue;
+  }
+
+
+  return date.toLocaleDateString(
+    "en-IN",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    }
+  );
+}
+
+
+/* =========================================================
+   CLEAR CUSTOMER FORM
+   ========================================================= */
+
+function clearCustomerForm() {
+
+  const form =
+    getElement("orderForm") ||
+    document.querySelector("form");
+
+
+  if (form) {
+
+    /*
+       Do not blindly reset every element if
+       the page contains unrelated forms.
+    */
+
+    const name =
+      getElement("customerName");
+
+    const phone =
+      getElement("phone");
+
+    const address =
+      getElement("address");
+
+    const deliveryDate =
+      getElement("deliveryDate");
+
+
+    if (name) {
+      name.value = "";
+    }
+
+    if (phone) {
+      phone.value = "";
+    }
+
+    if (address) {
+      address.value = "";
+    }
+
+    if (deliveryDate) {
+      deliveryDate.value = "";
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   SET MINIMUM DELIVERY DATE
+   ========================================================= */
+
+function setMinimumDeliveryDate() {
+
+  const deliveryDate =
+    getElement("deliveryDate");
+
+
+  if (!deliveryDate) {
+    return;
+  }
+
+
+  const now =
+    new Date();
+
+
+  const year =
+    now.getFullYear();
+
+
+  const month =
+    String(now.getMonth() + 1)
+      .padStart(2, "0");
+
+
+  const day =
+    String(now.getDate())
+      .padStart(2, "0");
+
+
+  const today =
+    `${year}-${month}-${day}`;
+
+
+  deliveryDate.min = today;
+}
+
+
+/* =========================================================
+   CONNECT FORM
+   ========================================================= */
+
+function connectOrderForm() {
+
+  const form =
+    getElement("orderForm");
+
+
+  if (!form) {
+    console.warn(
+      "orderForm not found."
+    );
+
+    return;
+  }
+
+
+  /*
+     Prevent duplicate event listeners.
+  */
+
+  if (form.dataset.dhanaConnected === "true") {
+    return;
+  }
+
+
+  form.dataset.dhanaConnected = "true";
+
+
+  form.addEventListener(
+    "submit",
+    placeOrder
+  );
+}
+
+
+/* =========================================================
+   CONNECT PRODUCT BUTTONS
+   ========================================================= */
+
+function connectProductButtons() {
+
+  const buttons =
+    document.querySelectorAll(
+      "[data-product][data-size]"
+    );
+
+
+  buttons.forEach(button => {
+
+    /*
+       If the button is already connected,
+       don't connect it again.
+    */
+
+    if (
+      button.dataset.dhanaConnected === "true"
+    ) {
+      return;
+    }
+
+
+    /*
+       Only automatically handle buttons
+       that look like Add-to-cart buttons.
+    */
+
+    const text =
+      String(button.textContent || "")
+        .toLowerCase();
+
+
+    if (
+      !text.includes("add") &&
+      !text.includes("cart")
+    ) {
+      return;
+    }
+
+
+    button.dataset.dhanaConnected = "true";
+
+
+    button.addEventListener(
+      "click",
+      function(event) {
+
+        event.preventDefault();
+
+
+        const productName =
+          normalizeProductName(
+            button.dataset.product
+          );
+
+
+        const size =
+          button.dataset.size;
+
+
+        const quantity =
+          Number(
+            button.dataset.quantity || 1
+          );
+
+
+        addToCart(
+          productName,
+          size,
+          quantity
+        );
+
+      }
+    );
+
+  });
+
+}
+
+
+/* =========================================================
+   UPDATE PRODUCT PRICE DISPLAY
+   ========================================================= */
+
+function updatePriceDisplays() {
+
+  /*
+     Supports elements such as:
+
+     data-product="Idli Batter"
+     data-size="500g"
+
+     or
+
+     data-product="Idli Batter"
+     data-size="1kg"
+  */
+
+  const elements =
+    document.querySelectorAll(
+      "[data-product][data-size][data-price]"
+    );
+
+
+  elements.forEach(element => {
+
+    const productName =
+      normalizeProductName(
+        element.dataset.product
+      );
+
+
+    const size =
+      element.dataset.size;
+
+
+    const price =
+      getProductPrice(
+        productName,
+        size
+      );
+
+
+    if (price !== null) {
+
+      element.textContent =
+        formatPrice(price);
+
+    }
+
+  });
+
+}
+
+
+/* =========================================================
+   GLOBAL FUNCTIONS
+   ========================================================= */
+
+window.addToCart =
+  addToCart;
+
+window.removeFromCart =
+  removeFromCart;
+
+window.changeCartQuantity =
+  changeCartQuantity;
+
+window.placeOrder =
+  placeOrder;
+
+window.renderCart =
+  renderCart;
+
+
+/* =========================================================
+   PAGE LOAD
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    console.log(
+      "DHANA FOODS customer page ready."
+    );
+
+
+    setMinimumDeliveryDate();
+
+    connectOrderForm();
+
+    connectProductButtons();
+
+    updatePriceDisplays();
+
+    renderCart();
+
+  }
 );
